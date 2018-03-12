@@ -1,3 +1,8 @@
 
 /target
 **/*.rs.bk
+**/*.swp
+**/*.swo
+/blockchain
+*.log
+hosts.cache
