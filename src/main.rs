@@ -1,29 +1,24 @@
 #![feature(ptr_internals)]
+#![feature(plugin)]
+#![plugin(rocket_codegen)]
+
 extern crate libc;
+extern crate rocket;
 mod bitprim;
 use bitprim::Bitprim;
 use std::{thread, time, sync};
+use rocket::State;
+
+#[cfg(test)] mod tests;
+
+#[get("/")]
+fn hello(node: State<bitprim::Bitprim>) -> String {
+	format!("{:?}", node.last_height())
+}
 
 fn main() {
-	let bitprim = sync::Arc::new(
-		Bitprim::new("/home/nubis/btc-testnet.cfg",
-			&std::io::stdout(), &std::io::stderr())
-	);
+  let bitprim = Bitprim::new("/home/nubis/btc-testnet.cfg",
+    &std::io::stdout(), &std::io::stderr());
 	
-	let handles : Vec<thread::JoinHandle<()>> = (0..3).map(|tn|{
-		let prim = bitprim.clone();
-		thread::spawn(move ||{
-			for check in 0..3 {
-				println!("Thread: {}. Check {}. Height {}", tn, check,
-					prim.last_height().expect("Can't get last height"));
-		    thread::sleep(time::Duration::from_millis(10000));
-			}
-		})
-	}).collect();
-
-	for h in handles {
-		h.join().expect("could not join thread");
-	}
-
-	println!("Ok byebye");
+  rocket::ignite().manage(bitprim).mount("/", routes![hello]).launch();
 }

@@ -6,6 +6,9 @@ build = "build.rs"
 
 [dependencies]
 libc = "0.2.0"
+rocket = "0.3.6"
+rocket_codegen = "0.3.6"
+mock_derive = "0.7.0"
 
 [build-dependencies]
 regex = "0.2"
