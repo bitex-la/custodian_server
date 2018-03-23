@@ -5,20 +5,24 @@
 extern crate libc;
 extern crate rocket;
 mod bitprim;
-use bitprim::Bitprim;
-use std::{thread, time, sync};
+mod server_state;
+mod wallet;
 use rocket::State;
+use server_state::ServerState;
 
 #[cfg(test)] mod tests;
 
 #[get("/")]
-fn hello(node: State<bitprim::Bitprim>) -> String {
-	format!("{:?}", node.last_height())
+fn hello(node: State<ServerState>) -> String {
+	//format!("{:?}", node.last_height())
+	format!("{:?}", node.bitprim.get_address_history(
+    "mjQx3W3AcPTC73KiknrGNgt5K5YM7cffrx", 200, 0
+  ))
 }
 
 fn main() {
-  let bitprim = Bitprim::new("/home/nubis/btc-testnet.cfg",
+  let state = ServerState::new("/home/nubis/btc-testnet.cfg",
     &std::io::stdout(), &std::io::stderr());
 	
-  rocket::ignite().manage(bitprim).mount("/", routes![hello]).launch();
+  rocket::ignite().manage(state).mount("/", routes![hello]).launch();
 }

@@ -18,7 +18,6 @@ fn builds_transaction_for_emptying_incoming(){
 fn queries_confirmed_deposits_for_crediting(){
 	// Request:
 	// 	- A wallet id
-
 }
 
 // Address indexing
