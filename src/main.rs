@@ -20,9 +20,9 @@ use std::io::prelude::*;
 
 #[get("/")]
 fn hello(guard: GuardedServerState) -> String {
-	format!("{:?}", guard.state.bitprim.get_address_history(
-    "mjQx3W3AcPTC73KiknrGNgt5K5YM7cffrx", 200, 0
-  ))
+	format!("block: {:?} {:?}",
+    guard.state.bitprim.get_address_history("mjQx3W3AcPTC73KiknrGNgt5K5YM7cffrx", 200, 0),
+    guard.state.bitprim.last_height())
 }
 
 #[get("/stop")]
@@ -35,14 +35,14 @@ fn stop(guard: GuardedServerState) -> String {
 fn main() {
   let mut f = File::create("/dev/null").unwrap();
   let state = ServerState::new("/home/nubis/btc-testnet.cfg", &f, &f);
-	println!("{:?}", state.bitprim.get_address_history(
+	/*println!("{:?}", state.bitprim.get_address_history(
     "mjQx3W3AcPTC73KiknrGNgt5K5YM7cffrx", 200, 100000
-  ));
+  ));*/
 /*
 016F2ABDCC44618ED5A3E1B28067E6BE6B50063C
 "111142189204689714221316322517812810323019010780660"
 */
-  state.graceful_stop();
+  //state.graceful_stop();
   // &std::io::stdout(), &std::io::stderr());
   
   ctrlc::set_handler(move || {

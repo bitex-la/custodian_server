@@ -1,6 +1,6 @@
 use std::os::unix::io::AsRawFd;
 use std::ffi::CString;
-use std::os::raw::{c_char, c_int, c_uint};
+use std::os::raw::{c_char, c_int, c_uint, c_void};
 use libc::{strlen};
 use std::ptr::Unique;
 use std;
@@ -10,10 +10,12 @@ use std::mem;
 use std::str;
 
 pub enum RawExecutor {}
-unsafe impl std::marker::Send for RawExecutor {}
+//unsafe impl std::marker::Send for RawExecutor {}
 
 pub enum RawChain {}
-unsafe impl std::marker::Send for RawChain {}
+//unsafe impl std::marker::Send for RawChain {}
+
+pub type history = *mut c_void;
 
 extern {
   fn executor_construct_fd(path: *const c_char, sout: c_int, serr: c_int)
@@ -24,12 +26,12 @@ extern {
   fn executor_get_chain(exec: &RawExecutor) -> *mut RawChain;
   fn chain_get_last_height(chain: &RawChain, out_heigth: *mut c_uint) -> c_int;
 
-  fn chain_get_history(chain: &RawChain, address: &c_int, limit: c_int,
-    from_height: c_int, out_history: *mut c_int) -> c_int;
+  fn chain_get_history(chain: &mut RawChain, address: &c_int, limit: c_int,
+    from_height: c_int, out_history: *mut history) -> c_int;
 
-	fn chain_history_compact_list_count(history: &c_int) -> i32;
+	fn chain_history_compact_list_count(history: history) -> u64;
 
-	fn chain_history_compact_list_nth(history: &c_int, n: i32, raw_item: &mut c_uint) -> c_int;
+	fn chain_history_compact_list_nth(history: history, n: u64, raw_item: &mut c_uint) -> c_int;
 	fn chain_history_compact_get_point_kind(raw_item: &c_uint) -> u64;
 	fn chain_history_compact_get_height(raw_item: &c_uint) -> u32;
 	fn chain_history_compact_get_value_or_previous_checksum(raw_item: &c_uint) -> u64;
@@ -96,22 +98,15 @@ impl Bitprim {
       chain_payment_address_construct_from_string(c_address.as_ptr())
     };
 
-    let debug_b_address = unsafe{
-      let encoded = chain_payment_address_encoded(&*b_address);
-      if encoded.is_null() { panic!("holy shit was null") }
-      CString::from_raw(encoded)
-    };
-    println!("Debug b address is: {:?}", debug_b_address);
-
 	  let mut history = unsafe{ mem::uninitialized() };
 
 		let result = unsafe{
-			chain_get_history(&*chain, &*b_address, limit, from_height, &mut history)
+			chain_get_history(&mut *chain, &*b_address, limit, from_height, &mut history)
 		};
 
     if result != 0 { return Err(result) }
 
-		let count = unsafe{ chain_history_compact_list_count(&history) };
+		let count = unsafe{ chain_history_compact_list_count(history) };
     println!("Got history has {:?} items", count);
 
 		let mut items = vec![];
@@ -120,7 +115,7 @@ impl Bitprim {
 			let mut raw_item = unsafe{ mem::uninitialized() };
 
 			let result = unsafe {
-				chain_history_compact_list_nth(&history, i as i32, &mut raw_item)
+				chain_history_compact_list_nth(history, i as u64, &mut raw_item)
 			};
 			if result != 0 { return Err(result) }
 
