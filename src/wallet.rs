@@ -1,5 +1,6 @@
+#[derive(Debug)]
 pub struct Wallet {
-  id: String,
-  version: String,
-  addresses: Vec<String>
+  pub id: String,
+  pub version: String,
+  pub addresses: Vec<String>
 }

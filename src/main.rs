@@ -5,7 +5,7 @@
 extern crate libc;
 extern crate rocket;
 extern crate ctrlc;
-mod bitprim;
+extern crate bitprim;
 mod server_state;
 mod wallet;
 use rocket::State;
@@ -15,40 +15,46 @@ use std::time::Duration;
 use std::thread;
 use std::fs::File;
 use std::io::prelude::*;
+use bitprim::{Executor, PaymentAddress};
+use wallet::Wallet;
 
 #[cfg(test)] mod tests;
 
 #[get("/")]
-fn hello(guard: GuardedServerState) -> String {
-	format!("block: {:?} {:?}",
-    guard.state.bitprim.get_address_history("mjQx3W3AcPTC73KiknrGNgt5K5YM7cffrx", 200, 0),
-    guard.state.bitprim.last_height())
+fn hello(state: &ServerState) -> String {
+  let chain = state.executor.get_chain();
+  let mut wallets = state.wallets_lock();
+  wallets.push(Wallet{
+    id: "hello".to_string(),
+    version: "hello".to_string(),
+    addresses: vec!["hello".to_string()]
+  });
+
+  let addr = PaymentAddress::from_str("mqETuaBY9Tiq1asdsehEyQgCHe34SrXQs9");
+  let hist = chain.get_history(addr, 1000, 1).unwrap();
+
+  format!("Block: {:?}. Points: {:?}. Wallets: {:?}",
+          chain.get_last_height().expect("height"),
+          hist.count(),
+          *wallets)
 }
 
 #[get("/stop")]
-fn stop(guard: GuardedServerState) -> String {
-  println!("Ok, I was told to stop.");
-  guard.state.graceful_stop();
-  format!("")
+fn stop(state: &ServerState) -> String {
+  state.graceful_stop();
+  format!("Stopping soon.")
 }
 
 fn main() {
   let mut f = File::create("/dev/null").unwrap();
-  let state = ServerState::new("/home/nubis/btc-testnet.cfg", &f, &f);
-	/*println!("{:?}", state.bitprim.get_address_history(
-    "mjQx3W3AcPTC73KiknrGNgt5K5YM7cffrx", 200, 100000
-  ));*/
-/*
-016F2ABDCC44618ED5A3E1B28067E6BE6B50063C
-"111142189204689714221316322517812810323019010780660"
-*/
-  //state.graceful_stop();
-  // &std::io::stdout(), &std::io::stderr());
+  let state = ServerState::new("./tests/btc-testnet.cfg", &f, &f);
   
   ctrlc::set_handler(move || {
     println!("Do not signal. Stop by visiting /stop");
   }).expect("Error setting Ctrl-C handler");
 	
-  rocket::ignite().manage(state).mount("/", routes![hello, stop]).launch();
+  rocket::ignite()
+    .manage(state)
+    .mount("/", routes![hello, stop]).launch();
 
 }
