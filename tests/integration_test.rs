@@ -1,5 +1,4 @@
-extern crate error_chain;
-extern crate bitprim;
+extern crate custodian_server;
 
 use std::fs::File;
 use std::thread::sleep;
@@ -24,34 +23,23 @@ macro_rules! assert_ok {
   )
 }
 
-fn build_test_executor() -> Result<Executor> {
+fn build_500_blocks_state() -> Result<ServerState> {
   let f = File::create("/dev/null").unwrap();
-  let exec = Executor::new("./tests/btc-testnet.cfg", &f, &f);
-  exec.initchain()?;
-  Ok(exec)
-}
-
-fn build_500_blocks_executor() -> Result<Executor> {
-  let exec = build_test_executor()?;
-  exec.run_wait()?;
-  while exec.get_chain().get_last_height()? < 500 {
+  let state = ServerState::new("./tests/btc-testnet.cfg", &f, &f)?;
+  while state.executor.get_chain().get_last_height()? < 500 {
     println!("Syncing {:?}", exec.get_chain().get_last_height()?);
     sleep(Duration::new(1,0));
   }
-  Ok(exec)
+  Ok(state)
 }
 
-#[test]
-fn it_has_a_version(){
-    assert_eq!(&Executor::version(), "\"v0.7.0\"");
-}
-
-assert_ok!{ runs_500_blocks_sync {
-    let exec = build_500_blocks_executor()?;
-    exec.stop()?;
-    while !exec.is_stopped() {
-      sleep(Duration::new(1,0));
-    }
+assert_ok!{ gets_utxos_for_3_wallets {
+  let state = build_500_blocks_state()?;
+  let hd_wallet = HdWallet{
+    id: "incoming",
+    version: "1"
+  };
+  let wallets = state.wallets_lock();
 }}
 
 assert_ok!{ runs_500_blocks_async {

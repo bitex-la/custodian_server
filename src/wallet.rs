@@ -33,11 +33,11 @@ impl Wallet for PlainWallet {
 }
 
 #[derive(Debug)]
-struct HdWallet {
-  id: String,
-  version: String,
-  addresses: Vec<HdAddress>,
-  xpub: String
+pub struct HdWallet {
+  pub id: String,
+  pub version: String,
+  pub addresses: Vec<HdAddress>,
+  pub xpub: String
 }
 
 pub struct HdUtxo {

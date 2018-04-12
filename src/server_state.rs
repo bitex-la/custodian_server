@@ -1,7 +1,9 @@
 use bitprim::Executor;
+use bitprim::errors::*;
 use bitprim::executor::executor_destruct;
 use std::os::unix::io::AsRawFd;
 use std::sync::atomic::{AtomicBool, Ordering};
+use std::collections::HashMap;
 use rocket::http::Status;
 use rocket::request::{self, FromRequest, Request};
 use std::process;
@@ -12,20 +14,20 @@ use wallet::Wallet;
 
 pub struct ServerState {
   pub executor: Executor,
-  wallets: Mutex<Vec<Wallet>>,
+  wallets: Mutex<HashMap<String, Box<Wallet>>>,
   stopping: AtomicBool
 }
 
 impl ServerState {
-  pub fn new<O,E>(config_path: &str, out: &O, err: &E) -> Self
+  pub fn new<O,E>(config_path: &str, out: &O, err: &E) -> Result<Self>
     where O: AsRawFd, E: AsRawFd
   {
     let exec = Executor::new(config_path, out, err);
-    let _init = exec.initchain();
-    let _run = exec.run_wait();
+    exec.initchain()?;
+    exec.run_wait()?;
     Self{
       executor: exec,
-      wallets: Mutex::new(vec![]),
+      wallets: Mutex::new(HashMap::new()),
       stopping: AtomicBool::new(false)
     }
   }

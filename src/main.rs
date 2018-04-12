@@ -33,14 +33,11 @@ fn hello(state: &ServerState) -> String {
           hist.count(),
           *wallets)
 }
-
-#[post("/plain_wallets")]
-fn add_plain_wallet(state: &ServerState) {
+/*
+#[post("/wallets", format = "application/json", data = "wallet")]
+fn create_plain_wallet(state: &ServerState) {
 }
-
-#[post("/hd_wallets")]
-fn add_plain_wallet(state: &ServerState) {
-}
+*/
 
 #[get("/stop")]
 fn stop(state: &ServerState) -> String {
@@ -49,8 +46,11 @@ fn stop(state: &ServerState) -> String {
 }
 
 fn main() {
-  let f = File::create("/dev/null").unwrap();
-  let state = ServerState::new("./tests/btc-testnet.cfg", &f, &f);
+  let f = File::create("/dev/null")
+    .expect("/dev/null not available");
+
+  let state = ServerState::new("./tests/btc-testnet.cfg", &f, &f)
+    .expect("Error creating State");
   
   ctrlc::set_handler(move || {
     println!("Do not signal. Stop by visiting /stop");
@@ -58,6 +58,6 @@ fn main() {
 	
   rocket::ignite()
     .manage(state)
-    .mount("/", routes![hello, stop]).launch();
-
+    .mount("/", routes![hello, stop])
+    .launch();
 }
