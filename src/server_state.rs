@@ -1,14 +1,12 @@
-use bitprim::{Executor, PaymentAddress};
+use bitprim::Executor;
 use bitprim::executor::executor_destruct;
 use std::os::unix::io::AsRawFd;
-use std::sync::atomic::{ATOMIC_BOOL_INIT, AtomicBool, Ordering};
+use std::sync::atomic::{AtomicBool, Ordering};
 use rocket::http::Status;
 use rocket::request::{self, FromRequest, Request};
 use std::process;
 use rocket::outcome::Outcome;
 use rocket::State;
-use std::clone::Clone;
-use std::ops::{Deref, DerefMut};
 use std::sync::{Mutex, MutexGuard};
 use wallet::Wallet;
 
@@ -33,7 +31,7 @@ impl ServerState {
   }
 
   pub fn wallets_lock(&self) -> MutexGuard<Vec<Wallet>> {
-    self.0.wallets.lock().unwrap()
+    self.wallets.lock().unwrap()
   }
 
   pub fn graceful_stop(&self){

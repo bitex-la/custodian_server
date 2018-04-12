@@ -8,14 +8,9 @@ extern crate ctrlc;
 extern crate bitprim;
 mod server_state;
 mod wallet;
-use rocket::State;
-use server_state::{GuardedServerState, ServerState};
-use std::sync::atomic::{ATOMIC_BOOL_INIT, AtomicBool, Ordering};
-use std::time::Duration;
-use std::thread;
+use server_state::ServerState;
 use std::fs::File;
-use std::io::prelude::*;
-use bitprim::{Executor, PaymentAddress};
+use bitprim::PaymentAddress;
 use wallet::Wallet;
 
 #[cfg(test)] mod tests;
@@ -24,7 +19,7 @@ use wallet::Wallet;
 fn hello(state: &ServerState) -> String {
   let chain = state.executor.get_chain();
   let mut wallets = state.wallets_lock();
-  wallets.push(Wallet{
+  wallets.push(Wallet::Legacy{
     id: "hello".to_string(),
     version: "hello".to_string(),
     addresses: vec!["hello".to_string()]
@@ -39,6 +34,14 @@ fn hello(state: &ServerState) -> String {
           *wallets)
 }
 
+#[post("/plain_wallets")]
+fn add_plain_wallet(state: &ServerState) {
+}
+
+#[post("/hd_wallets")]
+fn add_plain_wallet(state: &ServerState) {
+}
+
 #[get("/stop")]
 fn stop(state: &ServerState) -> String {
   state.graceful_stop();
@@ -46,7 +49,7 @@ fn stop(state: &ServerState) -> String {
 }
 
 fn main() {
-  let mut f = File::create("/dev/null").unwrap();
+  let f = File::create("/dev/null").unwrap();
   let state = ServerState::new("./tests/btc-testnet.cfg", &f, &f);
   
   ctrlc::set_handler(move || {
