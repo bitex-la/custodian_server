@@ -2,22 +2,22 @@ use rocket::local::Client;
 use rocket::http::Status;
 
 #[test]
-fn builds_transaction_for_emptying_incoming(){
-	// Request:
-	// 	- A wallet id (will return 404 if not found)
-	// 	- The quantity of utxos to include. Defaults to 100.
+fn builds_transaction_for_emptying_incoming() {
+    // Request:
+    // 	- A wallet id (will return 404 if not found)
+    // 	- The quantity of utxos to include. Defaults to 100.
 
-	// Result will contain:
-	//	- A reference to the utxo lock.
-	//  - A trezor signable list of inputs/multisig inputs.
-	// 	- A trezor compatible list of transactions
-	//  - The amount to use for the output, minus the fee.
-	//  - The calculated fee.
+    // Result will contain:
+    //	- A reference to the utxo lock.
+    //  - A trezor signable list of inputs/multisig inputs.
+    // 	- A trezor compatible list of transactions
+    //  - The amount to use for the output, minus the fee.
+    //  - The calculated fee.
 }
 
-fn queries_confirmed_deposits_for_crediting(){
-	// Request:
-	// 	- A wallet id
+fn queries_confirmed_deposits_for_crediting() {
+    // Request:
+    // 	- A wallet id
 }
 
 // Address indexing
@@ -34,8 +34,7 @@ fn queries_confirmed_deposits_for_crediting(){
 // show active utxo lock
 // removes an utxo lock
 // lists all utxo locks
-fn unlocks_utxos(){
-}
+fn unlocks_utxos() {}
 
 /*
 fn register_hit(client: &Client) {

@@ -7,7 +7,7 @@ use bitprim::{Executor, ExitCode};
 use bitprim::errors::*;
 use bitprim::transaction::Transaction;
 use bitprim::payment_address::PaymentAddress;
-use std::sync::{Arc,Mutex};
+use std::sync::{Arc, Mutex};
 use std::sync::atomic::{AtomicBool, Ordering};
 
 macro_rules! assert_ok {
@@ -24,13 +24,13 @@ macro_rules! assert_ok {
 }
 
 fn build_500_blocks_state() -> Result<ServerState> {
-  let f = File::create("/dev/null").unwrap();
-  let state = ServerState::new("./tests/btc-testnet.cfg", &f, &f)?;
-  while state.executor.get_chain().get_last_height()? < 500 {
-    println!("Syncing {:?}", exec.get_chain().get_last_height()?);
-    sleep(Duration::new(1,0));
-  }
-  Ok(state)
+    let f = File::create("/dev/null").unwrap();
+    let state = ServerState::new("./tests/btc-testnet.cfg", &f, &f)?;
+    while state.executor.get_chain().get_last_height()? < 500 {
+        println!("Syncing {:?}", exec.get_chain().get_last_height()?);
+        sleep(Duration::new(1, 0));
+    }
+    Ok(state)
 }
 
 assert_ok!{ gets_utxos_for_3_wallets {
@@ -107,4 +107,3 @@ assert_ok!{ explores_incoming_funds_to_address {
 assert_ok!{ explores_utxos_for_address {
 }};
 */
-
