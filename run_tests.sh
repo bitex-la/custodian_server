@@ -9,5 +9,5 @@ then
 else
   echo "Ok all done"
   reset
-  cargo test $1 -- --test-threads=1 --nocapture
+  cargo +nightly test $1 -- --test-threads=1 --nocapture
 fi

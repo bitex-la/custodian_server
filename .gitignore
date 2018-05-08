@@ -5,4 +5,5 @@
 /blockchain
 *.log
 hosts.cache
+tests/btc-testnet-files/*
 rusty-tags.vi

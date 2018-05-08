@@ -1,14 +1,20 @@
+extern crate bitprim;
 extern crate custodian_server;
 
 use std::fs::File;
 use std::thread::sleep;
 use std::time::Duration;
+use std::ops::Deref;
+
 use bitprim::{Executor, ExitCode};
 use bitprim::errors::*;
 use bitprim::transaction::Transaction;
 use bitprim::payment_address::PaymentAddress;
+use bitprim::explorer::OpaqueCollection;
 use std::sync::{Arc, Mutex};
 use std::sync::atomic::{AtomicBool, Ordering};
+use custodian_server::server_state::ServerState;
+use custodian_server::wallet::*;
 
 macro_rules! assert_ok {
   ($name:ident $body:block) => (
@@ -23,11 +29,21 @@ macro_rules! assert_ok {
   )
 }
 
-fn build_500_blocks_state() -> Result<ServerState> {
+fn build_test_executor() -> Result<Executor> {
     let f = File::create("/dev/null").unwrap();
-    let state = ServerState::new("./tests/btc-testnet.cfg", &f, &f)?;
+    let exec = Executor::new("./tests/btc-testnet.cfg", &f, &f);
+    exec.initchain()?;
+    Ok(exec)
+}
+
+fn build_500_blocks_state() -> Result<ServerState<PlainWallet>> {
+    let f = File::create("/dev/null").unwrap();
+    let state: ServerState<PlainWallet> = ServerState::new("./tests/btc-testnet.cfg", &f, &f)?;
     while state.executor.get_chain().get_last_height()? < 500 {
-        println!("Syncing {:?}", exec.get_chain().get_last_height()?);
+        println!(
+            "Syncing {:?}",
+            state.executor.get_chain().get_last_height()?
+        );
         sleep(Duration::new(1, 0));
     }
     Ok(state)
@@ -35,11 +51,20 @@ fn build_500_blocks_state() -> Result<ServerState> {
 
 assert_ok!{ gets_utxos_for_3_wallets {
   let state = build_500_blocks_state()?;
-  let hd_wallet = HdWallet{
-    id: "incoming",
-    version: "1"
+  let hd_wallet = PlainWallet{
+    id: "incoming".to_string(),
+    version: "1".to_string(),
+    addresses: vec!["1".to_string(), "2".to_string(), "3".to_string()]
   };
   let wallets = state.wallets_lock();
+}}
+
+assert_ok!{ runs_500_blocks_sync {
+    let state = build_500_blocks_state()?;
+    state.executor.stop()?;
+    while !state.executor.is_stopped() {
+      sleep(Duration::new(1,0));
+    }
 }}
 
 assert_ok!{ runs_500_blocks_async {
@@ -56,8 +81,8 @@ assert_ok!{ runs_500_blocks_async {
 }}
 
 assert_ok!{ gets_last_height_async {
-    let exec = build_500_blocks_executor()?;
-    exec.run(|exec, _|{
+    let state = build_500_blocks_state()?;
+    state.executor.run(|exec, _|{
       exec.get_chain().fetch_last_height(|_chain, exit, height|{
         println!("Async fetch last height: {}, {:?}", height, exit);
         assert!(height >= 500, "Height was not over 1000");
@@ -66,23 +91,23 @@ assert_ok!{ gets_last_height_async {
 }}
 
 assert_ok!{ gets_earliest_transaction_block {
-  let exec = build_500_blocks_executor()?;
-  let chain = exec.get_chain();
+  let state = build_500_blocks_state()?;
+  let chain = state.executor.get_chain();
   let (block, _) = chain.get_block_by_height(429)?;
   let height = chain.get_block_height(block.hash())?;
   assert!(height == 429);
   assert!(block.hash().to_hex() ==
     "00000000e080223655db52d2c35a37f6aa17a3f2efefa6794fd9831374cff09f");
-  assert!(block.transaction_count() == 49);
+  assert!(block.deref().len() == 49);
 }}
 
 assert_ok!{ fetches_earliest_transaction_block {
-  let exec = build_500_blocks_executor()?;
-  let chain = exec.get_chain();
+  let state = build_500_blocks_state()?;
+  let chain = state.executor.get_chain();
   chain.fetch_block_by_height(429, |new_chain, _, block, _height|{
     assert!(block.hash().to_hex() ==
       "00000000e080223655db52d2c35a37f6aa17a3f2efefa6794fd9831374cff09f");
-    assert!(block.transaction_count() == 49);
+    assert!(block.len() == 49);
     new_chain.fetch_block_height(block.hash(), |_, _, height:u64|{
       assert!(height == 429);
     });
@@ -90,13 +115,13 @@ assert_ok!{ fetches_earliest_transaction_block {
 }}
 
 assert_ok!{ gets_unspents_for_an_address {
-  let exec = build_500_blocks_executor()?;
-  let chain = exec.get_chain();
+  let state = build_500_blocks_state()?;
+  let chain = state.executor.get_chain();
   let addr = PaymentAddress::from_str("mqETuaBY9Tiq1asdsehEyQgCHe34SrXQs9");
   let hist = chain.get_history(addr, 1000, 1)?;
-  assert!(hist.count() == 2);
-  let first = hist.nth(0);
-  println!("Point kind {:?}", first.get_point_kind());
+  assert!(hist.len() == 2);
+  let first = hist.deref().get(0);
+  println!("Point kind {:?}", first.point_kind());
   println!("Value {:?}", first.get_value_or_previous_checksum());
 }}
 
