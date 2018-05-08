@@ -4,12 +4,12 @@ version = "0.1.0"
 authors = ["nubis <yo@nubis.im>"]
 
 [dependencies]
-libc = "0.2.0"
-rocket = "0.3.6"
-rocket_codegen = "0.3.6"
+libc = "0.2.40"
+rocket = "0.3.10"
+rocket_codegen = "0.3.10"
 mock_derive = "0.7.0"
 ctrlc = "3.1.0"
-bitprim = { path = "/home/nubis/bitprim-rust" }
+bitprim = { path = "/home/werner/bitprim-rust" }
 
 [build-dependencies]
-regex = "0.2"
+regex = "1.0"
