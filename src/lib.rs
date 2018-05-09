@@ -6,7 +6,7 @@ extern crate bitprim;
 extern crate ctrlc;
 extern crate libc;
 extern crate rocket;
-extern crate rocket_contrib;
+#[macro_use] extern crate rocket_contrib;
 #[macro_use] extern crate serde_derive;
 
 pub mod server_state;

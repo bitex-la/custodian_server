@@ -1,1 +1,1 @@
-pub mod wallets;
+pub mod plain_wallets;

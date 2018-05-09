@@ -13,7 +13,7 @@ use wallet::Wallets;
 
 pub struct ServerState {
     pub executor: Executor,
-    wallets: Mutex<Wallets>,
+    pub wallets: Mutex<Wallets>,
     stopping: AtomicBool,
 }
 
