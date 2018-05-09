@@ -6,16 +6,19 @@ extern crate bitprim;
 extern crate ctrlc;
 extern crate libc;
 extern crate rocket;
+extern crate rocket_contrib;
 #[macro_use] extern crate serde_derive;
 
 mod server_state;
 mod wallet;
+mod handlers;
 use server_state::ServerState;
 use std::fs::File;
 use std::ops::DerefMut;
 use bitprim::PaymentAddress;
 use bitprim::explorer::OpaqueCollection;
 use wallet::PlainWallet;
+use handlers::wallets;
 
 #[cfg(test)]
 mod tests;
@@ -58,6 +61,6 @@ fn main() {
 
     rocket::ignite()
         .manage(state)
-        .mount("/", routes![hello_plain_wallet, stop])
+        .mount("/", routes![hello_plain_wallet, wallets::index, stop])
         .launch();
 }
