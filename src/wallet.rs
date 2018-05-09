@@ -149,3 +149,10 @@ pub struct HdAddress {
     pub address: String,
     pub path: Vec<u64>,
 }
+
+#[derive(Debug)]
+pub struct Wallets {
+    pub plain_wallets: Vec<PlainWallet>,
+    pub hd_wallets: Vec<HdWallet>,
+    pub multisig_wallets: Vec<MultisigWallet>
+}

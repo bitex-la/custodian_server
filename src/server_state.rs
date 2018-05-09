@@ -9,16 +9,15 @@ use std::process;
 use rocket::outcome::Outcome;
 use rocket::State;
 use std::sync::{Mutex, MutexGuard};
-use std::marker::Send;
-use wallet::Wallet;
+use wallet::Wallets;
 
-pub struct ServerState<T> {
+pub struct ServerState {
     pub executor: Executor,
-    wallets: Mutex<Vec<T>>,
+    wallets: Mutex<Wallets>,
     stopping: AtomicBool,
 }
 
-impl<T : Wallet> ServerState<T> {
+impl ServerState {
     pub fn new<O, E>(config_path: &str, out: &O, err: &E) -> Result<Self>
     where
         O: AsRawFd,
@@ -29,12 +28,12 @@ impl<T : Wallet> ServerState<T> {
         exec.run_wait()?;
         Ok(Self {
             executor: exec,
-            wallets: Mutex::new(vec![]),
+            wallets: Mutex::new(Wallets{plain_wallets: vec![], hd_wallets: vec![], multisig_wallets: vec![]}),
             stopping: AtomicBool::new(false),
         })
     }
 
-    pub fn wallets_lock(&self) -> MutexGuard<Vec<T>> {
+    pub fn wallets_lock(&self) -> MutexGuard<Wallets> {
         self.wallets.lock().unwrap()
     }
 
@@ -50,12 +49,12 @@ impl<T : Wallet> ServerState<T> {
     }
 }
 
-impl<'a, 'r, T : 'static + Wallet + Send> FromRequest<'a, 'r> for &'r ServerState<T> {
+impl<'a, 'r> FromRequest<'a, 'r> for &'r ServerState {
     type Error = ();
 
     #[inline(always)]
-    fn from_request(request: &'a Request<'r>) -> request::Outcome<&'r ServerState<T>, ()> {
-        let state = request.guard::<State<ServerState<T>>>()?;
+    fn from_request(request: &'a Request<'r>) -> request::Outcome<&'r ServerState, ()> {
+        let state = request.guard::<State<ServerState>>()?;
         if state.stopping.load(Ordering::Relaxed) {
             Outcome::Failure((Status::ServiceUnavailable, ()))
         } else {

@@ -19,10 +19,10 @@ use wallet::PlainWallet;
 mod tests;
 
 #[get("/")]
-fn hello_plain_wallet(state: &ServerState<PlainWallet>) -> String {
+fn hello_plain_wallet(state: &ServerState) -> String {
     let chain = state.executor.get_chain();
     let mut wallets = state.wallets_lock();
-    wallets.deref_mut().push(PlainWallet {
+    wallets.deref_mut().plain_wallets.push(PlainWallet {
         id: "hello".to_string(),
         version: "hello".to_string(),
         addresses: vec!["hello".to_string()],
@@ -40,7 +40,7 @@ fn hello_plain_wallet(state: &ServerState<PlainWallet>) -> String {
 }
 
 #[get("/stop")]
-fn stop_plain_wallet(state: &ServerState<PlainWallet>) -> String {
+fn stop(state: &ServerState) -> String {
     state.graceful_stop();
     format!("Stopping soon.")
 }
@@ -48,7 +48,7 @@ fn stop_plain_wallet(state: &ServerState<PlainWallet>) -> String {
 fn main() {
     let f = File::create("/dev/null").expect("/dev/null not available");
 
-    let state : ServerState<PlainWallet> = ServerState::new("./tests/btc-testnet.cfg", &f, &f).expect("Error creating State");
+    let state : ServerState = ServerState::new("./tests/btc-testnet.cfg", &f, &f).expect("Error creating State");
 
     ctrlc::set_handler(move || {
         println!("Do not signal. Stop by visiting /stop");
@@ -56,6 +56,6 @@ fn main() {
 
     rocket::ignite()
         .manage(state)
-        .mount("/", routes![hello_plain_wallet, stop_plain_wallet])
+        .mount("/", routes![hello_plain_wallet, stop])
         .launch();
 }
