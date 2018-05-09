@@ -6,6 +6,8 @@ extern crate bitprim;
 extern crate ctrlc;
 extern crate libc;
 extern crate rocket;
+#[macro_use] extern crate serde_derive;
+
 mod server_state;
 mod wallet;
 use server_state::ServerState;

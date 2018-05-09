@@ -6,7 +6,7 @@ pub trait Wallet {
     fn get_utxos(&self, exec: &Executor) -> Vec<Self::Utxo>;
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PlainWallet {
     pub id: String,
     pub version: String,
@@ -36,7 +36,7 @@ impl Wallet for PlainWallet {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct HdWallet {
     pub id: String,
     pub version: String,
@@ -69,7 +69,7 @@ impl Wallet for HdWallet {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct MultisigWallet {
     pub id: String,
     pub version: String,
@@ -144,13 +144,13 @@ impl Wallet for MultisigWallet {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct HdAddress {
     pub address: String,
     pub path: Vec<u64>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Wallets {
     pub plain_wallets: Vec<PlainWallet>,
     pub hd_wallets: Vec<HdWallet>,
