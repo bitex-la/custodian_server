@@ -12,38 +12,14 @@ extern crate serde_json;
 #[macro_use] extern crate jsonapi;
 
 mod server_state;
-mod wallet;
 mod handlers;
+mod models;
 use server_state::ServerState;
 use std::fs::File;
-use bitprim::PaymentAddress;
-use bitprim::explorer::OpaqueCollection;
-use wallet::PlainWallet;
 use handlers::wallets;
 
 #[cfg(test)]
 mod tests;
-
-#[get("/")]
-fn hello_plain_wallet(state: &ServerState) -> String {
-    let chain = state.executor.get_chain();
-    let mut wallets = state.wallets_lock();
-    wallets.plain.push(PlainWallet {
-        id: "hello".to_string(),
-        version: "hello".to_string(),
-        addresses: vec!["hello".to_string()],
-    });
-
-    let addr = PaymentAddress::from_str("mqETuaBY9Tiq1asdsehEyQgCHe34SrXQs9");
-    let hist = chain.get_history(addr, 1000, 1).unwrap();
-
-    format!(
-        "Block: {:?}. Points: {:?}. Wallets: {:?}",
-        chain.get_last_height().expect("height"),
-        hist.len(),
-        *wallets
-    )
-}
 
 #[get("/stop")]
 fn stop(state: &ServerState) -> String {
@@ -62,6 +38,6 @@ fn main() {
 
     rocket::ignite()
         .manage(state)
-        .mount("/", routes![hello_plain_wallet, wallets::index, wallets::create, stop])
+        .mount("/", routes![wallets::index, wallets::create, stop])
         .launch();
 }

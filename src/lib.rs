@@ -12,5 +12,5 @@ extern crate serde_json;
 #[macro_use] extern crate jsonapi;
 
 pub mod server_state;
-pub mod wallet;
 pub mod handlers;
+pub mod models;

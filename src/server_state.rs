@@ -9,7 +9,7 @@ use std::process;
 use rocket::outcome::Outcome;
 use rocket::State;
 use std::sync::{Mutex, MutexGuard};
-use wallet::Wallets;
+use models::wallets::Wallets;
 
 pub struct ServerState {
     pub executor: Executor,

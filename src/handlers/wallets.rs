@@ -4,7 +4,7 @@ use jsonapi::model::*;
 use rocket::response::status;
 use rocket::http::Status;
 use server_state::ServerState;
-use wallet::Wallets;
+use models::wallets::Wallets;
 
 #[get("/wallets")]
 pub fn index(state: &ServerState) -> Result<Json<Value>, status::Custom<String>> {
