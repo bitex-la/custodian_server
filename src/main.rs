@@ -6,19 +6,20 @@ extern crate bitprim;
 extern crate ctrlc;
 extern crate libc;
 extern crate rocket;
+extern crate serde_json;
 #[macro_use] extern crate rocket_contrib;
 #[macro_use] extern crate serde_derive;
+#[macro_use] extern crate jsonapi;
 
 mod server_state;
 mod wallet;
 mod handlers;
 use server_state::ServerState;
 use std::fs::File;
-use std::ops::DerefMut;
 use bitprim::PaymentAddress;
 use bitprim::explorer::OpaqueCollection;
 use wallet::PlainWallet;
-use handlers::plain_wallets;
+use handlers::wallets;
 
 #[cfg(test)]
 mod tests;
@@ -27,7 +28,7 @@ mod tests;
 fn hello_plain_wallet(state: &ServerState) -> String {
     let chain = state.executor.get_chain();
     let mut wallets = state.wallets_lock();
-    wallets.deref_mut().plain_wallets.push(PlainWallet {
+    wallets.plain.push(PlainWallet {
         id: "hello".to_string(),
         version: "hello".to_string(),
         addresses: vec!["hello".to_string()],
@@ -61,6 +62,6 @@ fn main() {
 
     rocket::ignite()
         .manage(state)
-        .mount("/", routes![hello_plain_wallet, plain_wallets::index, plain_wallets::create, stop])
+        .mount("/", routes![hello_plain_wallet, wallets::index, wallets::create, stop])
         .launch();
 }

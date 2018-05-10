@@ -28,7 +28,7 @@ impl ServerState {
         exec.run_wait()?;
         Ok(Self {
             executor: exec,
-            wallets: Mutex::new(Wallets{plain_wallets: vec![], hd_wallets: vec![], multisig_wallets: vec![]}),
+            wallets: Mutex::new(Wallets{id: String::new(), plain: vec![], hd: vec![], multisig: vec![]}),
             stopping: AtomicBool::new(false),
         })
     }
