@@ -14,7 +14,8 @@ use bitprim::explorer::OpaqueCollection;
 use std::sync::{Arc, Mutex};
 use std::sync::atomic::{AtomicBool, Ordering};
 use custodian_server::server_state::ServerState;
-use custodian_server::wallet::*;
+use custodian_server::models::*;
+use custodian_server::models::plain_wallet::PlainWallet;
 
 macro_rules! assert_ok {
   ($name:ident $body:block) => (
@@ -36,9 +37,9 @@ fn build_test_executor() -> Result<Executor> {
     Ok(exec)
 }
 
-fn build_500_blocks_state() -> Result<ServerState<PlainWallet>> {
+fn build_500_blocks_state() -> Result<ServerState> {
     let f = File::create("/dev/null").unwrap();
-    let state: ServerState<PlainWallet> = ServerState::new("./tests/btc-testnet.cfg", &f, &f)?;
+    let state: ServerState = ServerState::new("./tests/btc-testnet.cfg", &f, &f)?;
     while state.executor.get_chain().get_last_height()? < 500 {
         println!(
             "Syncing {:?}",
