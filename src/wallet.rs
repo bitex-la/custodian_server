@@ -1,4 +1,5 @@
 use bitprim::executor::Executor;
+use jsonapi::model::*;
 
 pub trait Wallet {
     type Utxo;
@@ -12,6 +13,8 @@ pub struct PlainWallet {
     pub version: String,
     pub addresses: Vec<String>,
 }
+
+jsonapi_model!(PlainWallet; "plain_wallet");
 
 #[derive(Debug)]
 pub struct PlainUtxo {
@@ -36,7 +39,7 @@ impl Wallet for PlainWallet {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HdWallet {
     pub id: String,
     pub version: String,
@@ -69,7 +72,7 @@ impl Wallet for HdWallet {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MultisigWallet {
     pub id: String,
     pub version: String,
@@ -144,15 +147,47 @@ impl Wallet for MultisigWallet {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HdAddress {
     pub address: String,
     pub path: Vec<u64>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Wallets {
-    pub plain_wallets: Vec<PlainWallet>,
-    pub hd_wallets: Vec<HdWallet>,
-    pub multisig_wallets: Vec<MultisigWallet>
+    pub id: String,
+    pub plain: Vec<PlainWallet>,
+    pub hd: Vec<HdWallet>,
+    pub multisig: Vec<MultisigWallet>
+}
+
+jsonapi_model!(Wallets; "wallets");
+
+use std::io::Read;
+use rocket::{Request, Data};
+use rocket::data::{self, FromData};
+use rocket::Outcome::*;
+use rocket::http::Status;
+use serde_json;
+
+impl FromData for Wallets {
+    type Error = String;
+
+    fn from_data(_: &Request, data: Data) -> data::Outcome<Self, String> {
+
+        let mut string_wallets = String::new();
+        if let Err(e) = data.open().read_to_string(&mut string_wallets) {
+            return Failure((Status::InternalServerError, format!("{:?}", e)));
+        }
+
+        let raw_json: JsonApiDocument = match serde_json::from_str(&string_wallets) {
+            Ok(value)  => value,
+            Err(err) => return Failure((Status::BadRequest, format!("{:?}", err)))
+        };
+
+        match Self::from_jsonapi_document(&raw_json) {
+            Ok(wallets) => Success(wallets),
+            Err(err) => return Failure((Status::BadRequest, format!("{:?}", err)))
+        }
+    }
 }
