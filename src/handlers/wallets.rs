@@ -1,3 +1,4 @@
+use std::mem;
 use rocket_contrib::{Json, Value};
 use serde_json::to_value;
 use jsonapi::model::*;
@@ -22,4 +23,16 @@ pub fn create(state: &ServerState, wallets: Wallets) -> Json<Value> {
     state_wallets.hd.extend(wallets.hd);
     state_wallets.multisig.extend(wallets.multisig);
     Json(json!({"status": "ok"}))
+}
+
+#[put("/wallets", format = "application/json", data = "<wallets>")]
+pub fn update(state: &ServerState, wallets: Wallets) -> Result<Json<Value>, status::NotFound<String>> {
+    let mut state_wallets = state.wallets_lock();
+    for wallet in wallets.plain {
+        match state_wallets.plain.iter().position(|w| w.id == wallet.id ) {
+            Some(index) => Some(mem::replace(&mut state_wallets.plain[index], wallet)),
+            None        => None
+        };
+    }
+    Ok(Json(json!({"status": "ok"})))
 }

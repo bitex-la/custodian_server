@@ -38,6 +38,6 @@ fn main() {
 
     rocket::ignite()
         .manage(state)
-        .mount("/", routes![wallets::index, wallets::create, stop])
+        .mount("/", routes![wallets::index, wallets::create, wallets::update, stop])
         .launch();
 }
