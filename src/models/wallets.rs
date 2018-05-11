@@ -1,3 +1,4 @@
+use std::mem;
 use std::io::Read;
 use rocket::{Request, Data};
 use rocket::data::{self, FromData};
@@ -19,6 +20,42 @@ pub struct Wallets {
 }
 
 jsonapi_model!(Wallets; "wallets"; has many plain, hd, multisig);
+
+macro_rules! update_wallet {
+    ( $this:ty, $wallet_type:ty, $wallet_item:expr, $wallets:expr ) => {
+        {
+            let mut not_found_wallet: Option<$wallet_type> = None;
+
+            for wallet in $wallets {
+                match $wallet_item.iter().position(|w| w.id == wallet.id ) {
+                    Some(index) => Some(mem::replace(&mut $wallet_item[index], wallet)),
+                    None        => { not_found_wallet = Some(wallet.clone()); None }
+                };
+            }
+
+            if let Some(wallet) = not_found_wallet {
+                Err(format!("{:?}", wallet))
+            } else {
+                Ok(true)
+            }
+        }
+    };
+}
+
+impl Wallets {
+    pub fn update_plain_wallets(&mut self, plain_wallets: Vec<PlainWallet>) -> Result<bool, String> {
+        update_wallet!(self, PlainWallet, &mut self.plain, plain_wallets)
+    }
+
+    pub fn update_hd_wallets(&mut self, hd_wallets: Vec<HdWallet>) -> Result<bool, String> {
+        update_wallet!(self, HdWallet, &mut self.hd, hd_wallets)
+    }
+
+    pub fn update_multisig_wallets(&mut self, multisig_wallets: Vec<MultisigWallet>) -> Result<bool, String> {
+        update_wallet!(self, MultisigWallet, &mut self.multisig, multisig_wallets)
+    }
+
+}
 
 impl FromData for Wallets {
     type Error = String;
