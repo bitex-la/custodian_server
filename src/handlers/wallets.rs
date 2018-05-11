@@ -27,16 +27,8 @@ pub fn create(state: &ServerState, wallets: Wallets) -> Json<Value> {
 #[put("/wallets", format = "application/json", data = "<wallets>")]
 pub fn update(state: &ServerState, wallets: Wallets) -> Result<Json<Value>, status::NotFound<String>> {
     let mut state_wallets = state.wallets_lock();
-    match state_wallets.update_plain_wallets(wallets.plain) {
-        Ok(_)    => Ok(Json(json!({"status": "ok"}))),
-        Err(err) => Err(status::NotFound(err.to_string()))
-    };
-    match state_wallets.update_hd_wallets(wallets.hd) {
-        Ok(_)    => Ok(Json(json!({"status": "ok"}))),
-        Err(err) => Err(status::NotFound(err.to_string()))
-    };
-    match state_wallets.update_multisig_wallets(wallets.multisig) {
-        Ok(_)    => Ok(Json(json!({"status": "ok"}))),
-        Err(err) => Err(status::NotFound(err.to_string()))
-    }
+    state_wallets.update_plain_wallets(wallets.plain)?;
+    state_wallets.update_hd_wallets(wallets.hd)?;
+    state_wallets.update_multisig_wallets(wallets.multisig)?;
+    Ok(Json(json!({"status": "ok"})))
 }
