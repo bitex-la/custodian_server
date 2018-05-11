@@ -33,12 +33,38 @@ mod wallet_test {
     fn creates_plain_and_hd_wallet() {
         let client = Client::new(rocket()).expect("valid rocket instance");
         let wallets = r#"
-            {"data": 
-                {"type": "wallets", "id": "", "attributes": 
-                    {"plain": [{"id": "1", "version": "90", "addresses": ["uno", "dos"]}], 
-                     "hd": [{"id": "", "version": "2", "addresses": [], "xpub": "123"}], 
-                     "multisig": [] }}}"#;
+            {
+                "data": {
+                    "attributes": {},
+                    "id": "",
+                    "relationships": {
+                        "hd": { "data": [ { "id": "12", "type": "hd_wallet" } ] },
+                        "multisig": { "data": [] },
+                        "plain": { "data": [ { "id": "1", "type": "plain_wallet" } ] }
+                    },
+                    "type": "wallets"
+                },
+                "included": [
+                    {
+                        "attributes": { "addresses": [ "uno", "dos" ], "version": "90" },
+                        "id": "1",
+                        "type": "plain_wallet"
+                    },
+                    {
+                        "attributes": { "addresses": [], "version": "2", "xpub": "123" },
+                        "id": "12",
+                        "type": "hd_wallet"
+                    }
+                ]
+            }"#;
+        let get_wallets = || { client.rocket().state::<ServerState>().unwrap().wallets.lock().unwrap() };
+        let orig_plain_len = get_wallets().plain.len();
+        let orig_hd_len = get_wallets().hd.len();
         let response = client.post("/wallets").header(ContentType::JSON).body(wallets).dispatch();
+        let after_plain_len = get_wallets().plain.len();
+        let after_hd_len = get_wallets().hd.len();
         assert_eq!(response.status(), Status::Ok);
+        assert!(after_plain_len > orig_plain_len);
+        assert!(after_hd_len > orig_hd_len);
     }
 }

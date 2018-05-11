@@ -1,3 +1,10 @@
+use std::io::Read;
+use rocket::{Request, Data};
+use rocket::data::{self, FromData};
+use rocket::Outcome::*;
+use rocket::http::Status;
+use serde_json;
+
 use jsonapi::model::*;
 use models::plain_wallet::PlainWallet;
 use models::hd_wallet::HdWallet;
@@ -11,14 +18,7 @@ pub struct Wallets {
     pub multisig: Vec<MultisigWallet>
 }
 
-jsonapi_model!(Wallets; "wallets");
-
-use std::io::Read;
-use rocket::{Request, Data};
-use rocket::data::{self, FromData};
-use rocket::Outcome::*;
-use rocket::http::Status;
-use serde_json;
+jsonapi_model!(Wallets; "wallets"; has many plain, hd, multisig);
 
 impl FromData for Wallets {
     type Error = String;
