@@ -33,7 +33,11 @@ mod wallet_test {
     fn creates_plain_and_hd_wallet() {
         let client = Client::new(rocket()).expect("valid rocket instance");
         let wallets = r#"
-{"data": {"type": "wallets", "id": "", "attributes": {"plain": [{"id": "1", "version": "90", "addresses": ["uno", "dos"]}], "hd": [{"id": "", "version": "2", "addresses": [], "xpub": "123"}], "multisig": [] }}}"#;
+            {"data": 
+                {"type": "wallets", "id": "", "attributes": 
+                    {"plain": [{"id": "1", "version": "90", "addresses": ["uno", "dos"]}], 
+                     "hd": [{"id": "", "version": "2", "addresses": [], "xpub": "123"}], 
+                     "multisig": [] }}}"#;
         let response = client.post("/wallets").header(ContentType::JSON).body(wallets).dispatch();
         assert_eq!(response.status(), Status::Ok);
     }
