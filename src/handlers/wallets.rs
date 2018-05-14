@@ -18,17 +18,16 @@ pub fn index(state: &ServerState) -> Result<Json<Value>, status::Custom<String>>
 #[post("/wallets", format = "application/json", data = "<wallets>")]
 pub fn create(state: &ServerState, wallets: Wallets) -> Json<Value> {
     let mut state_wallets = state.wallets_lock();
-    state_wallets.plain.extend(wallets.plain);
-    state_wallets.hd.extend(wallets.hd);
-    state_wallets.multisig.extend(wallets.multisig);
+    state_wallets.create(wallets);
     Json(json!({"status": "ok"}))
 }
 
 #[put("/wallets", format = "application/json", data = "<wallets>")]
 pub fn update(state: &ServerState, wallets: Wallets) -> Result<Json<Value>, status::NotFound<String>> {
     let mut state_wallets = state.wallets_lock();
-    state_wallets.update_plain_wallets(wallets.plain)?;
-    state_wallets.update_hd_wallets(wallets.hd)?;
-    state_wallets.update_multisig_wallets(wallets.multisig)?;
-    Ok(Json(json!({"status": "ok"})))
+
+    match state_wallets.update(wallets) {
+        Ok(_)    => Ok(Json(json!({"status": "ok"}))),
+        Err(err) => Err(status::NotFound(err))
+    }
 }
