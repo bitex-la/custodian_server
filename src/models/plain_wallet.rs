@@ -6,7 +6,7 @@ use models::wallet::Wallet;
 pub struct PlainWallet {
     pub id: String,
     pub version: String,
-    pub addresses: Vec<String>,
+    pub addresses: Vec<String>
 }
 
 jsonapi_model!(PlainWallet; "plain_wallet");
@@ -16,7 +16,7 @@ pub struct PlainUtxo {
     pub prev_hash: String,
     pub prev_index: u64,
     pub address: String,
-    pub amount: u64,
+    pub amount: u64
 }
 
 impl Wallet for PlainWallet {

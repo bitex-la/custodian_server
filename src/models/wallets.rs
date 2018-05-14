@@ -22,14 +22,14 @@ pub struct Wallets {
 
 jsonapi_model!(Wallets; "wallets"; has many plain, hd, multisig);
 
-macro_rules! update_wallet {
-    ( $this:ty, $wallet_type:ty, $wallet_item:expr, $wallets:expr ) => {
+macro_rules! find_wallet_and_perform_action {
+    ( $this:ty, $wallet_type:ty, $wallet_item:expr, $wallets:expr, $action:expr ) => {
         {
             let mut not_found_wallet: Option<$wallet_type> = None;
 
             for wallet in $wallets {
                 match $wallet_item.iter().position(|w| w.id == wallet.id ) {
-                    Some(index) => Some(mem::replace(&mut $wallet_item[index], wallet)),
+                    Some(index) => Some($action(index, wallet)),
                     None        => { not_found_wallet = Some(wallet.clone()); None }
                 };
             }
@@ -43,8 +43,29 @@ macro_rules! update_wallet {
     };
 }
 
-impl Wallets {
+macro_rules! update_wallet {
+    ( $this:ty, $wallet_type:ty, $wallet_item:expr, $wallets:expr ) => {
+        {
+            find_wallet_and_perform_action!($this, $wallet_type, $wallet_item, $wallets, |index, wallet| {
+                mem::replace(&mut $wallet_item[index], wallet)
+            })
+        }
+    };
+}
 
+macro_rules! delete_wallet {
+    ( $this:ty, $wallet_type:ty, $wallet_item:expr, $wallets:expr ) => {
+        {
+
+            find_wallet_and_perform_action!($this, $wallet_type, $wallet_item, $wallets, |index, _| {
+                $wallet_item.remove(index);
+                true
+            })
+        }
+    };
+}
+
+impl Wallets {
     pub fn create(&mut self, wallets: Wallets) {
         self.plain.extend(wallets.plain);
         self.hd.extend(wallets.hd);
@@ -55,6 +76,12 @@ impl Wallets {
         update_wallet!(self, PlainWallet, &mut self.plain, wallets.plain)?;
         update_wallet!(self, HdWallet, &mut self.hd, wallets.hd)?;
         update_wallet!(self, MultisigWallet, &mut self.multisig, wallets.multisig)
+    }
+
+    pub fn destroy(&mut self, wallets: Wallets) -> Result<bool, String> {
+        delete_wallet!(self, PlainWallet, &mut self.plain, wallets.plain)?;
+        delete_wallet!(self, HdWallet, &mut self.hd, wallets.hd)?;
+        delete_wallet!(self, MultisigWallet, &mut self.multisig, wallets.multisig)
     }
 }
 

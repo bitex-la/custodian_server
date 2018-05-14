@@ -31,3 +31,13 @@ pub fn update(state: &ServerState, wallets: Wallets) -> Result<Json<Value>, stat
         Err(err) => Err(status::NotFound(err))
     }
 }
+
+#[delete("/wallets", format = "application/json", data = "<wallets>")]
+pub fn destroy(state: &ServerState, wallets: Wallets) -> Result<Json<Value>, status::NotFound<String>> {
+    let mut state_wallets = state.wallets_lock();
+
+    match state_wallets.destroy(wallets) {
+        Ok(_)    => Ok(Json(json!({"status": "ok"}))),
+        Err(err) => Err(status::NotFound(err))
+    }
+}

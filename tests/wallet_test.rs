@@ -18,7 +18,7 @@ mod wallet_test {
         let f = File::create("/dev/null").unwrap();
         let state: ServerState = ServerState::new("./tests/btc-testnet.cfg", &f, &f).expect("Error creating State");
 
-        rocket::ignite().manage(state).mount("/", routes![wallets::index, wallets::create, wallets::update])
+        rocket::ignite().manage(state).mount("/", routes![wallets::index, wallets::create, wallets::update, wallets::destroy])
     }
 
     #[test]
@@ -134,5 +134,63 @@ mod wallet_test {
         assert_eq!(plain_wallets.first().unwrap().addresses.len(), 1);
         assert_eq!(plain_wallets.first().unwrap().addresses.first().unwrap(), "tres");
         assert_eq!(multisig_wallets.first().unwrap().signers, 3);
+    }
+
+    #[test]
+    fn destroy_plain_wallet() {
+        let client = Client::new(rocket()).expect("valid rocket instance");
+        let wallets = r#"
+            {
+                "data": {
+                    "attributes": {},
+                    "id": "",
+                    "relationships": {
+                        "hd": { "data": [] },
+                        "multisig": { "data": [ { "id": "2", "type": "multisig_wallet" } ] },
+                        "plain": { "data": [ { "id": "1", "type": "plain_wallet" } ] }
+                    },
+                    "type": "wallets"
+                },
+                "included": [
+                    {
+                        "attributes": { "addresses": [ "uno", "dos" ], "version": "90" },
+                        "id": "1",
+                        "type": "plain_wallet"
+                    },
+                    {
+                        "attributes": { "addresses": [], "version": "1", "xpubs": [ "123" ], "signers": 2 },
+                        "id": "2",
+                        "type": "multisig_wallet"
+                    }
+                ]
+            }"#;
+
+        client.post("/wallets").header(ContentType::JSON).body(wallets).dispatch();
+        let wallets = r#"
+            {
+                "data": {
+                    "attributes": {},
+                    "id": "",
+                    "relationships": {
+                        "hd": { "data": [] },
+                        "multisig": { "data": [] },
+                        "plain": { "data": [ { "id": "1", "type": "plain_wallet" } ] }
+                    },
+                    "type": "wallets"
+                },
+                "included": [
+                    {
+                        "attributes": { "addresses": [ "uno", "dos" ], "version": "90" },
+                        "id": "1",
+                        "type": "plain_wallet"
+                    }
+                ]
+            }"#;
+        let response = client.delete("/wallets").header(ContentType::JSON).body(wallets).dispatch();
+        let get_wallets = || { client.rocket().state::<ServerState>().unwrap().wallets.lock().unwrap() };
+        let plain_wallets = &get_wallets().plain;
+
+        assert_eq!(response.status(), Status::Ok);
+        assert_eq!(plain_wallets.len(), 0);
     }
 }
