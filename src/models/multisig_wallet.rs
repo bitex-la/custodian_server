@@ -2,6 +2,7 @@ use bitprim::executor::Executor;
 use jsonapi::model::*;
 use models::wallet::Wallet;
 use models::hd_wallet::HdAddress;
+use models::resource_wallet::ResourceWallet;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MultisigWallet {
@@ -77,5 +78,13 @@ impl Wallet for MultisigWallet {
                 },
             },
         ]
+    }
+}
+
+from_data_wallet!(MultisigWallet);
+
+impl ResourceWallet for MultisigWallet {
+    fn id(&self) -> i32 {
+        self.id.parse::<i32>().unwrap_or(0)
     }
 }

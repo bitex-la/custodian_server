@@ -1,6 +1,7 @@
 use bitprim::executor::Executor;
 use jsonapi::model::*;
 use models::wallet::Wallet;
+use models::resource_wallet::ResourceWallet;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HdWallet {
@@ -40,5 +41,13 @@ impl Wallet for HdWallet {
                 amount: 100000000,
             },
         ]
+    }
+}
+
+from_data_wallet!(HdWallet);
+
+impl ResourceWallet for HdWallet {
+    fn id(&self) -> i32 {
+        self.id.parse::<i32>().unwrap_or(0)
     }
 }

@@ -99,7 +99,6 @@ mod wallet_test {
         assert_eq!(plain_wallets.len(), 1);
 
         let response = client.delete("/plain_wallets/1").header(ContentType::JSON).dispatch();
-        let get_wallets = || { client.rocket().state::<ServerState>().unwrap().wallets.lock().unwrap() };
         let plain_wallets = &get_wallets().plains;
 
         assert_eq!(response.status(), Status::Ok);
