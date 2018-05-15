@@ -12,13 +12,15 @@ mod wallet_test {
     use std::fs::File;
     use custodian_server::server_state::ServerState;
     use custodian_server::handlers::plain_wallets;
+    use custodian_server::handlers::addresses;
     use rocket::http::ContentType;
 
     fn rocket() -> rocket::Rocket {
         let f = File::create("/dev/null").unwrap();
         let state: ServerState = ServerState::new("./tests/btc-testnet.cfg", &f, &f).expect("Error creating State");
 
-        rocket::ignite().manage(state).mount("/", routes![plain_wallets::index, plain_wallets::create, plain_wallets::update, plain_wallets::destroy])
+        rocket::ignite().manage(state).mount("/", routes![plain_wallets::index, plain_wallets::create, plain_wallets::update, plain_wallets::destroy,
+                                                          addresses::create, addresses::destroy])
     }
 
     #[test]
@@ -101,5 +103,53 @@ mod wallet_test {
 
         assert_eq!(response.status(), Status::Ok);
         assert_eq!(plain_wallets.len(), 0);
+    }
+
+    #[test]
+    fn add_address() {
+        let client = Client::new(rocket()).expect("valid rocket instance");
+        let wallets = r#"
+            {
+                "data": {
+                        "attributes": { "addresses": [ "uno", "dos" ], "version": "90" },
+                        "id": "1",
+                        "type": "plain_wallet"
+                    }
+            }"#;
+
+        client.post("/plain_wallets").header(ContentType::JSON).body(wallets).dispatch();
+
+        let get_wallets = || { client.rocket().state::<ServerState>().unwrap().wallets.lock().unwrap() };
+
+        let response = client.post("/plain_wallets/1/addresses").header(ContentType::JSON).body("tres").dispatch();
+        let plain_wallets = &get_wallets().plains;
+
+        assert_eq!(response.status(), Status::Ok);
+        assert_eq!(plain_wallets.first().unwrap().addresses.len(), 3);
+        assert_eq!(plain_wallets.first().unwrap().addresses, vec!["uno", "dos", "tres"]);
+    }
+
+    #[test]
+    fn destroy_address() {
+        let client = Client::new(rocket()).expect("valid rocket instance");
+        let wallets = r#"
+            {
+                "data": {
+                        "attributes": { "addresses": [ "uno", "dos", "tres" ], "version": "90" },
+                        "id": "1",
+                        "type": "plain_wallet"
+                    }
+            }"#;
+
+        client.post("/plain_wallets").header(ContentType::JSON).body(wallets).dispatch();
+
+        let get_wallets = || { client.rocket().state::<ServerState>().unwrap().wallets.lock().unwrap() };
+
+        let response = client.delete("/plain_wallets/1/addresses").header(ContentType::JSON).body("dos").dispatch();
+        let plain_wallets = &get_wallets().plains;
+
+        assert_eq!(response.status(), Status::Ok);
+        assert_eq!(plain_wallets.first().unwrap().addresses.len(), 2);
+        assert_eq!(plain_wallets.first().unwrap().addresses, vec!["uno", "tres"]);
     }
 }
