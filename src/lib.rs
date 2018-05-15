@@ -1,6 +1,7 @@
 #![feature(ptr_internals)]
 #![feature(plugin)]
 #![plugin(rocket_codegen)]
+#![feature(associated_type_defaults)] 
 
 extern crate bitprim;
 extern crate ctrlc;
@@ -11,6 +12,7 @@ extern crate serde_json;
 #[macro_use] extern crate serde_derive;
 #[macro_use] extern crate jsonapi;
 
+#[macro_use] pub mod data_guards;
 pub mod server_state;
 pub mod handlers;
 pub mod models;

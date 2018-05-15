@@ -11,12 +11,13 @@ extern crate serde_json;
 #[macro_use] extern crate serde_derive;
 #[macro_use] extern crate jsonapi;
 
+#[macro_use] mod data_guards;
 mod server_state;
 mod handlers;
 mod models;
 use server_state::ServerState;
 use std::fs::File;
-use handlers::wallets;
+use handlers::plain_wallets;
 
 #[cfg(test)]
 mod tests;
@@ -38,6 +39,6 @@ fn main() {
 
     rocket::ignite()
         .manage(state)
-        .mount("/", routes![wallets::index, wallets::create, wallets::update, wallets::destroy, stop])
+        .mount("/", routes![plain_wallets::index, plain_wallets::show, plain_wallets::create, plain_wallets::update, plain_wallets::destroy, stop])
         .launch();
 }
