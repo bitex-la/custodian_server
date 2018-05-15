@@ -20,6 +20,7 @@ use std::fs::File;
 use handlers::plain_wallets;
 use handlers::hd_wallets;
 use handlers::multisig_wallets;
+use handlers::addresses;
 
 #[cfg(test)]
 mod tests;
@@ -44,6 +45,7 @@ fn main() {
         .mount("/", routes![plain_wallets::index, plain_wallets::show, plain_wallets::create, plain_wallets::update, plain_wallets::destroy,
                             hd_wallets::index, hd_wallets::show, hd_wallets::create, hd_wallets::update, hd_wallets::destroy,
                             multisig_wallets::index, multisig_wallets::show, multisig_wallets::create, multisig_wallets::update, multisig_wallets::destroy,
+                            addresses::create, addresses::destroy,
                             stop])
         .launch();
 }

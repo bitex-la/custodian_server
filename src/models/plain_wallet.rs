@@ -3,11 +3,13 @@ use jsonapi::model::*;
 use models::wallet::Wallet;
 use models::resource_wallet::ResourceWallet;
 
+pub type Address = String;
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PlainWallet {
     pub id: String,
     pub version: String,
-    pub addresses: Vec<String>
+    pub addresses: Vec<Address>
 }
 
 jsonapi_model!(PlainWallet; "plain_wallet");

@@ -3,6 +3,7 @@ use std::iter::Iterator;
 
 use jsonapi::model::*;
 use models::plain_wallet::PlainWallet;
+use models::plain_wallet::Address;
 use models::hd_wallet::HdWallet;
 use models::multisig_wallet::MultisigWallet;
 use models::resource_wallet::ResourceWallet;
@@ -30,7 +31,7 @@ impl Wallets {
         let index = state_wallets.iter().position(|wallet| wallet.id() == id);
         match index {
             Some(value) => { mem::replace(&mut state_wallets[value], field_wallet); Ok(true) },
-            None            => Err(format!("{:?}", id))
+            None        => Err(format!("{:?}", id))
         }
     }
 
@@ -38,6 +39,29 @@ impl Wallets {
         let index = &state_wallets.iter().position(|ref wallet| wallet.id() == id);
         match index {
             Some(index) => { &state_wallets.remove(*index); Ok(true) },
+            None        => Err(format!("{:?}", id))
+        }
+    }
+
+    pub fn add_address(state_wallets: &mut Vec<PlainWallet>, id: i32, address: Address) -> Result<bool, String> {
+        let index = state_wallets.iter().position(|wallet| wallet.id() == id);
+        match index {
+            Some(value) => { state_wallets[value].addresses.push(address); Ok(true) },
+            None        => Err(format!("{:?}", id))
+        }
+    }
+
+    pub fn destroy_address(state_wallets: &mut Vec<PlainWallet>, id: i32, address: Address) -> Result<bool, String> {
+        let index = state_wallets.iter().position(|wallet| wallet.id() == id);
+        match index {
+            Some(value) => {
+                let addresses = state_wallets[value].clone().addresses; 
+                let address_index = addresses.iter().position(|orig_address| orig_address == &address);
+                match address_index {
+                    Some(value_address) => { state_wallets[value].addresses.remove(value_address); Ok(true) },
+                    None                => Err(format!("{:?}", address))
+                }
+            },
             None        => Err(format!("{:?}", id))
         }
     }
