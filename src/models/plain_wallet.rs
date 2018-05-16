@@ -43,4 +43,7 @@ impl ResourceWallet for PlainWallet {
     fn id(&self) -> i32 {
         self.id.parse::<i32>().unwrap_or(0)
     }
+
+    fn add_address<Address>(&self, address: Address) {
+    }
 }

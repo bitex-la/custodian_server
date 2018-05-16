@@ -7,6 +7,7 @@ use models::plain_wallet::Address;
 use models::hd_wallet::HdWallet;
 use models::multisig_wallet::MultisigWallet;
 use models::resource_wallet::ResourceWallet;
+use models::hd_wallet::HdAddress;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Wallets {
@@ -62,6 +63,14 @@ impl Wallets {
                     None                => Err(format!("{:?}", address))
                 }
             },
+            None        => Err(format!("{:?}", id))
+        }
+    }
+
+    pub fn add_hd_address<W : ResourceWallet>(state_wallets: &mut Vec<W>, id: i32, hd_address: HdAddress) -> Result<bool, String> {
+        let index = state_wallets.iter().position(|wallet| wallet.id() == id);
+        match index {
+            Some(value) => { state_wallets[value].add_address(hd_address); Ok(true) },
             None        => Err(format!("{:?}", id))
         }
     }

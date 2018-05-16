@@ -66,6 +66,7 @@ impl Wallet for MultisigWallet {
                 prev_hash: "abc".to_string(),
                 prev_index: 1,
                 address: HdAddress {
+                    id: "1".to_string(),
                     address: "abc".to_string(),
                     path: vec![0, 1, 0],
                 },
@@ -86,5 +87,8 @@ from_data_wallet!(MultisigWallet);
 impl ResourceWallet for MultisigWallet {
     fn id(&self) -> i32 {
         self.id.parse::<i32>().unwrap_or(0)
+    }
+
+    fn add_address<HdAddress>(&self, address: HdAddress) {
     }
 }
