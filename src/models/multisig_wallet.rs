@@ -91,8 +91,12 @@ impl Wallet for MultisigWallet {
 
 from_data_wallet!(MultisigWallet);
 
-impl ResourceWallet for MultisigWallet {
+impl ResourceWallet<HdAddress> for MultisigWallet {
     fn id(&self) -> i32 {
         self.id.parse::<i32>().unwrap_or(0)
+    }
+
+    fn add_address(&mut self, address: HdAddress) {
+        self.addresses.push(address);
     }
 }

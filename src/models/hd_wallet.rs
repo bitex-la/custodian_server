@@ -10,7 +10,7 @@ use serde_json;
 
 use models::wallet::Wallet;
 use models::resource_wallet::ResourceWallet;
-
+use models::resource_address::ResourceAddress;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HdWallet {
@@ -60,8 +60,14 @@ impl Wallet for HdWallet {
 from_data_wallet!(HdWallet);
 from_data_wallet!(HdAddress);
 
-impl ResourceWallet for HdWallet {
+impl ResourceWallet<HdAddress> for HdWallet {
     fn id(&self) -> i32 {
         self.id.parse::<i32>().unwrap_or(0)
     }
+
+    fn add_address(&mut self, address: HdAddress) {
+        self.addresses.push(address);
+    }
 }
+
+impl ResourceAddress for HdAddress {}

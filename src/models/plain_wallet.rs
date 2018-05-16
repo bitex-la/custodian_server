@@ -2,6 +2,7 @@ use bitprim::executor::Executor;
 use jsonapi::model::*;
 use models::wallet::Wallet;
 use models::resource_wallet::ResourceWallet;
+use models::resource_address::ResourceAddress;
 
 use std::io::Read;
 use rocket::data::{self, FromData};
@@ -11,6 +12,7 @@ use rocket::Outcome::*;
 use serde_json;
 
 pub type Address = String;
+impl ResourceAddress for Address {}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PlainWallet {
@@ -46,8 +48,12 @@ impl Wallet for PlainWallet {
 
 from_data_wallet!(PlainWallet);
 
-impl ResourceWallet for PlainWallet {
+impl ResourceWallet<Address> for PlainWallet {
     fn id(&self) -> i32 {
         self.id.parse::<i32>().unwrap_or(0)
+    }
+
+    fn add_address(&mut self, address: Address) {
+        self.addresses.push(address);
     }
 }
