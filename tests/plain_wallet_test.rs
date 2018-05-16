@@ -51,6 +51,28 @@ mod wallet_test {
     }
 
     #[test]
+    fn internal_error_when_create_wallet() {
+        let client = Client::new(rocket()).expect("valid rocket instance");
+        let wallets = r#"
+            {
+                "data": {
+                    "attributes": { "addresses": [ "uno", "dos", ], "version": "90" },
+                    "id": "1",
+                    "type": "plain_wallet"
+                }
+            }"#;
+        let response = client.post("/plain_wallets").header(ContentType::JSON).body(wallets).dispatch();
+        assert_eq!(response.status(), Status::BadRequest);
+    }
+
+    #[test]
+    fn not_found_wallet() {
+        let client = Client::new(rocket()).expect("valid rocket instance");
+        let response = client.get("/plain_wallets/1").header(ContentType::JSON).dispatch();
+        assert_eq!(response.status(), Status::NotFound);
+    }
+
+    #[test]
     fn updates_plain_wallet() {
         let client = Client::new(rocket()).expect("valid rocket instance");
         let wallets = r#"
