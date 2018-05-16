@@ -68,6 +68,14 @@ impl ResourceWallet<HdAddress> for HdWallet {
     fn add_address(&mut self, address: HdAddress) {
         self.addresses.push(address);
     }
+
+    fn get_addresses(&self) -> Vec<HdAddress> {
+        self.addresses.clone()
+    }
+
+    fn remove_address(&mut self, index: usize) {
+        self.addresses.remove(index);
+    }
 }
 
 impl ResourceAddress for HdAddress {}

@@ -56,4 +56,12 @@ impl ResourceWallet<Address> for PlainWallet {
     fn add_address(&mut self, address: Address) {
         self.addresses.push(address);
     }
+
+    fn get_addresses(&self) -> Vec<Address> {
+        self.addresses.clone()
+    }
+
+    fn remove_address(&mut self, index: usize) {
+        self.addresses.remove(index);
+    }
 }

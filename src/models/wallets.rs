@@ -1,9 +1,11 @@
 use std::mem;
 use std::iter::Iterator;
+use std::clone::Clone;
+use std::fmt::Debug;
+use std::cmp::PartialEq;
 
 use jsonapi::model::*;
 use models::plain_wallet::PlainWallet;
-use models::plain_wallet::Address;
 use models::hd_wallet::HdWallet;
 use models::multisig_wallet::MultisigWallet;
 use models::resource_wallet::ResourceWallet;
@@ -53,14 +55,14 @@ impl Wallets {
         }
     }
 
-    pub fn destroy_address(state_wallets: &mut Vec<PlainWallet>, id: i32, address: Address) -> Result<bool, String> {
+    pub fn destroy_address<W: ResourceWallet<A> + Clone, A: ResourceAddress + Debug + PartialEq>(state_wallets: &mut Vec<W>, id: i32, address: A) -> Result<bool, String> {
         let index = state_wallets.iter().position(|wallet| wallet.id() == id);
         match index {
             Some(value) => {
-                let addresses = state_wallets[value].clone().addresses; 
+                let addresses = state_wallets[value].get_addresses(); 
                 let address_index = addresses.iter().position(|orig_address| orig_address == &address);
                 match address_index {
-                    Some(value_address) => { state_wallets[value].addresses.remove(value_address); Ok(true) },
+                    Some(value_address) => { state_wallets[value].remove_address(value_address); Ok(true) },
                     None                => Err(format!("{:?}", address))
                 }
             },
