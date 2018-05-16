@@ -1,16 +1,16 @@
 use bitprim::executor::Executor;
 use jsonapi::model::*;
 
-use std::io::Read;
 use rocket::data::{self, FromData};
-use rocket::{Request, Data};
 use rocket::http::Status;
 use rocket::Outcome::*;
+use rocket::{Data, Request};
 use serde_json;
+use std::io::Read;
 
-use models::wallet::Wallet;
-use models::resource_wallet::ResourceWallet;
 use models::resource_address::ResourceAddress;
+use models::resource_wallet::ResourceWallet;
+use models::wallet::Wallet;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HdWallet {
@@ -42,18 +42,16 @@ impl Wallet for HdWallet {
     type Utxo = HdUtxo;
 
     fn get_utxos(&self, _exec: &Executor) -> Vec<Self::Utxo> {
-        vec![
-            HdUtxo {
-                prev_hash: "abc".to_string(),
-                prev_index: 1,
-                address: HdAddress {
-                    id: "1".to_string(),
-                    address: "abc".to_string(),
-                    path: vec![0, 1, 0],
-                },
-                amount: 100000000,
+        vec![HdUtxo {
+            prev_hash: "abc".to_string(),
+            prev_index: 1,
+            address: HdAddress {
+                id: "1".to_string(),
+                address: "abc".to_string(),
+                path: vec![0, 1, 0],
             },
-        ]
+            amount: 100000000,
+        }]
     }
 }
 

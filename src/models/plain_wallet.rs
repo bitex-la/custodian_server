@@ -1,15 +1,15 @@
 use bitprim::executor::Executor;
 use jsonapi::model::*;
-use models::wallet::Wallet;
-use models::resource_wallet::ResourceWallet;
 use models::resource_address::ResourceAddress;
+use models::resource_wallet::ResourceWallet;
+use models::wallet::Wallet;
 
-use std::io::Read;
 use rocket::data::{self, FromData};
-use rocket::{Request, Data};
 use rocket::http::Status;
 use rocket::Outcome::*;
+use rocket::{Data, Request};
 use serde_json;
+use std::io::Read;
 
 pub type Address = String;
 impl ResourceAddress for Address {}
@@ -18,7 +18,7 @@ impl ResourceAddress for Address {}
 pub struct PlainWallet {
     pub id: String,
     pub version: String,
-    pub addresses: Vec<Address>
+    pub addresses: Vec<Address>,
 }
 
 jsonapi_model!(PlainWallet; "plain_wallet");
@@ -28,21 +28,19 @@ pub struct PlainUtxo {
     pub prev_hash: String,
     pub prev_index: u64,
     pub address: String,
-    pub amount: u64
+    pub amount: u64,
 }
 
 impl Wallet for PlainWallet {
     type Utxo = PlainUtxo;
 
     fn get_utxos(&self, _exec: &Executor) -> Vec<Self::Utxo> {
-        vec![
-            PlainUtxo {
-                prev_hash: "abc".to_string(),
-                prev_index: 1,
-                address: "abc".to_string(),
-                amount: 100000000,
-            },
-        ]
+        vec![PlainUtxo {
+            prev_hash: "abc".to_string(),
+            prev_index: 1,
+            address: "abc".to_string(),
+            amount: 100000000,
+        }]
     }
 }
 

@@ -2,32 +2,35 @@ extern crate bitprim;
 extern crate custodian_server;
 
 use std::fs::File;
+use std::ops::Deref;
 use std::thread::sleep;
 use std::time::Duration;
-use std::ops::Deref;
 
-use bitprim::{Executor, ExitCode};
 use bitprim::errors::*;
-use bitprim::transaction::Transaction;
-use bitprim::payment_address::PaymentAddress;
 use bitprim::explorer::OpaqueCollection;
-use std::sync::{Arc, Mutex};
-use std::sync::atomic::{AtomicBool, Ordering};
-use custodian_server::server_state::ServerState;
-use custodian_server::models::*;
+use bitprim::payment_address::PaymentAddress;
+use bitprim::transaction::Transaction;
+use bitprim::{Executor, ExitCode};
 use custodian_server::models::plain_wallet::PlainWallet;
+use custodian_server::models::*;
+use custodian_server::server_state::ServerState;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::{Arc, Mutex};
 
 macro_rules! assert_ok {
-  ($name:ident $body:block) => (
-    #[test]
-    fn $name(){
-      let result : Result<()>= (||{ $body; Ok(()) })();
-      match result {
-        Err(e) => assert!(false, format!("{}", e)),
-        _ => assert!(true)
-      }
-    }
-  )
+    ($name:ident $body:block) => {
+        #[test]
+        fn $name() {
+            let result: Result<()> = (|| {
+                $body;
+                Ok(())
+            })();
+            match result {
+                Err(e) => assert!(false, format!("{}", e)),
+                _ => assert!(true),
+            }
+        }
+    };
 }
 
 fn build_test_executor() -> Result<Executor> {

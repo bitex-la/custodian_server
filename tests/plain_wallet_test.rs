@@ -1,26 +1,36 @@
 #![feature(plugin)]
 #![plugin(rocket_codegen)]
 
-extern crate rocket;
 extern crate custodian_server;
+extern crate rocket;
 
 #[cfg(test)]
 mod wallet_test {
-    use rocket;
-    use rocket::local::Client;
-    use rocket::http::Status;
-    use std::fs::File;
-    use custodian_server::server_state::ServerState;
-    use custodian_server::handlers::plain_wallets;
     use custodian_server::handlers::addresses;
+    use custodian_server::handlers::plain_wallets;
+    use custodian_server::server_state::ServerState;
+    use rocket;
     use rocket::http::ContentType;
+    use rocket::http::Status;
+    use rocket::local::Client;
+    use std::fs::File;
 
     fn rocket() -> rocket::Rocket {
         let f = File::create("/dev/null").unwrap();
-        let state: ServerState = ServerState::new("./tests/btc-testnet.cfg", &f, &f).expect("Error creating State");
+        let state: ServerState =
+            ServerState::new("./tests/btc-testnet.cfg", &f, &f).expect("Error creating State");
 
-        rocket::ignite().manage(state).mount("/", routes![plain_wallets::index, plain_wallets::create, plain_wallets::update, plain_wallets::destroy,
-                                                          addresses::create, addresses::destroy])
+        rocket::ignite().manage(state).mount(
+            "/",
+            routes![
+                plain_wallets::index,
+                plain_wallets::create,
+                plain_wallets::update,
+                plain_wallets::destroy,
+                addresses::create,
+                addresses::destroy
+            ],
+        )
     }
 
     #[test]
@@ -42,9 +52,21 @@ mod wallet_test {
                     "type": "plain_wallet"
                 }
             }"#;
-        let get_wallets = || { client.rocket().state::<ServerState>().unwrap().wallets.lock().unwrap() };
+        let get_wallets = || {
+            client
+                .rocket()
+                .state::<ServerState>()
+                .unwrap()
+                .wallets
+                .lock()
+                .unwrap()
+        };
         let orig_plain_len = get_wallets().plains.len();
-        let response = client.post("/plain_wallets").header(ContentType::JSON).body(wallets).dispatch();
+        let response = client
+            .post("/plain_wallets")
+            .header(ContentType::JSON)
+            .body(wallets)
+            .dispatch();
         let after_plain_len = get_wallets().plains.len();
         assert_eq!(response.status(), Status::Ok);
         assert!(after_plain_len > orig_plain_len);
@@ -61,14 +83,21 @@ mod wallet_test {
                     "type": "plain_wallet"
                 }
             }"#;
-        let response = client.post("/plain_wallets").header(ContentType::JSON).body(wallets).dispatch();
+        let response = client
+            .post("/plain_wallets")
+            .header(ContentType::JSON)
+            .body(wallets)
+            .dispatch();
         assert_eq!(response.status(), Status::BadRequest);
     }
 
     #[test]
     fn not_found_wallet() {
         let client = Client::new(rocket()).expect("valid rocket instance");
-        let response = client.get("/plain_wallets/1").header(ContentType::JSON).dispatch();
+        let response = client
+            .get("/plain_wallets/1")
+            .header(ContentType::JSON)
+            .dispatch();
         assert_eq!(response.status(), Status::NotFound);
     }
 
@@ -84,7 +113,11 @@ mod wallet_test {
                     }
             }"#;
 
-        client.post("/plain_wallets").header(ContentType::JSON).body(wallets).dispatch();
+        client
+            .post("/plain_wallets")
+            .header(ContentType::JSON)
+            .body(wallets)
+            .dispatch();
 
         let wallets_to_update = r#"
             {
@@ -95,13 +128,28 @@ mod wallet_test {
                     }
             }"#;
 
-        let response = client.put("/plain_wallets/1").header(ContentType::JSON).body(wallets_to_update).dispatch();
+        let response = client
+            .put("/plain_wallets/1")
+            .header(ContentType::JSON)
+            .body(wallets_to_update)
+            .dispatch();
 
-        let get_wallets = || { client.rocket().state::<ServerState>().unwrap().wallets.lock().unwrap() };
+        let get_wallets = || {
+            client
+                .rocket()
+                .state::<ServerState>()
+                .unwrap()
+                .wallets
+                .lock()
+                .unwrap()
+        };
         let plain_wallets = &get_wallets().plains;
         assert_eq!(response.status(), Status::Ok);
         assert_eq!(plain_wallets.first().unwrap().addresses.len(), 1);
-        assert_eq!(plain_wallets.first().unwrap().addresses.first().unwrap(), "tres");
+        assert_eq!(
+            plain_wallets.first().unwrap().addresses.first().unwrap(),
+            "tres"
+        );
     }
 
     #[test]
@@ -116,11 +164,26 @@ mod wallet_test {
                     }
             }"#;
 
-        client.post("/plain_wallets").header(ContentType::JSON).body(wallets).dispatch();
+        client
+            .post("/plain_wallets")
+            .header(ContentType::JSON)
+            .body(wallets)
+            .dispatch();
 
-        let get_wallets = || { client.rocket().state::<ServerState>().unwrap().wallets.lock().unwrap() };
+        let get_wallets = || {
+            client
+                .rocket()
+                .state::<ServerState>()
+                .unwrap()
+                .wallets
+                .lock()
+                .unwrap()
+        };
 
-        let response = client.delete("/plain_wallets/1").header(ContentType::JSON).dispatch();
+        let response = client
+            .delete("/plain_wallets/1")
+            .header(ContentType::JSON)
+            .dispatch();
         let plain_wallets = &get_wallets().plains;
 
         assert_eq!(response.status(), Status::Ok);
@@ -139,16 +202,35 @@ mod wallet_test {
                     }
             }"#;
 
-        client.post("/plain_wallets").header(ContentType::JSON).body(wallets).dispatch();
+        client
+            .post("/plain_wallets")
+            .header(ContentType::JSON)
+            .body(wallets)
+            .dispatch();
 
-        let get_wallets = || { client.rocket().state::<ServerState>().unwrap().wallets.lock().unwrap() };
+        let get_wallets = || {
+            client
+                .rocket()
+                .state::<ServerState>()
+                .unwrap()
+                .wallets
+                .lock()
+                .unwrap()
+        };
 
-        let response = client.post("/plain_wallets/1/addresses").header(ContentType::JSON).body("tres").dispatch();
+        let response = client
+            .post("/plain_wallets/1/addresses")
+            .header(ContentType::JSON)
+            .body("tres")
+            .dispatch();
         let plain_wallets = &get_wallets().plains;
 
         assert_eq!(response.status(), Status::Ok);
         assert_eq!(plain_wallets.first().unwrap().addresses.len(), 3);
-        assert_eq!(plain_wallets.first().unwrap().addresses, vec!["uno", "dos", "tres"]);
+        assert_eq!(
+            plain_wallets.first().unwrap().addresses,
+            vec!["uno", "dos", "tres"]
+        );
     }
 
     #[test]
@@ -163,15 +245,34 @@ mod wallet_test {
                     }
             }"#;
 
-        client.post("/plain_wallets").header(ContentType::JSON).body(wallets).dispatch();
+        client
+            .post("/plain_wallets")
+            .header(ContentType::JSON)
+            .body(wallets)
+            .dispatch();
 
-        let get_wallets = || { client.rocket().state::<ServerState>().unwrap().wallets.lock().unwrap() };
+        let get_wallets = || {
+            client
+                .rocket()
+                .state::<ServerState>()
+                .unwrap()
+                .wallets
+                .lock()
+                .unwrap()
+        };
 
-        let response = client.delete("/plain_wallets/1/addresses").header(ContentType::JSON).body("dos").dispatch();
+        let response = client
+            .delete("/plain_wallets/1/addresses")
+            .header(ContentType::JSON)
+            .body("dos")
+            .dispatch();
         let plain_wallets = &get_wallets().plains;
 
         assert_eq!(response.status(), Status::Ok);
         assert_eq!(plain_wallets.first().unwrap().addresses.len(), 2);
-        assert_eq!(plain_wallets.first().unwrap().addresses, vec!["uno", "tres"]);
+        assert_eq!(
+            plain_wallets.first().unwrap().addresses,
+            vec!["uno", "tres"]
+        );
     }
 }

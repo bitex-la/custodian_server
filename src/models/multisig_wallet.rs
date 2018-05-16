@@ -1,15 +1,15 @@
 use bitprim::executor::Executor;
 use jsonapi::model::*;
-use models::wallet::Wallet;
 use models::hd_wallet::HdAddress;
 use models::resource_wallet::ResourceWallet;
+use models::wallet::Wallet;
 
-use std::io::Read;
 use rocket::data::{self, FromData};
-use rocket::{Request, Data};
 use rocket::http::Status;
 use rocket::Outcome::*;
+use rocket::{Data, Request};
 use serde_json;
+use std::io::Read;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MultisigWallet {
@@ -68,24 +68,22 @@ impl Wallet for MultisigWallet {
             })
             .collect();
 
-        vec![
-            MultisigUtxo {
-                prev_hash: "abc".to_string(),
-                prev_index: 1,
-                address: HdAddress {
-                    id: "1".to_string(),
-                    address: "abc".to_string(),
-                    path: vec![0, 1, 0],
-                },
-                amount: 100000000,
-                script_type: "SPENDMULTISIG".to_string(),
-                multisig: MultisigDefinition {
-                    signatures: vec![String::new(), String::new(), String::new()],
-                    m: self.xpubs.len(),
-                    pubkeys: pubkeys,
-                },
+        vec![MultisigUtxo {
+            prev_hash: "abc".to_string(),
+            prev_index: 1,
+            address: HdAddress {
+                id: "1".to_string(),
+                address: "abc".to_string(),
+                path: vec![0, 1, 0],
             },
-        ]
+            amount: 100000000,
+            script_type: "SPENDMULTISIG".to_string(),
+            multisig: MultisigDefinition {
+                signatures: vec![String::new(), String::new(), String::new()],
+                m: self.xpubs.len(),
+                pubkeys: pubkeys,
+            },
+        }]
     }
 }
 

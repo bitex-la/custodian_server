@@ -1,15 +1,15 @@
-use bitprim::Executor;
 use bitprim::errors::*;
 use bitprim::executor::executor_destruct;
-use std::os::unix::io::AsRawFd;
-use std::sync::atomic::{AtomicBool, Ordering};
-use rocket::http::Status;
-use rocket::request::{self, FromRequest, Request};
-use std::process;
-use rocket::outcome::Outcome;
-use rocket::State;
-use std::sync::{Mutex, MutexGuard};
+use bitprim::Executor;
 use models::wallets::Wallets;
+use rocket::http::Status;
+use rocket::outcome::Outcome;
+use rocket::request::{self, FromRequest, Request};
+use rocket::State;
+use std::os::unix::io::AsRawFd;
+use std::process;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::{Mutex, MutexGuard};
 
 pub struct ServerState {
     pub executor: Executor,
@@ -28,7 +28,12 @@ impl ServerState {
         exec.run_wait()?;
         Ok(Self {
             executor: exec,
-            wallets: Mutex::new(Wallets{id: String::new(), plains: vec![], hds: vec![], multisigs: vec![]}),
+            wallets: Mutex::new(Wallets {
+                id: String::new(),
+                plains: vec![],
+                hds: vec![],
+                multisigs: vec![],
+            }),
             stopping: AtomicBool::new(false),
         })
     }

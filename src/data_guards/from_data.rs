@@ -1,6 +1,6 @@
 #[macro_export]
 macro_rules! from_data_wallet {
-    ( $wallet_type:ty ) => {
+    ($wallet_type:ty) => {
         impl FromData for $wallet_type {
             type Error = String;
 
@@ -11,13 +11,13 @@ macro_rules! from_data_wallet {
                 }
 
                 let raw_json: JsonApiDocument = match serde_json::from_str(&string_wallets) {
-                    Ok(value)  => value,
-                    Err(err) => return Failure((Status::BadRequest, format!("{:?}", err)))
+                    Ok(value) => value,
+                    Err(err) => return Failure((Status::BadRequest, format!("{:?}", err))),
                 };
 
                 match Self::from_jsonapi_document(&raw_json) {
                     Ok(wallets) => Success(wallets),
-                    Err(err) => return Failure((Status::BadRequest, format!("{:?}", err)))
+                    Err(err) => return Failure((Status::BadRequest, format!("{:?}", err))),
                 }
             }
         }
