@@ -17,16 +17,16 @@ pub fn index(state: &ServerState) -> Result<Json<Value>, status::Custom<String>>
 }
 
 #[get("/hd_wallets/<id>", format = "application/json")]
-pub fn show(state: &ServerState, id: i32) -> Result<Json<Value>, status::NotFound<String>> {
+pub fn show(state: &ServerState, id: i32) -> Result<Json<Value>, status::Custom<String>> {
     let state_wallets = state.wallets_lock();
     match Wallets::show_wallet(&state_wallets.hds, id) {
         Ok(wallet) => {
             match to_value(wallet.to_jsonapi_document()) {
                 Ok(value) => Ok(Json(value)),
-                Err(err)  => Err(status::NotFound(err.to_string())) // Should be InternalServerError, because this is a parser error
+                Err(err)  => Err(status::Custom(Status::InternalServerError, err.to_string()))
             }
         },
-        Err(err)   => Err(status::NotFound(err))
+        Err(err)   => Err(status::Custom(Status::NotFound, err))
     }
 }
 
