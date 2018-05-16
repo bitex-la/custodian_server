@@ -8,7 +8,7 @@ use models::hd_wallet::HdAddress;
 pub fn create(state: &ServerState, id: i32, address: HdAddress) -> Result<Json<Value>, status::NotFound<String>> {
     let mut state_wallets = state.wallets_lock();
 
-    match Wallets::add_multisig_wallet_address(&mut state_wallets.multisigs, id, address) {
+    match Wallets::add_address(&mut state_wallets.multisigs, id, address) {
         Ok(_)    => Ok(Json(json!({"status": "ok"}))),
         Err(err) => Err(status::NotFound(err))
     }
@@ -18,7 +18,7 @@ pub fn create(state: &ServerState, id: i32, address: HdAddress) -> Result<Json<V
 pub fn destroy(state: &ServerState, id: i32, address: HdAddress) -> Result<Json<Value>, status::NotFound<String>> {
     let mut state_wallets = state.wallets_lock();
 
-    match Wallets::destroy_multisig_address(&mut state_wallets.multisigs, id, address) {
+    match Wallets::destroy_address(&mut state_wallets.multisigs, id, address) {
         Ok(_)    => Ok(Json(json!({"status": "ok"}))),
         Err(err) => Err(status::NotFound(err))
     }

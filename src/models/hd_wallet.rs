@@ -79,3 +79,9 @@ impl ResourceWallet<HdAddress> for HdWallet {
 }
 
 impl ResourceAddress for HdAddress {}
+
+impl PartialEq for HdAddress {
+    fn eq(&self, other: &HdAddress) -> bool {
+        self.id == other.id
+    }
+}

@@ -10,7 +10,6 @@ use models::hd_wallet::HdWallet;
 use models::multisig_wallet::MultisigWallet;
 use models::resource_wallet::ResourceWallet;
 use models::resource_address::ResourceAddress;
-use models::hd_wallet::HdAddress;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Wallets {
@@ -63,52 +62,6 @@ impl Wallets {
                 let address_index = addresses.iter().position(|orig_address| orig_address == &address);
                 match address_index {
                     Some(value_address) => { state_wallets[value].remove_address(value_address); Ok(true) },
-                    None                => Err(format!("{:?}", address))
-                }
-            },
-            None        => Err(format!("{:?}", id))
-        }
-    }
-
-    pub fn add_hd_wallet_address(state_wallets: &mut Vec<HdWallet>, id: i32, hd_address: HdAddress) -> Result<bool, String> {
-        let index = state_wallets.iter().position(|wallet| wallet.id() == id);
-        match index {
-            Some(value) => { state_wallets[value].addresses.push(hd_address); Ok(true) },
-            None        => Err(format!("{:?}", id))
-        }
-    }
-
-    pub fn add_multisig_wallet_address(state_wallets: &mut Vec<MultisigWallet>, id: i32, hd_address: HdAddress) -> Result<bool, String> {
-        let index = state_wallets.iter().position(|wallet| wallet.id() == id);
-        match index {
-            Some(value) => { state_wallets[value].addresses.push(hd_address); Ok(true) },
-            None        => Err(format!("{:?}", id))
-        }
-    }
-
-    pub fn destroy_hd_address(state_wallets: &mut Vec<HdWallet>, id: i32, address: HdAddress) -> Result<bool, String> {
-        let index = state_wallets.iter().position(|wallet| wallet.id() == id);
-        match index {
-            Some(value) => {
-                let addresses = state_wallets[value].clone().addresses; 
-                let address_index = addresses.iter().position(|orig_address| orig_address.id == address.id);
-                match address_index {
-                    Some(value_address) => { state_wallets[value].addresses.remove(value_address); Ok(true) },
-                    None                => Err(format!("{:?}", address))
-                }
-            },
-            None        => Err(format!("{:?}", id))
-        }
-    }
-
-    pub fn destroy_multisig_address(state_wallets: &mut Vec<MultisigWallet>, id: i32, address: HdAddress) -> Result<bool, String> {
-        let index = state_wallets.iter().position(|wallet| wallet.id() == id);
-        match index {
-            Some(value) => {
-                let addresses = state_wallets[value].clone().addresses; 
-                let address_index = addresses.iter().position(|orig_address| orig_address.id == address.id);
-                match address_index {
-                    Some(value_address) => { state_wallets[value].addresses.remove(value_address); Ok(true) },
                     None                => Err(format!("{:?}", address))
                 }
             },
