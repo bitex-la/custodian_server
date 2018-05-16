@@ -1,13 +1,6 @@
 #[macro_export]
 macro_rules! from_data_wallet {
     ( $wallet_type:ty ) => {
-        use std::io::Read;
-        use rocket::data::{self, FromData};
-        use rocket::{Request, Data};
-        use rocket::http::Status;
-        use rocket::Outcome::*;
-        use serde_json;
-
         impl FromData for $wallet_type {
             type Error = String;
 

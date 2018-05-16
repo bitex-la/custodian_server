@@ -21,6 +21,7 @@ use handlers::plain_wallets;
 use handlers::hd_wallets;
 use handlers::multisig_wallets;
 use handlers::addresses;
+use handlers::hd_addresses;
 
 #[cfg(test)]
 mod tests;
@@ -46,6 +47,7 @@ fn main() {
                             hd_wallets::index, hd_wallets::show, hd_wallets::create, hd_wallets::update, hd_wallets::destroy,
                             multisig_wallets::index, multisig_wallets::show, multisig_wallets::create, multisig_wallets::update, multisig_wallets::destroy,
                             addresses::create, addresses::destroy,
+                            hd_addresses::create, hd_addresses::destroy,
                             stop])
         .launch();
 }

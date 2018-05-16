@@ -3,6 +3,13 @@ use jsonapi::model::*;
 use models::wallet::Wallet;
 use models::resource_wallet::ResourceWallet;
 
+use std::io::Read;
+use rocket::data::{self, FromData};
+use rocket::{Request, Data};
+use rocket::http::Status;
+use rocket::Outcome::*;
+use serde_json;
+
 pub type Address = String;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -42,8 +49,5 @@ from_data_wallet!(PlainWallet);
 impl ResourceWallet for PlainWallet {
     fn id(&self) -> i32 {
         self.id.parse::<i32>().unwrap_or(0)
-    }
-
-    fn add_address<Address>(&self, address: Address) {
     }
 }

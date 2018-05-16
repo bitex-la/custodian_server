@@ -1,7 +1,16 @@
 use bitprim::executor::Executor;
 use jsonapi::model::*;
+
+use std::io::Read;
+use rocket::data::{self, FromData};
+use rocket::{Request, Data};
+use rocket::http::Status;
+use rocket::Outcome::*;
+use serde_json;
+
 use models::wallet::Wallet;
 use models::resource_wallet::ResourceWallet;
+
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HdWallet {
@@ -49,12 +58,10 @@ impl Wallet for HdWallet {
 }
 
 from_data_wallet!(HdWallet);
+from_data_wallet!(HdAddress);
 
 impl ResourceWallet for HdWallet {
     fn id(&self) -> i32 {
         self.id.parse::<i32>().unwrap_or(0)
-    }
-
-    fn add_address<HdAddress>(&self, address: HdAddress) {
     }
 }

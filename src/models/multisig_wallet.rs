@@ -4,6 +4,13 @@ use models::wallet::Wallet;
 use models::hd_wallet::HdAddress;
 use models::resource_wallet::ResourceWallet;
 
+use std::io::Read;
+use rocket::data::{self, FromData};
+use rocket::{Request, Data};
+use rocket::http::Status;
+use rocket::Outcome::*;
+use serde_json;
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MultisigWallet {
     pub id: String,
@@ -87,8 +94,5 @@ from_data_wallet!(MultisigWallet);
 impl ResourceWallet for MultisigWallet {
     fn id(&self) -> i32 {
         self.id.parse::<i32>().unwrap_or(0)
-    }
-
-    fn add_address<HdAddress>(&self, address: HdAddress) {
     }
 }
