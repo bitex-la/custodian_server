@@ -195,10 +195,10 @@ mod wallet_test {
         let plain_wallets = &get_wallets(&client).plains;
 
         assert_eq!(response.status(), Status::Ok);
-        assert_eq!(plain_wallets.first().unwrap().addresses.len(), 2);
+        assert_eq!(plain_wallets.first().unwrap().addresses.len(), 1);
         assert_eq!(
             plain_wallets.first().unwrap().addresses,
-            vec!["uno", "tres"]
+            vec!["uno"]
         );
     }
 }

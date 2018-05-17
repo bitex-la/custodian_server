@@ -63,23 +63,23 @@ impl ResourceWallet<HdAddress> for HdWallet {
         self.id.parse::<i32>().unwrap_or(0)
     }
 
-    fn add_address(&mut self, address: HdAddress) {
-        self.addresses.push(address);
+    fn add_address(&mut self, address: HdAddress) -> Result<bool, String> {
+        match self.addresses.clone().into_iter().find(|in_address| in_address.id == address.id) {
+            Some(_) => Err(format!("Duplicate address {:?}", address)),
+            None    => { self.addresses.push(address); Ok(true) }
+        }
     }
 
     fn get_addresses(&self) -> Vec<HdAddress> {
         self.addresses.clone()
     }
 
-    fn remove_address(&mut self, index: usize) {
-        self.addresses.remove(index);
+    fn remove_address(&mut self, address: HdAddress) -> Result<bool, String> {
+        match self.addresses.clone().into_iter().position(|in_address| in_address.id == address.id) {
+            Some(index) => { self.addresses.remove(index); Ok(true) },
+            None        => Err(format!("Address {:?} does not exists", address))
+        }
     }
 }
 
 impl ResourceAddress for HdAddress {}
-
-impl PartialEq for HdAddress {
-    fn eq(&self, other: &HdAddress) -> bool {
-        self.id == other.id
-    }
-}

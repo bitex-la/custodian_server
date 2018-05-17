@@ -1,5 +1,4 @@
 use std::clone::Clone;
-use std::cmp::PartialEq;
 use std::fmt::Debug;
 use std::iter::Iterator;
 use std::mem;
@@ -83,34 +82,21 @@ impl Wallets {
         let index = state_wallets.iter().position(|wallet| wallet.id() == id);
         match index {
             Some(value) => {
-                state_wallets[value].add_address(address);
-                Ok(true)
+                state_wallets[value].add_address(address)
             }
             None => Err(format!("{:?}", id)),
         }
     }
 
-    pub fn destroy_address<W: ResourceWallet<A> + Clone, A: ResourceAddress + Debug + PartialEq>(
+    pub fn destroy_address<W: ResourceWallet<A> + Clone, A: ResourceAddress + Debug>(
         state_wallets: &mut Vec<W>,
         id: i32,
         address: A,
     ) -> Result<bool, String> {
         let index = state_wallets.iter().position(|wallet| wallet.id() == id);
         match index {
-            Some(value) => {
-                let addresses = state_wallets[value].get_addresses();
-                let address_index = addresses
-                    .iter()
-                    .position(|orig_address| orig_address == &address);
-                match address_index {
-                    Some(value_address) => {
-                        state_wallets[value].remove_address(value_address);
-                        Ok(true)
-                    }
-                    None => Err(format!("{:?}", address)),
-                }
-            }
-            None => Err(format!("{:?}", id)),
+            Some(value) => state_wallets[value].remove_address(address),
+            None        => Err(format!("{:?}", id)),
         }
     }
 }
