@@ -1,15 +1,11 @@
+use std::io::Read;
+
 use bitprim::executor::Executor;
 use jsonapi::model::*;
+
 use models::hd_wallet::HdAddress;
 use models::resource_wallet::ResourceWallet;
 use models::wallet::Wallet;
-
-use rocket::data::{self, FromData};
-use rocket::http::Status;
-use rocket::Outcome::*;
-use rocket::{Data, Request};
-use serde_json;
-use std::io::Read;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MultisigWallet {
