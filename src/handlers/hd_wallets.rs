@@ -10,6 +10,7 @@ use server_state::ServerState;
 #[get("/hd_wallets", format = "application/json")]
 pub fn index(state: &ServerState) -> Result<Json<Value>, status::Custom<String>> {
     let wallets = state.wallets_lock();
+
     match to_value(vec_to_jsonapi_document(wallets.clone().hds)) {
         Ok(value) => Ok(Json(value)),
         Err(err) => Err(status::Custom(Status::InternalServerError, err.to_string())),
@@ -19,6 +20,7 @@ pub fn index(state: &ServerState) -> Result<Json<Value>, status::Custom<String>>
 #[get("/hd_wallets/<id>", format = "application/json")]
 pub fn show(state: &ServerState, id: i32) -> Result<Json<Value>, status::Custom<String>> {
     let state_wallets = state.wallets_lock();
+
     match Wallets::show_wallet(&state_wallets.hds, id) {
         Ok(wallet) => match to_value(wallet.to_jsonapi_document()) {
             Ok(value) => Ok(Json(value)),
@@ -31,6 +33,7 @@ pub fn show(state: &ServerState, id: i32) -> Result<Json<Value>, status::Custom<
 #[post("/hd_wallets", format = "application/json", data = "<hd_wallet>")]
 pub fn create(state: &ServerState, hd_wallet: HdWallet) -> Json<Value> {
     let mut state_wallets = state.wallets_lock();
+
     state_wallets.hds.push(hd_wallet);
     Json(json!({"status": "ok"}))
 }
