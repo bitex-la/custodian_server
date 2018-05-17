@@ -31,11 +31,13 @@ pub fn show(state: &ServerState, id: i32) -> Result<Json<Value>, status::Custom<
 }
 
 #[post("/hd_wallets", format = "application/json", data = "<hd_wallet>")]
-pub fn create(state: &ServerState, hd_wallet: HdWallet) -> Json<Value> {
+pub fn create(state: &ServerState, hd_wallet: HdWallet) -> Result<Json<Value>, status::Custom<String>> {
     let mut state_wallets = state.wallets_lock();
 
-    state_wallets.hds.push(hd_wallet);
-    Json(json!({"status": "ok"}))
+    match Wallets::add_wallet(&mut state_wallets.hds, hd_wallet) {
+        Ok(_)    => Ok(Json(json!({"status": "ok"}))),
+        Err(err) => Err(status::Custom(Status::InternalServerError, err.to_string()))
+    }
 }
 
 #[put("/hd_wallets/<id>", format = "application/json", data = "<hd_wallet>")]

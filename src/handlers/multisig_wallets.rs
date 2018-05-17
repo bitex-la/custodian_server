@@ -31,11 +31,13 @@ pub fn show(state: &ServerState, id: i32) -> Result<Json<Value>, status::Custom<
 }
 
 #[post("/multisig_wallets", format = "application/json", data = "<multisig_wallet>")]
-pub fn create(state: &ServerState, multisig_wallet: MultisigWallet) -> Json<Value> {
+pub fn create(state: &ServerState, multisig_wallet: MultisigWallet) -> Result<Json<Value>, status::Custom<String>> {
     let mut state_wallets = state.wallets_lock();
 
-    state_wallets.multisigs.push(multisig_wallet);
-    Json(json!({"status": "ok"}))
+    match Wallets::add_wallet(&mut state_wallets.multisigs, multisig_wallet) {
+        Ok(_)    => Ok(Json(json!({"status": "ok"}))),
+        Err(err) => Err(status::Custom(Status::InternalServerError, err.to_string()))
+    }
 }
 
 #[put("/multisig_wallets/<id>", format = "application/json", data = "<multisig_wallet>")]

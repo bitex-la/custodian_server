@@ -22,6 +22,17 @@ pub struct Wallets {
 jsonapi_model!(Wallets; "wallets"; has many plains, hds, multisigs);
 
 impl Wallets {
+    pub fn add_wallet<W: ResourceWallet<A> + Clone, A: ResourceAddress>(
+        state_wallets: &mut Vec<W>,
+        field_wallet: W,
+    ) -> Result<bool, String> {
+        let wallet = state_wallets.clone().into_iter().find(|wallet| wallet.id() == field_wallet.id());
+        match wallet {
+            Some(value) => Err(format!("Wallet with id {:?} is duplicated", value.id())),
+            None => { state_wallets.push(field_wallet); Ok(true) }
+        }
+    }
+
     pub fn show_wallet<W: ResourceWallet<A>, A: ResourceAddress>(
         state_wallets: &Vec<W>,
         id: i32,
