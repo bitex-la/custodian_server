@@ -1,0 +1,14 @@
+language: rust
+rust:
+  - nightly
+cache: cargo
+script:
+  - prepare_tests.sh
+  - run_tests.sh get_wallets_empty_data
+  - run_tests.sh creates_plain_wallet
+  - run_tests.sh internal_error_when_create_wallet
+  - run_tests.sh not_found_wallet
+  - run_tests.sh updates_plain_wallet
+  - run_tests.sh destroy_plain_wallet
+  - run_tests.sh add_address
+  - run_tests.sh destroy_address
