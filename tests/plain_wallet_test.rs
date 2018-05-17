@@ -6,14 +6,16 @@ extern crate rocket;
 
 #[cfg(test)]
 mod wallet_test {
-    use custodian_server::handlers::addresses;
-    use custodian_server::handlers::plain_wallets;
-    use custodian_server::server_state::ServerState;
     use rocket;
     use rocket::http::ContentType;
     use rocket::http::Status;
     use rocket::local::Client;
     use std::fs::File;
+    use std::sync::MutexGuard;
+    use custodian_server::handlers::addresses;
+    use custodian_server::handlers::plain_wallets;
+    use custodian_server::server_state::ServerState;
+    use custodian_server::models::wallets::Wallets;
 
     fn rocket() -> rocket::Rocket {
         let f = File::create("/dev/null").unwrap();
@@ -31,6 +33,34 @@ mod wallet_test {
                 addresses::destroy
             ],
         )
+    }
+
+    fn get_wallets(client: &Client) -> MutexGuard<Wallets> {
+        client
+            .rocket()
+            .state::<ServerState>()
+            .unwrap()
+            .wallets_lock()
+    }
+
+    fn creates_wallet_for_other_tests() -> Client {
+        let client = Client::new(rocket()).expect("valid rocket instance");
+        let wallets = r#"
+            {
+                "data": {
+                        "attributes": { "addresses": [ "uno", "dos" ], "version": "90" },
+                        "id": "1",
+                        "type": "plain_wallet"
+                    }
+            }"#;
+
+        client
+            .post("/plain_wallets")
+            .header(ContentType::JSON)
+            .body(wallets)
+            .dispatch();
+
+        client
     }
 
     #[test]
@@ -52,22 +82,13 @@ mod wallet_test {
                     "type": "plain_wallet"
                 }
             }"#;
-        let get_wallets = || {
-            client
-                .rocket()
-                .state::<ServerState>()
-                .unwrap()
-                .wallets
-                .lock()
-                .unwrap()
-        };
-        let orig_plain_len = get_wallets().plains.len();
+        let orig_plain_len = get_wallets(&client).plains.len();
         let response = client
             .post("/plain_wallets")
             .header(ContentType::JSON)
             .body(wallets)
             .dispatch();
-        let after_plain_len = get_wallets().plains.len();
+        let after_plain_len = get_wallets(&client).plains.len();
         assert_eq!(response.status(), Status::Ok);
         assert!(after_plain_len > orig_plain_len);
     }
@@ -103,21 +124,7 @@ mod wallet_test {
 
     #[test]
     fn updates_plain_wallet() {
-        let client = Client::new(rocket()).expect("valid rocket instance");
-        let wallets = r#"
-            {
-                "data": {
-                        "attributes": { "addresses": [ "uno", "dos" ], "version": "90" },
-                        "id": "1",
-                        "type": "plain_wallet"
-                    }
-            }"#;
-
-        client
-            .post("/plain_wallets")
-            .header(ContentType::JSON)
-            .body(wallets)
-            .dispatch();
+        let client = creates_wallet_for_other_tests();
 
         let wallets_to_update = r#"
             {
@@ -134,16 +141,7 @@ mod wallet_test {
             .body(wallets_to_update)
             .dispatch();
 
-        let get_wallets = || {
-            client
-                .rocket()
-                .state::<ServerState>()
-                .unwrap()
-                .wallets
-                .lock()
-                .unwrap()
-        };
-        let plain_wallets = &get_wallets().plains;
+        let plain_wallets = &get_wallets(&client).plains;
         assert_eq!(response.status(), Status::Ok);
         assert_eq!(plain_wallets.first().unwrap().addresses.len(), 1);
         assert_eq!(
@@ -154,37 +152,13 @@ mod wallet_test {
 
     #[test]
     fn destroy_plain_wallet() {
-        let client = Client::new(rocket()).expect("valid rocket instance");
-        let wallets = r#"
-            {
-                "data": {
-                        "attributes": { "addresses": [ "uno", "dos" ], "version": "90" },
-                        "id": "1",
-                        "type": "plain_wallet"
-                    }
-            }"#;
-
-        client
-            .post("/plain_wallets")
-            .header(ContentType::JSON)
-            .body(wallets)
-            .dispatch();
-
-        let get_wallets = || {
-            client
-                .rocket()
-                .state::<ServerState>()
-                .unwrap()
-                .wallets
-                .lock()
-                .unwrap()
-        };
+        let client = creates_wallet_for_other_tests();
 
         let response = client
             .delete("/plain_wallets/1")
             .header(ContentType::JSON)
             .dispatch();
-        let plain_wallets = &get_wallets().plains;
+        let plain_wallets = &get_wallets(&client).plains;
 
         assert_eq!(response.status(), Status::Ok);
         assert_eq!(plain_wallets.len(), 0);
@@ -192,38 +166,14 @@ mod wallet_test {
 
     #[test]
     fn add_address() {
-        let client = Client::new(rocket()).expect("valid rocket instance");
-        let wallets = r#"
-            {
-                "data": {
-                        "attributes": { "addresses": [ "uno", "dos" ], "version": "90" },
-                        "id": "1",
-                        "type": "plain_wallet"
-                    }
-            }"#;
-
-        client
-            .post("/plain_wallets")
-            .header(ContentType::JSON)
-            .body(wallets)
-            .dispatch();
-
-        let get_wallets = || {
-            client
-                .rocket()
-                .state::<ServerState>()
-                .unwrap()
-                .wallets
-                .lock()
-                .unwrap()
-        };
+        let client = creates_wallet_for_other_tests();
 
         let response = client
             .post("/plain_wallets/1/addresses")
             .header(ContentType::JSON)
             .body("tres")
             .dispatch();
-        let plain_wallets = &get_wallets().plains;
+        let plain_wallets = &get_wallets(&client).plains;
 
         assert_eq!(response.status(), Status::Ok);
         assert_eq!(plain_wallets.first().unwrap().addresses.len(), 3);
@@ -235,38 +185,14 @@ mod wallet_test {
 
     #[test]
     fn destroy_address() {
-        let client = Client::new(rocket()).expect("valid rocket instance");
-        let wallets = r#"
-            {
-                "data": {
-                        "attributes": { "addresses": [ "uno", "dos", "tres" ], "version": "90" },
-                        "id": "1",
-                        "type": "plain_wallet"
-                    }
-            }"#;
-
-        client
-            .post("/plain_wallets")
-            .header(ContentType::JSON)
-            .body(wallets)
-            .dispatch();
-
-        let get_wallets = || {
-            client
-                .rocket()
-                .state::<ServerState>()
-                .unwrap()
-                .wallets
-                .lock()
-                .unwrap()
-        };
+        let client = creates_wallet_for_other_tests();
 
         let response = client
             .delete("/plain_wallets/1/addresses")
             .header(ContentType::JSON)
             .body("dos")
             .dispatch();
-        let plain_wallets = &get_wallets().plains;
+        let plain_wallets = &get_wallets(&client).plains;
 
         assert_eq!(response.status(), Status::Ok);
         assert_eq!(plain_wallets.first().unwrap().addresses.len(), 2);
