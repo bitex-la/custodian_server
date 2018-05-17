@@ -27,7 +27,7 @@ jsonapi_model!(PlainWallet; "plain_wallet");
 pub struct PlainUtxo {
     pub prev_hash: String,
     pub prev_index: u64,
-    pub address: String,
+    pub address: Address,
     pub amount: u64,
 }
 
