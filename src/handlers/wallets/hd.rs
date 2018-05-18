@@ -1,24 +1,23 @@
 use handlers::wallets::base;
 use models::hd_wallet::HdWallet;
 use models::wallets::Wallets;
-use rocket::http::Status;
 use rocket::response::status;
 use rocket_contrib::{Json, Value};
 use server_state::ServerState;
 
 #[get("/hd_wallets", format = "application/json")]
 pub fn index(state: &ServerState) -> base::JsonResult {
-  base::index(state, |wallets| wallets.hds)
+    base::index(state, |wallets| wallets.hds)
 }
 
 #[get("/hd_wallets/<id>", format = "application/json")]
 pub fn show(state: &ServerState, id: i32) -> base::JsonResult {
-  base::show(state, id, |wallets| wallets.hds)
+    base::show(state, id, |wallets| wallets.hds)
 }
 
 #[post("/hd_wallets", format = "application/json", data = "<hd_wallet>")]
-pub fn create(state: &ServerState, plain_wallet: PlainWallet) -> base::JsonResult {
-  base::create(state, plain_wallet, |wallets| wallets.hds.as_mut() )
+pub fn create(state: &ServerState, hd_wallet: HdWallet) -> base::JsonResult {
+    base::create(state, hd_wallet, |wallets| wallets.hds.as_mut())
 }
 
 #[put("/hd_wallets/<id>", format = "application/json", data = "<hd_wallet>")]

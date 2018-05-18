@@ -7,17 +7,17 @@ use server_state::ServerState;
 
 #[get("/plain_wallets", format = "application/json")]
 pub fn index(state: &ServerState) -> base::JsonResult {
-  base::index(state, |wallets| wallets.plains)
+    base::index(state, |wallets| wallets.plains)
 }
 
 #[get("/plain_wallets/<id>", format = "application/json")]
 pub fn show(state: &ServerState, id: i32) -> base::JsonResult {
-  base::show(state, id, |wallets| wallets.plains)
+    base::show(state, id, |wallets| wallets.plains)
 }
 
 #[post("/plain_wallets", format = "application/json", data = "<plain_wallet>")]
 pub fn create(state: &ServerState, plain_wallet: PlainWallet) -> base::JsonResult {
-  base::create(state, plain_wallet, |wallets| wallets.plains.as_mut() )
+    base::create(state, plain_wallet, |wallets| wallets.plains.as_mut())
 }
 
 #[put("/plain_wallets/<id>", format = "application/json", data = "<plain_wallet>")]

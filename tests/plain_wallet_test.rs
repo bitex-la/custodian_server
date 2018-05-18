@@ -6,16 +6,16 @@ extern crate rocket;
 
 #[cfg(test)]
 mod wallet_test {
+    use custodian_server::handlers::addresses;
+    use custodian_server::handlers::plain_wallets;
+    use custodian_server::models::wallets::Wallets;
+    use custodian_server::server_state::ServerState;
     use rocket;
     use rocket::http::ContentType;
     use rocket::http::Status;
     use rocket::local::Client;
     use std::fs::File;
     use std::sync::MutexGuard;
-    use custodian_server::handlers::addresses;
-    use custodian_server::handlers::plain_wallets;
-    use custodian_server::server_state::ServerState;
-    use custodian_server::models::wallets::Wallets;
 
     fn rocket() -> rocket::Rocket {
         let f = File::create("/dev/null").unwrap();
@@ -196,9 +196,6 @@ mod wallet_test {
 
         assert_eq!(response.status(), Status::Ok);
         assert_eq!(plain_wallets.first().unwrap().addresses.len(), 1);
-        assert_eq!(
-            plain_wallets.first().unwrap().addresses,
-            vec!["uno"]
-        );
+        assert_eq!(plain_wallets.first().unwrap().addresses, vec!["uno"]);
     }
 }

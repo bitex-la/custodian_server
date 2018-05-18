@@ -45,7 +45,7 @@ impl Wallets {
             .position(|ref wallet| wallet.id() == id);
         match index {
             Some(index) => {
-                &state_wallets.remove(*index);
+                state_wallets.remove(*index);
                 Ok(true)
             }
             None => Err(format!("{:?}", id)),
@@ -59,9 +59,7 @@ impl Wallets {
     ) -> Result<bool, String> {
         let index = state_wallets.iter().position(|wallet| wallet.id() == id);
         match index {
-            Some(value) => {
-                state_wallets[value].add_address(address)
-            }
+            Some(value) => state_wallets[value].add_address(address),
             None => Err(format!("{:?}", id)),
         }
     }
@@ -74,7 +72,7 @@ impl Wallets {
         let index = state_wallets.iter().position(|wallet| wallet.id() == id);
         match index {
             Some(value) => state_wallets[value].remove_address(address),
-            None        => Err(format!("{:?}", id)),
+            None => Err(format!("{:?}", id)),
         }
     }
 }
