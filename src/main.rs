@@ -19,12 +19,7 @@ mod data_guards;
 mod handlers;
 mod models;
 mod server_state;
-use handlers::addresses;
-use handlers::hd_addresses;
-use handlers::hd_wallets;
-use handlers::multisig_addresses;
-use handlers::multisig_wallets;
-use handlers::plain_wallets;
+use handlers::{addresses, hd_addresses, multisig_addresses, wallets};
 use server_state::ServerState;
 use std::fs::File;
 
@@ -52,21 +47,21 @@ fn main() {
         .mount(
             "/",
             routes![
-                plain_wallets::index,
-                plain_wallets::show,
-                plain_wallets::create,
-                plain_wallets::update,
-                plain_wallets::destroy,
-                hd_wallets::index,
-                hd_wallets::show,
-                hd_wallets::create,
-                hd_wallets::update,
-                hd_wallets::destroy,
-                multisig_wallets::index,
-                multisig_wallets::show,
-                multisig_wallets::create,
-                multisig_wallets::update,
-                multisig_wallets::destroy,
+                wallets::plain::index,
+                wallets::plain::show,
+                wallets::plain::create,
+                wallets::plain::update,
+                wallets::plain::destroy,
+                wallets::hd::index,
+                wallets::hd::show,
+                wallets::hd::create,
+                wallets::hd::update,
+                wallets::hd::destroy,
+                wallets::multisig::index,
+                wallets::multisig::show,
+                wallets::multisig::create,
+                wallets::multisig::update,
+                wallets::multisig::destroy,
                 addresses::create,
                 addresses::destroy,
                 hd_addresses::create,
