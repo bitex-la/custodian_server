@@ -53,6 +53,7 @@ fn build_500_blocks_state() -> Result<ServerState> {
     Ok(state)
 }
 
+/*
 assert_ok!{ gets_utxos_for_3_wallets {
   let state = build_500_blocks_state()?;
   let hd_wallet = PlainWallet{
@@ -62,6 +63,7 @@ assert_ok!{ gets_utxos_for_3_wallets {
   };
   let wallets = state.wallets_lock();
 }}
+*/
 
 assert_ok!{ runs_500_blocks_sync {
     let state = build_500_blocks_state()?;

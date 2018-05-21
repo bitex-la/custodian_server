@@ -22,9 +22,9 @@ pub fn index<L, J>(state: &ServerState, lambda: L) -> JsonResult
     }
 }
 
-pub fn show<L, J, A>(state: &ServerState, id: i32, lambda: L) -> JsonResult
-  where L: FnOnce(Wallets) -> Vec<J>,
-        J: JsonApiModel + ResourceWallet<A>,
+pub fn show<L, W, A>(state: &ServerState, id: i32, lambda: L) -> JsonResult
+  where L: FnOnce(Wallets) -> Vec<W>,
+        W: JsonApiModel + ResourceWallet<A>,
         A: ResourceAddress
 {
     let wallets = state.wallets_lock();
@@ -57,3 +57,41 @@ pub fn create<L, W, A>(state: &ServerState, new: W, lambda: L) -> JsonResult
         Ok(Json(json!({"status": "ok"})))
     }
 } 
+
+pub fn update<L,W,A>(state: &ServerState, id: i32, new: W,  lambda: L) -> JsonResult
+  where for<'a> L: FnOnce(&'a mut Wallets) -> &'a mut Vec<W>,
+        W: JsonApiModel + ResourceWallet<A>,
+        A: ResourceAddress
+{
+    let mut wallets = state.wallets_lock();
+    let haystack = lambda(&mut wallets);
+    let maybe_position = &haystack.iter().position(|ref wallet| wallet.id() == id);
+
+    match maybe_position {
+        Some(position) => {
+            let old_item = haystack.swap_remove(*position);
+            let new_item = old_item.merge(new);
+            haystack.push(new_item);
+            Ok(Json(to_value(&haystack.last()).expect("Serialize after update")))
+        },
+        None => Err(status::Custom(Status::NotFound, format!("{:?}", id)))
+    }
+}
+
+pub fn destroy<L, W, A>(state: &ServerState, id: i32, lambda: L) -> JsonResult
+  where for<'a> L: FnOnce(&'a mut Wallets) -> &'a mut Vec<W>,
+        W: JsonApiModel + ResourceWallet<A>,
+        A: ResourceAddress
+{
+    let mut wallets = state.wallets_lock();
+    let haystack = lambda(&mut wallets);
+    let maybe_position = &haystack.iter().position(|ref wallet| wallet.id() == id);
+
+    match maybe_position {
+        Some(position) => {
+            let old = haystack.swap_remove(*position);
+            Ok(Json(to_value(&old).expect("Serialize after destroy")))
+        },
+        None => Err(status::Custom(Status::NotFound, format!("{:?}", id)))
+    }
+}

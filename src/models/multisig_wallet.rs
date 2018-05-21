@@ -9,8 +9,9 @@ use models::wallet::Wallet;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MultisigWallet {
-    pub id: String,
+    pub id: Option<String>,
     pub version: String,
+    #[serde(default)]
     pub addresses: Vec<HdAddress>,
     pub xpubs: Vec<String>,
     pub signers: u64,
@@ -50,7 +51,8 @@ impl Wallet for MultisigWallet {
     type Utxo = MultisigUtxo;
 
     fn get_utxos(&self, _exec: &Executor) -> Vec<Self::Utxo> {
-        let pubkeys = self.xpubs
+        vec![]
+        /*let pubkeys = self.xpubs
             .iter()
             .map(|xpub| PubkeyDefinition {
                 address_n: vec![0, 0, 1],
@@ -63,7 +65,6 @@ impl Wallet for MultisigWallet {
                 },
             })
             .collect();
-
         vec![MultisigUtxo {
             prev_hash: "abc".to_string(),
             prev_index: 1,
@@ -80,16 +81,23 @@ impl Wallet for MultisigWallet {
                 pubkeys: pubkeys,
             },
         }]
+        */
     }
 }
 
 from_data_wallet!(MultisigWallet);
 
 impl ResourceWallet<HdAddress> for MultisigWallet {
-    fn id(&self) -> i32 {
-        self.id.parse::<i32>().unwrap_or(0)
+    fn raw_id(&self) -> Option<&String> {
+        self.id.as_ref()
     }
 
+    fn merge(self, newer: Self) -> Self {
+      let addresses = self.addresses;
+      MultisigWallet{ addresses, ..newer }
+    }
+
+    /*
     fn add_address(&mut self, address: HdAddress)-> Result<bool, String> {
         match self.addresses.clone().into_iter().find(|in_address| in_address.id == address.id) {
             Some(_) => Err(format!("Duplicate address {:?}", address)),
@@ -107,4 +115,5 @@ impl ResourceWallet<HdAddress> for MultisigWallet {
             None        => Err(format!("Address {:?} does not exists", address))
         }
     }
+    */
 }

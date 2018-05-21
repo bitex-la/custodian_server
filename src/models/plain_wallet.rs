@@ -6,17 +6,22 @@ use models::resource_address::ResourceAddress;
 use models::resource_wallet::ResourceWallet;
 use models::wallet::Wallet;
 
-pub type Address = String;
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Address {
+  id: Option<String>,
+}
 impl ResourceAddress for Address {}
+jsonapi_model!(Address; "address");
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PlainWallet {
-    pub id: String,
+    pub id: Option<String>,
     pub version: String,
+    #[serde(default)]
     pub addresses: Vec<Address>,
 }
 
-jsonapi_model!(PlainWallet; "plain_wallet");
+jsonapi_model!(PlainWallet; "plain_wallet"; has many addresses);
 
 #[derive(Debug)]
 pub struct PlainUtxo {
@@ -30,22 +35,31 @@ impl Wallet for PlainWallet {
     type Utxo = PlainUtxo;
 
     fn get_utxos(&self, _exec: &Executor) -> Vec<Self::Utxo> {
+        vec![]
+        /*
         vec![PlainUtxo {
             prev_hash: "abc".to_string(),
             prev_index: 1,
-            address: "abc".to_string(),
+            address: Address{id: "abc".to_string()},
             amount: 100000000,
         }]
+        */
     }
 }
 
 from_data_wallet!(PlainWallet);
 
 impl ResourceWallet<Address> for PlainWallet {
-    fn id(&self) -> i32 {
-        self.id.parse::<i32>().unwrap_or(0)
+    fn raw_id(&self) -> Option<&String> {
+        self.id.as_ref()
     }
 
+    fn merge(self, newer: Self) -> Self {
+      let addresses = self.addresses;
+      PlainWallet{ addresses, ..newer }
+    }
+
+    /*
     fn add_address(&mut self, address: Address) -> Result<bool, String> {
         match self.addresses.clone().into_iter().find(|in_address| in_address == &address) {
             Some(_) => Err(format!("Duplicate address {:?}", address)),
@@ -63,4 +77,5 @@ impl ResourceWallet<Address> for PlainWallet {
             None        => Err(format!("Address {:?} does not exists", address))
         }
     }
+    */
 }

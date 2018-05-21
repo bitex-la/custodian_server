@@ -153,7 +153,7 @@ version = "0.1.0"
 dependencies = [
  "bitprim 0.1.0",
  "ctrlc 3.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "jsonapi 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "jsonapi 0.7.0 (git+https://github.com/bitex-la/jsonapi-rust)",
  "libc 0.2.40 (registry+https://github.com/rust-lang/crates.io-index)",
  "mock_derive 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "pear_codegen 0.0.17 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -259,8 +259,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "jsonapi"
-version = "0.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
+version = "0.7.0"
+source = "git+https://github.com/bitex-la/jsonapi-rust#2f7f23c7c90f7a55420c1037b35752b7a6b58c62"
 dependencies = [
  "error-chain 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.3.9 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -894,7 +894,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum isatty 0.1.7 (registry+https://github.com/rust-lang/crates.io-index)" = "a118a53ba42790ef25c82bb481ecf36e2da892646cccd361e69a6bb881e19398"
 "checksum itoa 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = "ae3088ea4baeceb0284ee9eea42f591226e6beaecf65373e41b38d95a1b8e7a1"
 "checksum itoa 0.4.1 (registry+https://github.com/rust-lang/crates.io-index)" = "c069bbec61e1ca5a596166e55dfe4773ff745c3d16b700013bcaff9a6df2c682"
-"checksum jsonapi 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)" = "f51f6bd9a6f0f80924d5dad8796c049ae8dc59fbfcfce815c3f8fbf01e051b48"
+"checksum jsonapi 0.7.0 (git+https://github.com/bitex-la/jsonapi-rust)" = "<none>"
 "checksum kernel32-sys 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)" = "7507624b29483431c0ba2d82aece8ca6cdba9382bff4ddd0f7490560c056098d"
 "checksum language-tags 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)" = "a91d884b6667cd606bb5a69aa0c99ba811a115fc68915e7056ec08a46e93199a"
 "checksum lazy_static 0.2.11 (registry+https://github.com/rust-lang/crates.io-index)" = "76f033c7ad61445c5b347c7382dd1237847eb1bce590fe50365dcb33d546be73"

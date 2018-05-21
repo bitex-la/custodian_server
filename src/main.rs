@@ -19,7 +19,8 @@ mod data_guards;
 mod handlers;
 mod models;
 mod server_state;
-use handlers::{addresses, hd_addresses, multisig_addresses, wallets};
+//use handlers::{addresses, hd_addresses, multisig_addresses, wallets};
+use handlers::wallets;
 use server_state::ServerState;
 use std::fs::File;
 
@@ -62,12 +63,14 @@ fn main() {
                 wallets::multisig::create,
                 wallets::multisig::update,
                 wallets::multisig::destroy,
+                /*
                 addresses::create,
                 addresses::destroy,
                 hd_addresses::create,
                 hd_addresses::destroy,
                 multisig_addresses::create,
                 multisig_addresses::destroy,
+                */
                 stop
             ],
         )

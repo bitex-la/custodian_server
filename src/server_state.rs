@@ -29,7 +29,7 @@ impl ServerState {
         Ok(Self {
             executor: exec,
             wallets: Mutex::new(Wallets {
-                id: String::new(),
+                id: None,
                 plains: vec![],
                 hds: vec![],
                 multisigs: vec![],

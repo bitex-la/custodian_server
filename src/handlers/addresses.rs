@@ -4,6 +4,7 @@ use rocket::response::status;
 use rocket_contrib::{Json, Value};
 use server_state::ServerState;
 
+/*
 #[post("/plain_wallets/<id>/addresses", format = "application/json", data = "<address>")]
 pub fn create(
     state: &ServerState,
@@ -31,3 +32,4 @@ pub fn destroy(
         Err(err) => Err(status::NotFound(err)),
     }
 }
+*/

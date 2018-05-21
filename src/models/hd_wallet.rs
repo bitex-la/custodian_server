@@ -9,8 +9,9 @@ use models::wallet::Wallet;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HdWallet {
-    pub id: String,
+    pub id: Option<String>,
     pub version: String,
+    #[serde(default)]
     pub addresses: Vec<HdAddress>,
     pub xpub: String,
 }
@@ -26,7 +27,7 @@ pub struct HdUtxo {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HdAddress {
-    pub id: String,
+    pub id: Option<String>,
     pub address: String,
     pub path: Vec<u64>,
 }
@@ -37,16 +38,18 @@ impl Wallet for HdWallet {
     type Utxo = HdUtxo;
 
     fn get_utxos(&self, _exec: &Executor) -> Vec<Self::Utxo> {
-        vec![HdUtxo {
+        vec![]
+        /*
             prev_hash: "abc".to_string(),
             prev_index: 1,
             address: HdAddress {
-                id: "1".to_string(),
+                id: Some("1".to_string()),
                 address: "abc".to_string(),
                 path: vec![0, 1, 0],
             },
             amount: 100000000,
         }]
+        */
     }
 }
 
@@ -54,10 +57,16 @@ from_data_wallet!(HdWallet);
 from_data_wallet!(HdAddress);
 
 impl ResourceWallet<HdAddress> for HdWallet {
-    fn id(&self) -> i32 {
-        self.id.parse::<i32>().unwrap_or(0)
+    fn raw_id(&self) -> Option<&String> {
+        self.id.as_ref()
     }
 
+    fn merge(self, newer: Self) -> Self {
+      let addresses = self.addresses;
+      HdWallet{ addresses, ..newer }
+    }
+
+    /*
     fn add_address(&mut self, address: HdAddress) -> Result<bool, String> {
         match self.addresses.clone().into_iter().find(|in_address| in_address.id == address.id) {
             Some(_) => Err(format!("Duplicate address {:?}", address)),
@@ -75,6 +84,7 @@ impl ResourceWallet<HdAddress> for HdWallet {
             None        => Err(format!("Address {:?} does not exists", address))
         }
     }
+    */
 }
 
 impl ResourceAddress for HdAddress {}

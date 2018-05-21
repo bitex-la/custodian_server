@@ -12,12 +12,18 @@ macro_rules! from_data_wallet {
 
                 let raw_json: JsonApiDocument = match ::serde_json::from_str(&string_wallets) {
                     Ok(value) => value,
-                    Err(err)  => return ::rocket::Outcome::Failure((::rocket::http::Status::BadRequest, format!("{:?}", err))),
+                    Err(err)  => {
+                      println!("Not a jsonapi document {:?}", &string_wallets);
+                      return ::rocket::Outcome::Failure((::rocket::http::Status::BadRequest, format!("Not a json_api document {:?}", err)))
+                    }
                 };
 
                 match Self::from_jsonapi_document(&raw_json) {
                     Ok(wallets) => ::rocket::Outcome::Success(wallets),
-                    Err(err)    => return ::rocket::Outcome::Failure((::rocket::http::Status::BadRequest, format!("{:?}", err))),
+                    Err(err)    => {
+                      println!("Cannot parse from jsonapi document {:?}, {:?}", &raw_json, err);
+                      return ::rocket::Outcome::Failure((::rocket::http::Status::BadRequest, format!("Cannot parse resource from document {:?}", err)))
+                    }
                 }
             }
         }
