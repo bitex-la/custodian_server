@@ -30,7 +30,7 @@ mod tests;
 #[get("/stop")]
 fn stop(state: &ServerState) -> String {
     state.graceful_stop();
-    format!("Stopping soon.")
+    "Stopping soon.".to_string()
 }
 
 fn main() {

@@ -4,12 +4,12 @@ use server_state::ServerState;
 
 #[get("/multisig_wallets", format = "application/json")]
 pub fn index(state: &ServerState) -> base::JsonResult {
-  base::index(state, |wallets| wallets.multisigs)
+    base::index(state, |wallets| wallets.multisigs)
 }
 
 #[get("/multisig_wallets/<id>", format = "application/json")]
 pub fn show(state: &ServerState, id: i32) -> base::JsonResult {
-  base::show(state, id, |wallets| wallets.multisigs)
+    base::show(state, id, |wallets| wallets.multisigs)
 }
 
 #[post("/multisig_wallets", format = "application/json", data = "<wallet>")]

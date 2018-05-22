@@ -61,9 +61,17 @@ impl ResourceWallet<Address> for PlainWallet {
 
     /*
     fn add_address(&mut self, address: Address) -> Result<bool, String> {
-        match self.addresses.clone().into_iter().find(|in_address| in_address == &address) {
+        match self
+            .addresses
+            .clone()
+            .into_iter()
+            .find(|in_address| in_address == &address)
+        {
             Some(_) => Err(format!("Duplicate address {:?}", address)),
-            None    => { self.addresses.push(address); Ok(true) }
+            None => {
+                self.addresses.push(address);
+                Ok(true)
+            }
         }
     }
 
@@ -72,9 +80,17 @@ impl ResourceWallet<Address> for PlainWallet {
     }
 
     fn remove_address(&mut self, address: Address) -> Result<bool, String> {
-        match self.addresses.clone().into_iter().position(|in_address| in_address == address) {
-            Some(index) => { self.addresses.remove(index); Ok(true) },
-            None        => Err(format!("Address {:?} does not exists", address))
+        match self
+            .addresses
+            .clone()
+            .into_iter()
+            .position(|in_address| in_address == address)
+        {
+            Some(index) => {
+                self.addresses.remove(index);
+                Ok(true)
+            }
+            None => Err(format!("Address {:?} does not exists", address)),
         }
     }
     */

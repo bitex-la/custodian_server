@@ -78,7 +78,7 @@ impl Wallet for MultisigWallet {
             multisig: MultisigDefinition {
                 signatures: vec![String::new(), String::new(), String::new()],
                 m: self.xpubs.len(),
-                pubkeys: pubkeys,
+                pubkeys
             },
         }]
         */
@@ -101,7 +101,10 @@ impl ResourceWallet<HdAddress> for MultisigWallet {
     fn add_address(&mut self, address: HdAddress)-> Result<bool, String> {
         match self.addresses.clone().into_iter().find(|in_address| in_address.id == address.id) {
             Some(_) => Err(format!("Duplicate address {:?}", address)),
-            None    => { self.addresses.push(address); Ok(true) }
+            None => {
+                self.addresses.push(address);
+                Ok(true)
+            }
         }
     }
 
@@ -110,9 +113,17 @@ impl ResourceWallet<HdAddress> for MultisigWallet {
     }
 
     fn remove_address(&mut self, address: HdAddress) -> Result<bool, String> {
-        match self.addresses.clone().into_iter().position(|in_address| in_address.id == address.id) {
-            Some(index) => { self.addresses.remove(index); Ok(true) },
-            None        => Err(format!("Address {:?} does not exists", address))
+        match self
+            .addresses
+            .clone()
+            .into_iter()
+            .position(|in_address| in_address.id == address.id)
+        {
+            Some(index) => {
+                self.addresses.remove(index);
+                Ok(true)
+            }
+            None => Err(format!("Address {:?} does not exists", address)),
         }
     }
     */

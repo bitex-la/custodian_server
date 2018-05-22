@@ -1,4 +1,4 @@
 mod base;
-pub mod multisig;
 pub mod hd;
+pub mod multisig;
 pub mod plain;
