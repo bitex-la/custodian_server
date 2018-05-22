@@ -25,7 +25,7 @@ pub struct HdUtxo {
     pub amount: u64,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct HdAddress {
     pub id: Option<String>,
     pub address: String,
@@ -66,13 +66,12 @@ impl ResourceWallet<HdAddress> for HdWallet {
       HdWallet{ addresses, ..newer }
     }
 
-    /*
     fn add_address(&mut self, address: HdAddress) -> Result<bool, String> {
         match self
             .addresses
             .clone()
             .into_iter()
-            .find(|in_address| in_address.id == address.id)
+            .find(|in_address| in_address == &address)
         {
             Some(_) => Err(format!("Duplicate address {:?}", address)),
             None => {
@@ -82,6 +81,7 @@ impl ResourceWallet<HdAddress> for HdWallet {
         }
     }
 
+    /*
     fn get_addresses(&self) -> Vec<HdAddress> {
         self.addresses.clone()
     }

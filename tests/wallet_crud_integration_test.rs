@@ -72,6 +72,18 @@ mod wallet_test {
         assert_eq!(response.status(), Status::Ok);
     }
 
+    fn get(client: &Client, url: &str) {
+        let response = client
+            .get(url)
+            .header(ContentType::JSON)
+            .dispatch();
+        assert_eq!(response.status(), Status::Ok);
+    }
+
+    fn count_wallets(wallets: &Wallets) -> usize {
+        wallets.plains.len() + wallets.hds.len() + wallets.multisigs.len()
+    }
+
     // Adds 1 wallet of each type
     // Shows the plain_wallet
     // Creates another plain_wallet
@@ -85,7 +97,7 @@ mod wallet_test {
     #[test]
     fn goes_through_the_full_wallet_lifecycle(){
         let client = Client::new(rocket()).expect("valid rocket instance");
-        let orig_wallets_len = get_wallets(&client).len();
+        assert_eq!(count_wallets(&get_wallets(&client)), 0);
 
         post(&client, "/plain_wallets", r#"{ "data": {
             "attributes": { "version": "90" },
@@ -107,9 +119,9 @@ mod wallet_test {
             }
         }}"#);
 
-        let after_wallets_len = get_wallets(&client).len();
+        assert_eq!(count_wallets(&get_wallets(&client)), 3);
 
-        assert!(after_wallets_len > orig_wallets_len);
+        get(&client, "/plain_wallets/1");
     }
 
     #[test]
@@ -186,7 +198,7 @@ mod wallet_test {
         let wallets_to_update = r#"
             {
                 "data": {
-                        "attributes": { "addresses": [ { "id": "tres" } ], "version": "92" },
+                        "attributes": { "version": "92" },
                         "id": "1",
                         "type": "plain_wallet"
                     }

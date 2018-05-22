@@ -6,12 +6,13 @@ use models::resource_address::ResourceAddress;
 use models::resource_wallet::ResourceWallet;
 use models::wallet::Wallet;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Address {
   pub id: Option<String>
 }
 impl ResourceAddress for Address {}
 jsonapi_model!(Address; "address");
+from_data_wallet!(Address);
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PlainWallet {
@@ -59,7 +60,6 @@ impl ResourceWallet<Address> for PlainWallet {
       PlainWallet{ addresses, ..newer }
     }
 
-    /*
     fn add_address(&mut self, address: Address) -> Result<bool, String> {
         match self
             .addresses
@@ -74,6 +74,8 @@ impl ResourceWallet<Address> for PlainWallet {
             }
         }
     }
+
+    /*
 
     fn get_addresses(&self) -> Vec<Address> {
         self.addresses.clone()

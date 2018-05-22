@@ -19,8 +19,7 @@ mod data_guards;
 mod handlers;
 mod models;
 mod server_state;
-//use handlers::{addresses, hd_addresses, multisig_addresses, wallets};
-use handlers::wallets;
+use handlers::{ wallets, addresses };
 use server_state::ServerState;
 use std::fs::File;
 
