@@ -54,21 +54,12 @@ mod wallet_test {
 
     fn creates_wallet_for_other_tests() -> Client {
         let client = Client::new(rocket()).expect("valid rocket instance");
-        let wallets = r#"
-            {
-                "data": {
-                        "attributes": { "addresses": [ "uno", "dos" ], "version": "90" },
-                        "id": "1",
-                        "type": "plain_wallet"
-                    }
-            }"#;
-
-        client
-            .post("/plain_wallets")
-            .header(ContentType::JSON)
-            .body(wallets)
-            .dispatch();
-
+        post(&client, "/plain_wallets", r#"{ "data": {
+            "attributes": { "version": "90" },
+            "type": "plain_wallet",
+            "id": "1"
+          }
+        }"#);
         client
     }
 
@@ -81,9 +72,21 @@ mod wallet_test {
         assert_eq!(response.status(), Status::Ok);
     }
 
+    // Adds 1 wallet of each type
+    // Shows the plain_wallet
+    // Creates another plain_wallet
+    // Listing all wallets shows 2 items.
+    // Updates the first plain wallet version.
+    // -- Adds addresses to the first plain wallet
+    // -- removes addresses from the first plain wallet
+    // Showing the first plain wallet sees the change.
+    // Destroys the first plain wallet
+    // Lists all wallets again, only the second plain wallet exists.
     #[test]
     fn goes_through_the_full_wallet_lifecycle(){
         let client = Client::new(rocket()).expect("valid rocket instance");
+        let orig_wallets_len = get_wallets(&client).len();
+
         post(&client, "/plain_wallets", r#"{ "data": {
             "attributes": { "version": "90" },
             "type": "plain_wallet"
@@ -104,16 +107,9 @@ mod wallet_test {
             }
         }}"#);
 
-        // Adds 1 wallet of each type
-        // Shows the plain_wallet
-        // Creates another plain_wallet
-        // Listing all wallets shows 2 items.
-        // Updates the first plain wallet version.
-        // -- Adds addresses to the first plain wallet
-        // -- removes addresses from the first plain wallet
-        // Showing the first plain wallet sees the change.
-        // Destroys the first plain wallet
-        // Lists all wallets again, only the second plain wallet exists.
+        let after_wallets_len = get_wallets(&client).len();
+
+        assert!(after_wallets_len > orig_wallets_len);
     }
 
     #[test]
@@ -190,7 +186,7 @@ mod wallet_test {
         let wallets_to_update = r#"
             {
                 "data": {
-                        "attributes": { "addresses": [ "tres" ], "version": "92" },
+                        "attributes": { "addresses": [ { "id": "tres" } ], "version": "92" },
                         "id": "1",
                         "type": "plain_wallet"
                     }
@@ -202,16 +198,17 @@ mod wallet_test {
             .body(wallets_to_update)
             .dispatch();
 
-        let plain_wallets = &get_wallets(&client).plains;
         assert_eq!(response.status(), Status::Ok);
 
-        /*
-        assert_eq!(plain_wallets.first().unwrap().addresses.len(), 1);
-        assert_eq!(
-            plain_wallets.first().unwrap().addresses.first().unwrap(),
-            "tres"
-        );
-        */
+        let after_plain_wallets = &get_wallets(&client).plains;
+
+        //TODO: Update wallets by adding addresses
+        //let addresses = &after_plain_wallets.first().unwrap().addresses;
+
+        //assert_eq!(addresses.len(), 1);
+        //assert_eq!(addresses.first().unwrap().clone().id.unwrap(), "tres");
+
+        assert_eq!(after_plain_wallets.first().unwrap().version, "92");
     }
 
     #[test]

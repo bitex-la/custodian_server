@@ -8,7 +8,7 @@ use models::wallet::Wallet;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Address {
-  id: Option<String>,
+  pub id: Option<String>
 }
 impl ResourceAddress for Address {}
 jsonapi_model!(Address; "address");

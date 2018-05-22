@@ -68,11 +68,12 @@ where
 
 pub fn update<L,W,A>(state: &ServerState, id: i32, new: W,  lambda: L) -> JsonResult
   where for<'a> L: FnOnce(&'a mut Wallets) -> &'a mut Vec<W>,
-        W: JsonApiModel + ResourceWallet<A>,
+        W: JsonApiModel + ResourceWallet<A> + ::std::fmt::Debug,
         A: ResourceAddress
 {
     let mut wallets = state.wallets_lock();
     let haystack = lambda(&mut wallets);
+
     let maybe_position = &haystack.iter().position(|ref wallet| wallet.id() == id);
 
     match maybe_position {

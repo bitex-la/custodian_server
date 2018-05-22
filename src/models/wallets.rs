@@ -1,12 +1,9 @@
 use std::clone::Clone;
-use std::iter::Iterator;
 
 use jsonapi::model::*;
 use models::hd_wallet::HdWallet;
 use models::multisig_wallet::MultisigWallet;
 use models::plain_wallet::PlainWallet;
-use models::resource_address::ResourceAddress;
-use models::resource_wallet::ResourceWallet;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Wallets {
@@ -19,20 +16,8 @@ pub struct Wallets {
 jsonapi_model!(Wallets; "wallets"; has many plains, hds, multisigs);
 
 impl Wallets {
-    pub fn destroy_wallet<W: ResourceWallet<A>, A: ResourceAddress>(
-        state_wallets: &mut Vec<W>,
-        id: i32,
-    ) -> Result<bool, String> {
-        let index = &state_wallets
-            .iter()
-            .position(|ref wallet| wallet.id() == id);
-        match index {
-            Some(index) => {
-                state_wallets.remove(*index);
-                Ok(true)
-            }
-            None => Err(format!("{:?}", id)),
-        }
+    pub fn len(&self) -> usize {
+        self.plains.len() + self.hds.len() + self.multisigs.len()
     }
 
     /*
