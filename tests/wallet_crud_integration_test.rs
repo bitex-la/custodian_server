@@ -6,10 +6,7 @@ extern crate rocket;
 
 #[cfg(test)]
 mod wallet_test {
-    use custodian_server::handlers::addresses;
-    use custodian_server::handlers::plain_wallets;
     use custodian_server::models::wallets::Wallets;
-    use custodian_server::server_state::ServerState;
     use rocket;
     use rocket::http::ContentType;
     use rocket::http::Status;
@@ -19,7 +16,6 @@ mod wallet_test {
     //use custodian_server::handlers::addresses;
     use custodian_server::handlers::wallets;
     use custodian_server::server_state::ServerState;
-    use custodian_server::models::wallets::Wallets;
 
     fn rocket() -> rocket::Rocket {
         let f = File::create("/dev/null").unwrap();
