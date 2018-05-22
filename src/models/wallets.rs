@@ -1,5 +1,4 @@
 use std::clone::Clone;
-use std::fmt::Debug;
 use std::iter::Iterator;
 
 use jsonapi::model::*;
