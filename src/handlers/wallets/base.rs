@@ -24,7 +24,7 @@ where
     }
 }
 
-pub fn show<L, W, A>(state: &ServerState, id: i32, lambda: L) -> JsonResult
+pub fn show<L, W, A>(state: &ServerState, id: u64, lambda: L) -> JsonResult
   where L: FnOnce(Wallets) -> Vec<W>,
         W: JsonApiModel + ResourceWallet<A>,
         A: ResourceAddress
@@ -61,12 +61,16 @@ where
             format!("Wallet with id {:?} is duplicated", new.id()),
         ))
     } else {
-        haystack.push(new);
-        Ok(Json(json!({"status": "ok"})))
+        let next_id = haystack.last().map(|h| h.id()).unwrap_or(0);
+        haystack.push(new.set_id(next_id + 1));
+        match to_value(haystack.last().to_jsonapi_document()) {
+            Some(value) => Ok(Json(value)),
+            Err(err)    => Err(status::Custom(Status::InternalServerError, err.to_string()))
+        }
     }
 } 
 
-pub fn update<L,W,A>(state: &ServerState, id: i32, new: W,  lambda: L) -> JsonResult
+pub fn update<L,W,A>(state: &ServerState, id: u64, new: W,  lambda: L) -> JsonResult
   where for<'a> L: FnOnce(&'a mut Wallets) -> &'a mut Vec<W>,
         W: JsonApiModel + ResourceWallet<A> + ::std::fmt::Debug,
         A: ResourceAddress
@@ -87,7 +91,7 @@ pub fn update<L,W,A>(state: &ServerState, id: i32, new: W,  lambda: L) -> JsonRe
     }
 }
 
-pub fn destroy<L, W, A>(state: &ServerState, id: i32, lambda: L) -> JsonResult
+pub fn destroy<L, W, A>(state: &ServerState, id: u64, lambda: L) -> JsonResult
   where for<'a> L: FnOnce(&'a mut Wallets) -> &'a mut Vec<W>,
         W: JsonApiModel + ResourceWallet<A>,
         A: ResourceAddress

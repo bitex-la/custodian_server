@@ -11,7 +11,7 @@ pub type JsonResult = Result<Json<Value>, status::Custom<String>>;
 
 pub fn create<A, L, W>(
     state: &ServerState,
-    id: i32,
+    id: u64,
     address: A,
     lambda: L
     ) -> JsonResult

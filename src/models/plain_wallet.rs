@@ -16,7 +16,7 @@ from_data_wallet!(Address);
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PlainWallet {
-    pub id: Option<String>,
+    pub id: Option<u64>,
     pub version: String,
     #[serde(default)]
     pub addresses: Vec<Address>,
@@ -51,8 +51,12 @@ impl Wallet for PlainWallet {
 from_data_wallet!(PlainWallet);
 
 impl ResourceWallet<Address> for PlainWallet {
-    fn raw_id(&self) -> Option<&String> {
-        self.id.as_ref()
+    fn raw_id(&self) -> Option<u64> {
+        self.id
+    }
+
+    fn set_id(self, new_id: u64) -> Self {
+        PlainWallet { id: Some(new_id), ..self }
     }
 
     fn merge(self, newer: Self) -> Self {

@@ -9,7 +9,7 @@ use models::wallet::Wallet;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MultisigWallet {
-    pub id: Option<String>,
+    pub id: Option<u64>,
     pub version: String,
     #[serde(default)]
     pub addresses: Vec<HdAddress>,
@@ -88,8 +88,12 @@ impl Wallet for MultisigWallet {
 from_data_wallet!(MultisigWallet);
 
 impl ResourceWallet<HdAddress> for MultisigWallet {
-    fn raw_id(&self) -> Option<&String> {
-        self.id.as_ref()
+    fn raw_id(&self) -> Option<u64> {
+        self.id
+    }
+
+    fn set_id(self, new_id: u64) -> Self {
+        MultisigWallet { id: Some(new_id), ..self }
     }
 
     fn merge(self, newer: Self) -> Self {

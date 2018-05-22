@@ -19,14 +19,14 @@ impl Wallets {
     /*
     pub fn add_address<W: ResourceWallet<A>, A: ResourceAddress>(
         state_wallets: &mut Vec<W>,
-        id: i32,
+        id: u64,
         address: A,
     ) -> Result<bool, String> {
     }
 
     pub fn destroy_address<W: ResourceWallet<A> + Clone, A: ResourceAddress + Debug>(
         state_wallets: &mut Vec<W>,
-        id: i32,
+        id: u64,
         address: A,
     ) -> Result<bool, String> {
         let index = state_wallets.iter().position(|wallet| wallet.id() == id);

@@ -9,7 +9,7 @@ use models::wallet::Wallet;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HdWallet {
-    pub id: Option<String>,
+    pub id: Option<u64>,
     pub version: String,
     #[serde(default)]
     pub addresses: Vec<HdAddress>,
@@ -57,8 +57,12 @@ from_data_wallet!(HdWallet);
 from_data_wallet!(HdAddress);
 
 impl ResourceWallet<HdAddress> for HdWallet {
-    fn raw_id(&self) -> Option<&String> {
-        self.id.as_ref()
+    fn raw_id(&self) -> Option<u64> {
+        self.id
+    }
+
+    fn set_id(self, new_id: u64) -> Self {
+        HdWallet { id: Some(new_id), ..self }
     }
 
     fn merge(self, newer: Self) -> Self {

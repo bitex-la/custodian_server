@@ -1,12 +1,13 @@
 use models::resource_address::ResourceAddress;
 
 pub trait ResourceWallet<A: ResourceAddress> {
-    fn raw_id(&self) -> Option<&String>;
+    fn raw_id(&self) -> Option<u64>;
 
-    fn id(&self) -> i32 {
-        self.raw_id().map(|x| x.parse::<i32>().unwrap_or(0) )
-          .unwrap_or(0)
+    fn id(&self) -> u64 {
+        self.raw_id().unwrap_or(0)
     }
+
+    fn set_id(self, new_id: u64) -> Self;
 
     fn merge(self, newer: Self) -> Self;
 

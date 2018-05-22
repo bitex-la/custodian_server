@@ -7,7 +7,7 @@ use server_state::ServerState;
 #[post("/hd_wallets/<id>/addresses", format = "application/json", data = "<address>")]
 pub fn create(
     state: &ServerState,
-    id: i32,
+    id: u64,
     address: HdAddress,
 ) -> Result<Json<Value>, status::NotFound<String>> {
     let mut state_wallets = state.wallets_lock();
@@ -21,7 +21,7 @@ pub fn create(
 #[delete("/hd_wallets/<id>/addresses", format = "application/json", data = "<address>")]
 pub fn destroy(
     state: &ServerState,
-    id: i32,
+    id: u64,
     address: HdAddress,
 ) -> Result<Json<Value>, status::NotFound<String>> {
     let mut state_wallets = state.wallets_lock();

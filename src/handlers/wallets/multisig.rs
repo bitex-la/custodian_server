@@ -8,7 +8,7 @@ pub fn index(state: &ServerState) -> base::JsonResult {
 }
 
 #[get("/multisig_wallets/<id>", format = "application/json")]
-pub fn show(state: &ServerState, id: i32) -> base::JsonResult {
+pub fn show(state: &ServerState, id: u64) -> base::JsonResult {
     base::show(state, id, |wallets| wallets.multisigs)
 }
 
@@ -18,11 +18,11 @@ pub fn create(state: &ServerState, wallet: MultisigWallet) -> base::JsonResult {
 }
 
 #[put("/multisig_wallets/<id>", format = "application/json", data = "<wallet>")]
-pub fn update(state: &ServerState, id: i32, wallet: MultisigWallet) -> base::JsonResult {
+pub fn update(state: &ServerState, id: u64, wallet: MultisigWallet) -> base::JsonResult {
     base::update(state, id, wallet, |wallets| wallets.multisigs.as_mut() )
 }
 
 #[delete("/multisig_wallets/<id>", format = "application/json")]
-pub fn destroy(state: &ServerState, id: i32) -> base::JsonResult {
+pub fn destroy(state: &ServerState, id: u64) -> base::JsonResult {
     base::destroy(state, id, |wallets| wallets.multisigs.as_mut() )
 }
