@@ -61,11 +61,15 @@ where
             format!("Wallet with id {:?} is duplicated", new.id()),
         ))
     } else {
-        let next_id = haystack.last().map(|h| h.id()).unwrap_or(0);
-        haystack.push(new.set_id(next_id + 1));
-        match to_value(haystack.last().to_jsonapi_document()) {
-            Some(value) => Ok(Json(value)),
-            Err(err)    => Err(status::Custom(Status::InternalServerError, err.to_string()))
+        let mut next_id = 0;
+        if let Some(last_wallet) = haystack.last() {
+            next_id = last_wallet.id() + 1;
+        }
+        let new_wallet = new.set_id(next_id + 1);
+        haystack.push(new_wallet);
+        match to_value(new_wallet.to_jsonapi_document()) {
+            Ok(value) => Ok(Json(value)),
+            Err(err)  => Err(status::Custom(Status::InternalServerError, err.to_string()))
         }
     }
 } 
