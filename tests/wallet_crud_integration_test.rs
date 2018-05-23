@@ -11,6 +11,7 @@ mod wallet_test {
     use rocket::http::ContentType;
     use rocket::http::Status;
     use rocket::local::Client;
+    use rocket::local::LocalResponse;
     use std::fs::File;
     use std::sync::MutexGuard;
     //use custodian_server::handlers::addresses;
@@ -72,12 +73,13 @@ mod wallet_test {
         assert_eq!(response.status(), Status::Ok);
     }
 
-    fn get(client: &Client, url: &str) {
+    fn get<'a>(client: &'a Client, url: &'a str) -> LocalResponse<'a> {
         let response = client
             .get(url)
             .header(ContentType::JSON)
             .dispatch();
         assert_eq!(response.status(), Status::Ok);
+        response
     }
 
     fn count_wallets(wallets: &Wallets) -> usize {
