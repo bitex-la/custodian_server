@@ -11,13 +11,11 @@ pub trait ResourceWallet<A: ResourceAddress> {
 
     fn merge(self, newer: Self) -> Self;
 
-    fn add_address(&mut self, address: A) -> Result<bool, String>;
-
-    /*
-
+    fn add_address(&mut self, address: A);
 
     fn get_addresses(&self) -> Vec<A>;
 
+    /*
     fn remove_address(&mut self, address: A) -> Result<bool, String>;
     */
 }

@@ -101,21 +101,15 @@ impl ResourceWallet<HdAddress> for MultisigWallet {
       MultisigWallet{ addresses, ..newer }
     }
 
-    fn add_address(&mut self, address: HdAddress)-> Result<bool, String> {
-        match self.addresses.clone().into_iter().find(|in_address| in_address.id == address.id) {
-            Some(_) => Err(format!("Duplicate address {:?}", address)),
-            None => {
-                self.addresses.push(address);
-                Ok(true)
-            }
-        }
+    fn add_address(&mut self, address: HdAddress) {
+        self.addresses.push(address);
     }
 
-    /*
     fn get_addresses(&self) -> Vec<HdAddress> {
         self.addresses.clone()
     }
 
+    /*
     fn remove_address(&mut self, address: HdAddress) -> Result<bool, String> {
         match self
             .addresses

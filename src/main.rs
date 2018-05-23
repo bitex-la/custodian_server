@@ -7,7 +7,6 @@ extern crate ctrlc;
 extern crate libc;
 extern crate rocket;
 extern crate serde_json;
-#[macro_use]
 extern crate rocket_contrib;
 #[macro_use]
 extern crate serde_derive;
@@ -62,8 +61,8 @@ fn main() {
                 wallets::multisig::create,
                 wallets::multisig::update,
                 wallets::multisig::destroy,
+                addresses::plain::create,
                 /*
-                addresses::create,
                 addresses::destroy,
                 hd_addresses::create,
                 hd_addresses::destroy,

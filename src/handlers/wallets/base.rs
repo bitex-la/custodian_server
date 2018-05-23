@@ -65,11 +65,14 @@ where
         if let Some(last_wallet) = haystack.last() {
             next_id = last_wallet.id() + 1;
         }
-        let new_wallet = new.set_id(next_id + 1);
-        haystack.push(new_wallet);
-        match to_value(new_wallet.to_jsonapi_document()) {
-            Ok(value) => Ok(Json(value)),
-            Err(err)  => Err(status::Custom(Status::InternalServerError, err.to_string()))
+        haystack.push(new.set_id(next_id + 1));
+        match haystack.last() {
+            Some(value) =>
+                match to_value(value.to_jsonapi_document()) {
+                    Ok(value) => Ok(Json(value)),
+                    Err(err)  => Err(status::Custom(Status::InternalServerError, err.to_string()))
+                },
+            None       => Err(status::Custom(Status::NotFound, format!("No last wallet")))
         }
     }
 } 

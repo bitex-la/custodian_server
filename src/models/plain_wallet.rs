@@ -24,6 +24,14 @@ pub struct PlainWallet {
 
 jsonapi_model!(PlainWallet; "plain_wallet"; has many addresses);
 
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Dog {
+    pub id: Option<u64>,
+    pub name: String
+}
+jsonapi_model!(Dog; "dogs");
+
 #[derive(Debug)]
 pub struct PlainUtxo {
     pub prev_hash: String,
@@ -64,27 +72,15 @@ impl ResourceWallet<Address> for PlainWallet {
       PlainWallet{ addresses, ..newer }
     }
 
-    fn add_address(&mut self, address: Address) -> Result<bool, String> {
-        match self
-            .addresses
-            .clone()
-            .into_iter()
-            .find(|in_address| in_address == &address)
-        {
-            Some(_) => Err(format!("Duplicate address {:?}", address)),
-            None => {
-                self.addresses.push(address);
-                Ok(true)
-            }
-        }
+    fn add_address(&mut self, address: Address) {
+        self.addresses.push(address);
     }
-
-    /*
 
     fn get_addresses(&self) -> Vec<Address> {
         self.addresses.clone()
     }
 
+    /*
     fn remove_address(&mut self, address: Address) -> Result<bool, String> {
         match self
             .addresses
