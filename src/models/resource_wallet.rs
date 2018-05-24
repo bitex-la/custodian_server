@@ -1,5 +1,5 @@
-use models::resource_address::ResourceAddress;
 use jsonapi::model::*;
+use models::resource_address::ResourceAddress;
 use models::wallets::Wallets;
 use std;
 
@@ -14,11 +14,11 @@ pub trait ResourceWallet: std::marker::Sized + JsonApiModel + Clone + std::fmt::
     fn set_id(self, new_id: u64) -> Self;
 
     fn set_auto_id_if_needed(self, last_id: u64) -> Self {
-      if self.raw_id().is_none() {
-        self.set_id(last_id + 1 )
-      }else{
-        self
-      }
+        if self.raw_id().is_none() {
+            self.set_id(last_id + 1)
+        } else {
+            self
+        }
     }
 
     fn merge(self, newer: Self) -> Self;
@@ -28,11 +28,11 @@ pub trait ResourceWallet: std::marker::Sized + JsonApiModel + Clone + std::fmt::
     fn get_addresses<'a>(&'a mut self) -> &'a mut Vec<Self::A>;
 
     fn default_query() -> Query {
-      Query::from_params(&format!(
-          "include=[]&fields[{}]={}",
-          Self::jsonapi_type(),
-          Self::default_fields()
-      ))
+        Query::from_params(&format!(
+            "include=[]&fields[{}]={}",
+            Self::jsonapi_type(),
+            Self::default_fields()
+        ))
     }
 
     fn default_fields() -> &'static str;

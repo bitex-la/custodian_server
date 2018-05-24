@@ -8,12 +8,15 @@ use server_state::ServerState;
 
 pub type JsonResult = Result<Json<Value>, status::Custom<String>>;
 
-pub trait WalletHandler : ResourceWallet {
+pub trait WalletHandler: ResourceWallet {
     fn index(state: &ServerState) -> JsonResult {
         let mut wallets = state.wallets_lock();
         let all = Self::collection_from_wallets(&mut wallets);
 
-        match to_value(vec_to_jsonapi_document_with_query(all.clone(), &Self::default_query())) {
+        match to_value(vec_to_jsonapi_document_with_query(
+            all.clone(),
+            &Self::default_query(),
+        )) {
             Ok(value) => Ok(Json(value)),
             Err(err) => Err(status::Custom(Status::InternalServerError, err.to_string())),
         }
@@ -26,12 +29,12 @@ pub trait WalletHandler : ResourceWallet {
 
         match maybe_wallet {
             Some(wallet) => {
-              let doc = wallet.to_jsonapi_document_with_query(&Self::default_query());
-              match to_value(doc) {
-                Ok(value) => Ok(Json(value)),
-                Err(err) => Err(status::Custom(Status::InternalServerError, err.to_string())),
-              }
-            },
+                let doc = wallet.to_jsonapi_document_with_query(&Self::default_query());
+                match to_value(doc) {
+                    Ok(value) => Ok(Json(value)),
+                    Err(err) => Err(status::Custom(Status::InternalServerError, err.to_string())),
+                }
+            }
             None => Err(status::Custom(Status::NotFound, format!("{:?}", id))),
         }
     }
@@ -53,15 +56,14 @@ pub trait WalletHandler : ResourceWallet {
             let last_id = haystack.last().map(ResourceWallet::id).unwrap_or(0);
             haystack.push(new.set_auto_id_if_needed(last_id));
             match haystack.last() {
-                Some(value) =>
-                    match to_value(value.to_jsonapi_document()) {
-                        Ok(value) => Ok(Json(value)),
-                        Err(err)  => Err(status::Custom(Status::InternalServerError, err.to_string()))
-                    },
-                None       => Err(status::Custom(Status::NotFound, format!("No last wallet")))
+                Some(value) => match to_value(value.to_jsonapi_document()) {
+                    Ok(value) => Ok(Json(value)),
+                    Err(err) => Err(status::Custom(Status::InternalServerError, err.to_string())),
+                },
+                None => Err(status::Custom(Status::NotFound, format!("No last wallet"))),
             }
         }
-    } 
+    }
 
     fn update(state: &ServerState, id: u64, new: Self) -> JsonResult {
         let mut wallets = state.wallets_lock();
@@ -74,9 +76,11 @@ pub trait WalletHandler : ResourceWallet {
                 let old_item = haystack.swap_remove(*position);
                 let new_item = old_item.merge(new);
                 haystack.push(new_item);
-                Ok(Json(to_value(&haystack.last()).expect("Serialize after update")))
-            },
-            None => Err(status::Custom(Status::NotFound, format!("{:?}", id)))
+                Ok(Json(
+                    to_value(&haystack.last()).expect("Serialize after update"),
+                ))
+            }
+            None => Err(status::Custom(Status::NotFound, format!("{:?}", id))),
         }
     }
 
@@ -89,8 +93,8 @@ pub trait WalletHandler : ResourceWallet {
             Some(position) => {
                 let old = haystack.swap_remove(*position);
                 Ok(Json(to_value(&old).expect("Serialize after destroy")))
-            },
-            None => Err(status::Custom(Status::NotFound, format!("{:?}", id)))
+            }
+            None => Err(status::Custom(Status::NotFound, format!("{:?}", id))),
         }
     }
 }

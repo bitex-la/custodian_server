@@ -7,8 +7,8 @@ extern crate bitprim;
 extern crate ctrlc;
 extern crate libc;
 extern crate rocket;
-extern crate serde_json;
 extern crate rocket_contrib;
+extern crate serde_json;
 #[macro_use]
 extern crate serde_derive;
 #[macro_use]

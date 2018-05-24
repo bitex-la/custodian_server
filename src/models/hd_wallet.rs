@@ -65,12 +65,15 @@ impl ResourceWallet for HdWallet {
     }
 
     fn set_id(self, new_id: u64) -> Self {
-        HdWallet { id: Some(new_id), ..self }
+        HdWallet {
+            id: Some(new_id),
+            ..self
+        }
     }
 
     fn merge(self, newer: Self) -> Self {
-      let addresses = self.addresses;
-      HdWallet{ addresses, ..newer }
+        let addresses = self.addresses;
+        HdWallet { addresses, ..newer }
     }
 
     fn add_address(&mut self, address: Self::A) {
@@ -82,11 +85,11 @@ impl ResourceWallet for HdWallet {
     }
 
     fn default_fields() -> &'static str {
-      "version,xpub"
+        "version,xpub"
     }
 
     fn collection_from_wallets<'a>(wallets: &'a mut Wallets) -> &'a mut Vec<Self> {
-      wallets.hds.as_mut()
+        wallets.hds.as_mut()
     }
 
     fn remove_address(&mut self, index: usize) {
@@ -94,8 +97,7 @@ impl ResourceWallet for HdWallet {
     }
 
     fn find_address_position(&self, address: &Self::A) -> Option<usize> {
-        self
-            .addresses
+        self.addresses
             .clone()
             .into_iter()
             .position(|in_address| in_address.id == address.id)

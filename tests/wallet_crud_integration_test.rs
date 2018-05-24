@@ -1,6 +1,7 @@
 #![feature(plugin)]
 #![plugin(rocket_codegen)]
-#[macro_use] extern crate pretty_assertions;
+#[macro_use]
+extern crate pretty_assertions;
 
 extern crate custodian_server;
 extern crate rocket;
@@ -56,16 +57,20 @@ mod wallet_test {
 
     fn creates_wallet_for_other_tests() -> Client {
         let client = Client::new(rocket()).expect("valid rocket instance");
-        post(&client, "/plain_wallets", r#"{ "data": {
+        post(
+            &client,
+            "/plain_wallets",
+            r#"{ "data": {
             "attributes": { "version": "90" },
             "type": "plain_wallet",
             "id": "1"
           }
-        }"#);
+        }"#,
+        );
         client
     }
 
-    fn post(client: &Client, url: &str, body: &str){
+    fn post(client: &Client, url: &str, body: &str) {
         let response = client
             .post(url)
             .header(ContentType::JSON)
@@ -75,10 +80,7 @@ mod wallet_test {
     }
 
     fn get<'a>(client: &'a Client, url: &'a str) -> LocalResponse<'a> {
-        let response = client
-            .get(url)
-            .header(ContentType::JSON)
-            .dispatch();
+        let response = client.get(url).header(ContentType::JSON).dispatch();
         assert_eq!(response.status(), Status::Ok);
         response
     }
@@ -98,48 +100,60 @@ mod wallet_test {
     // Destroys the first plain wallet
     // Lists all wallets again, only the second plain wallet exists.
     #[test]
-    fn goes_through_the_full_wallet_lifecycle(){
+    fn goes_through_the_full_wallet_lifecycle() {
         let client = Client::new(rocket()).expect("valid rocket instance");
         assert_eq!(count_wallets(&get_wallets(&client)), 0);
 
-        post(&client, "/plain_wallets", r#"{ "data": {
+        post(
+            &client,
+            "/plain_wallets",
+            r#"{ "data": {
             "attributes": { "version": "90" },
             "type": "plain_wallet"
           }
-        }"#);
+        }"#,
+        );
 
-        post(&client, "/hd_wallets", r#"{ "data": {
+        post(
+            &client,
+            "/hd_wallets",
+            r#"{ "data": {
             "attributes": { "version": "90", "xpub": "xpub2323323232" },
             "type": "hd_wallet"
-        }}"#);
+        }}"#,
+        );
 
-        post(&client, "/multisig_wallets", r#"{ "data": {
+        post(
+            &client,
+            "/multisig_wallets",
+            r#"{ "data": {
             "type": "multisig_wallet",
             "attributes": {
                 "version": "90",
                 "xpubs": ["xpub2323323232", "xpub12121212", "xpub12121221"],
                 "signers": 2
             }
-        }}"#);
+        }}"#,
+        );
 
         assert_eq!(count_wallets(&get_wallets(&client)), 3);
 
-        assert_eq!(get(&client, "/plain_wallets").body_string().unwrap(),
-          r#"{"data":[{"attributes":{"version":"90"},"id":"1","type":"plain_wallet"}]}"#
+        assert_eq!(
+            get(&client, "/plain_wallets").body_string().unwrap(),
+            r#"{"data":[{"attributes":{"version":"90"},"id":"1","type":"plain_wallet"}]}"#
         );
 
-        assert_eq!(get(&client, "/plain_wallets/1").body_string().unwrap(),
-          r#"{"data":{"attributes":{"version":"90"},"id":"1","type":"plain_wallet"}}"#
+        assert_eq!(
+            get(&client, "/plain_wallets/1").body_string().unwrap(),
+            r#"{"data":{"attributes":{"version":"90"},"id":"1","type":"plain_wallet"}}"#
         );
     }
 
     #[test]
-    fn goes_through_a_hd_wallet_lifecycle(){
-    }
+    fn goes_through_a_hd_wallet_lifecycle() {}
 
     #[test]
-    fn goes_through_a_multisig_wallet_lifecycle(){
-    }
+    fn goes_through_a_multisig_wallet_lifecycle() {}
 
     #[test]
     fn get_wallets_empty_data() {

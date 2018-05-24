@@ -6,8 +6,8 @@ extern crate bitprim;
 extern crate ctrlc;
 extern crate libc;
 extern crate rocket;
-extern crate serde_json;
 extern crate rocket_contrib;
+extern crate serde_json;
 #[macro_use]
 extern crate serde_derive;
 #[macro_use]
@@ -18,7 +18,7 @@ mod data_guards;
 mod handlers;
 mod models;
 mod server_state;
-use handlers::{ wallets, addresses };
+use handlers::{addresses, wallets};
 use server_state::ServerState;
 use std::fs::File;
 

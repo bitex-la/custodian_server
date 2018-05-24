@@ -1,5 +1,5 @@
-use handlers::wallets::base::{WalletHandler, JsonResult};
-use models::multisig_wallet::{MultisigWallet};
+use handlers::wallets::base::{JsonResult, WalletHandler};
+use models::multisig_wallet::MultisigWallet;
 use server_state::ServerState;
 
 #[get("/multisig_wallets", format = "application/json")]

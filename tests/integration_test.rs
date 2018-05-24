@@ -3,9 +3,9 @@ extern crate custodian_server;
 
 use std::fs::File;
 use std::ops::Deref;
+use std::str::FromStr;
 use std::thread::sleep;
 use std::time::Duration;
-use std::str::FromStr;
 
 use bitprim::errors::*;
 use bitprim::explorer::OpaqueCollection;

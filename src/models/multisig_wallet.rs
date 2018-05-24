@@ -96,12 +96,15 @@ impl ResourceWallet for MultisigWallet {
     }
 
     fn set_id(self, new_id: u64) -> Self {
-        MultisigWallet { id: Some(new_id), ..self }
+        MultisigWallet {
+            id: Some(new_id),
+            ..self
+        }
     }
 
     fn merge(self, newer: Self) -> Self {
-      let addresses = self.addresses;
-      MultisigWallet{ addresses, ..newer }
+        let addresses = self.addresses;
+        MultisigWallet { addresses, ..newer }
     }
 
     fn add_address(&mut self, address: Self::A) {
@@ -113,11 +116,11 @@ impl ResourceWallet for MultisigWallet {
     }
 
     fn default_fields() -> &'static str {
-      "version,xpubs,signers"
+        "version,xpubs,signers"
     }
 
     fn collection_from_wallets<'a>(wallets: &'a mut Wallets) -> &'a mut Vec<Self> {
-      wallets.multisigs.as_mut()
+        wallets.multisigs.as_mut()
     }
 
     fn remove_address(&mut self, index: usize) {
@@ -125,8 +128,7 @@ impl ResourceWallet for MultisigWallet {
     }
 
     fn find_address_position(&self, address: &Self::A) -> Option<usize> {
-        self
-            .addresses
+        self.addresses
             .clone()
             .into_iter()
             .position(|in_address| in_address.id == address.id)

@@ -9,7 +9,7 @@ use models::wallets::Wallets;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Address {
-  pub id: Option<String>
+    pub id: Option<String>,
 }
 impl ResourceAddress for Address {}
 jsonapi_model!(Address; "address");
@@ -25,11 +25,10 @@ pub struct PlainWallet {
 
 jsonapi_model!(PlainWallet; "plain_wallet"; has many addresses);
 
-
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Dog {
     pub id: Option<u64>,
-    pub name: String
+    pub name: String,
 }
 jsonapi_model!(Dog; "dogs");
 
@@ -67,12 +66,15 @@ impl ResourceWallet for PlainWallet {
     }
 
     fn set_id(self, new_id: u64) -> Self {
-        PlainWallet { id: Some(new_id), ..self }
+        PlainWallet {
+            id: Some(new_id),
+            ..self
+        }
     }
 
     fn merge(self, newer: Self) -> Self {
-      let addresses = self.addresses;
-      PlainWallet{ addresses, ..newer }
+        let addresses = self.addresses;
+        PlainWallet { addresses, ..newer }
     }
 
     fn add_address(&mut self, address: Self::A) {
@@ -84,11 +86,11 @@ impl ResourceWallet for PlainWallet {
     }
 
     fn default_fields() -> &'static str {
-      "version"
+        "version"
     }
 
     fn collection_from_wallets<'a>(wallets: &'a mut Wallets) -> &'a mut Vec<Self> {
-      wallets.plains.as_mut()
+        wallets.plains.as_mut()
     }
 
     fn remove_address(&mut self, index: usize) {
@@ -96,8 +98,7 @@ impl ResourceWallet for PlainWallet {
     }
 
     fn find_address_position(&self, address: &Self::A) -> Option<usize> {
-        self
-            .addresses
+        self.addresses
             .clone()
             .into_iter()
             .position(|in_address| in_address.id == address.id)
