@@ -77,8 +77,8 @@ impl ResourceWallet for HdWallet {
         self.addresses.push(address);
     }
 
-    fn get_addresses(&self) -> Vec<Self::A> {
-        self.addresses.clone()
+    fn get_addresses<'a>(&'a mut self) -> &'a mut Vec<Self::A> {
+        self.addresses.as_mut()
     }
 
     fn default_fields() -> &'static str {
@@ -89,19 +89,16 @@ impl ResourceWallet for HdWallet {
       wallets.hds.as_mut()
     }
 
-    fn remove_address(&mut self, address: Self::A) -> Result<bool, String> {
-        match self
+    fn remove_address(&mut self, index: usize) {
+        self.addresses.remove(index);
+    }
+
+    fn find_address_position(&self, address: &Self::A) -> Option<usize> {
+        self
             .addresses
             .clone()
             .into_iter()
             .position(|in_address| in_address.id == address.id)
-        {
-            Some(index) => {
-                self.addresses.remove(index);
-                Ok(true)
-            }
-            None => Err(format!("Address {:?} does not exists", address)),
-        }
     }
 }
 

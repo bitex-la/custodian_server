@@ -21,21 +21,17 @@ pub trait AddressHandler : ResourceWallet {
             let haystack = Self::collection_from_wallets(&mut wallets);
 
             match haystack.iter().position(|wallet| wallet.id() == id) {
-                Some(value) => { 
-                    match haystack[value].get_addresses().into_iter().find(|in_address| in_address == &address) {
-                        Some(found_address) => 
-                            Err(status::Custom(
-                                    Status::InternalServerError,
-                                    format!("Address {:?} is duplicated", found_address),
-                                    )),
-                        None    => { 
-                            haystack[value].add_address(address);
-                            match haystack[value].get_addresses().last() {
+                Some(wallet_position) => { 
+                    match haystack[wallet_position].find_address_position(&address) {
+                        Some(_) => Err(status::Custom(Status::InternalServerError, format!("Duplicate address {:?}", address))),
+                        None => {
+                            haystack[wallet_position].add_address(address);
+                            match haystack[wallet_position].get_addresses().last() {
                                 Some(last_address) => Ok(Json(to_value(last_address.to_jsonapi_document()).unwrap_or(Value::Null))),
-                                None => Err(status::Custom(Status::NotFound, format!("Address Not Found")))
+                                None => Err(status::Custom(Status::InternalServerError, "Problem adding address".to_string()))
                             }
-
-                        }
+                            
+                        } 
                     }
                 },
                 None => Err(status::Custom(Status::NotFound, format!("Wallet {:?} Not Found", id)))
@@ -54,12 +50,16 @@ pub trait AddressHandler : ResourceWallet {
 
         match haystack.iter().position(|wallet| wallet.id() == id) {
             Some(value) => {
-                match haystack[value].remove_address(address.clone()) {
-                    Ok(_) => Ok(Json(to_value(address.to_jsonapi_document()).unwrap_or(Value::Null))),
-                    Err(err) => Err(status::Custom(Status::NotFound, format!("{:?}", err)))
+                match haystack[value].find_address_position(&address) {
+                    Some(position) => {
+                        haystack[value].remove_address(position);
+                        Ok(Json(to_value(address.to_jsonapi_document()).unwrap_or(Value::Null)))
+                    },
+                    None => Err(status::Custom(Status::NotFound, format!("Address not found {:?}", address)))
                 }
+
             },
-            None => Err(status::Custom(Status::NotFound, format!("Address {:?} Not Found", address)))
+            None => Err(status::Custom(Status::NotFound, format!("Wallet with id {:?} Not Found", id)))
         }
     }
 }

@@ -25,7 +25,7 @@ pub trait ResourceWallet: std::marker::Sized + JsonApiModel + Clone + std::fmt::
 
     fn add_address(&mut self, address: Self::A);
 
-    fn get_addresses(&self) -> Vec<Self::A>;
+    fn get_addresses<'a>(&'a mut self) -> &'a mut Vec<Self::A>;
 
     fn default_query() -> Query {
       Query::from_params(&format!(
@@ -39,5 +39,7 @@ pub trait ResourceWallet: std::marker::Sized + JsonApiModel + Clone + std::fmt::
 
     fn collection_from_wallets<'a>(wallets: &'a mut Wallets) -> &'a mut Vec<Self>;
 
-    fn remove_address(&mut self, address: Self::A) -> Result<bool, String>;
+    fn remove_address(&mut self, index: usize);
+
+    fn find_address_position(&self, address: &Self::A) -> Option<usize>;
 }
