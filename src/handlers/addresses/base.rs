@@ -16,7 +16,6 @@ pub trait AddressHandler : ResourceWallet {
         id: u64,
         address: Self::A
         ) -> JsonResult
-        where
         {
             let mut wallets = state.wallets_lock();
             let haystack = Self::collection_from_wallets(&mut wallets);
