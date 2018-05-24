@@ -16,7 +16,6 @@ mod wallet_test {
     use rocket::local::LocalResponse;
     use std::fs::File;
     use std::sync::MutexGuard;
-    //use custodian_server::handlers::addresses;
     use custodian_server::handlers::wallets;
     use custodian_server::server_state::ServerState;
 
@@ -73,6 +72,15 @@ mod wallet_test {
     fn post(client: &Client, url: &str, body: &str) {
         let response = client
             .post(url)
+            .header(ContentType::JSON)
+            .body(body)
+            .dispatch();
+        assert_eq!(response.status(), Status::Ok);
+    }
+
+    fn put(client: &Client, url: &str, body: &str) {
+        let response = client
+            .put(url)
             .header(ContentType::JSON)
             .body(body)
             .dispatch();
@@ -147,6 +155,19 @@ mod wallet_test {
             get(&client, "/plain_wallets/1").body_string().unwrap(),
             r#"{"data":{"attributes":{"version":"90"},"id":"1","type":"plain_wallet"}}"#
         );
+
+        put(
+            &client,
+            "/plain_wallets/1",
+            r#"{ "data": {
+            "attributes": { "version": "91" },
+            "type": "plain_wallet"
+          }}"#,
+        );
+
+        let plain_wallet = &get_wallets(&client).plains;
+
+        assert_eq!(plain_wallet.iter().find(|pw| pw.id == Some(1 as u64)).unwrap().version, "91");
     }
 
     #[test]

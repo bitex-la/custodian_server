@@ -73,7 +73,7 @@ impl ResourceWallet for HdWallet {
 
     fn merge(self, newer: Self) -> Self {
         let addresses = self.addresses;
-        HdWallet { addresses, ..newer }
+        HdWallet { addresses, id: self.id, ..newer }
     }
 
     fn add_address(&mut self, address: Self::A) {
