@@ -1,10 +1,12 @@
-use handlers::addresses::base;
 use models::plain_wallet::Address;
+use models::plain_wallet::PlainWallet;
 use server_state::ServerState;
+use handlers::addresses::base::AddressHandler;
+use handlers::addresses::base::JsonResult;
 
 #[post("/plain_wallets/<id>/addresses", format = "application/json", data = "<address>")]
-pub fn create(state: &ServerState, id: u64, address: Address) -> base::JsonResult {
-    base::create(state, id, address, |wallets| wallets.plains.as_mut() )
+pub fn create(state: &ServerState, id: u64, address: Address) -> JsonResult {
+    PlainWallet::create(state, id, address)
 }
 
 /*#[delete("/plain_wallets/<id>/addresses", format = "application/json", data = "<address>")]
