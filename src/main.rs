@@ -62,8 +62,8 @@ fn main() {
                 wallets::multisig::update,
                 wallets::multisig::destroy,
                 addresses::plain::create,
+                addresses::plain::destroy,
                 /*
-                addresses::destroy,
                 hd_addresses::create,
                 hd_addresses::destroy,
                 multisig_addresses::create,
