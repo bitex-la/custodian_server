@@ -89,8 +89,7 @@ impl ResourceWallet for HdWallet {
       wallets.hds.as_mut()
     }
 
-    /*
-    fn remove_address(&mut self, address: HdAddress) -> Result<bool, String> {
+    fn remove_address(&mut self, address: Self::A) -> Result<bool, String> {
         match self
             .addresses
             .clone()
@@ -104,7 +103,6 @@ impl ResourceWallet for HdWallet {
             None => Err(format!("Address {:?} does not exists", address)),
         }
     }
-    */
 }
 
 impl ResourceAddress for HdAddress {}

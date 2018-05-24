@@ -91,8 +91,7 @@ impl ResourceWallet for PlainWallet {
       wallets.plains.as_mut()
     }
 
-    /*
-    fn remove_address(&mut self, address: Address) -> Result<bool, String> {
+    fn remove_address(&mut self, address: Self::A) -> Result<bool, String> {
         match self
             .addresses
             .clone()
@@ -106,5 +105,4 @@ impl ResourceWallet for PlainWallet {
             None => Err(format!("Address {:?} does not exists", address)),
         }
     }
-    */
 }

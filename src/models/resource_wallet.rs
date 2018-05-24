@@ -39,7 +39,5 @@ pub trait ResourceWallet: std::marker::Sized + JsonApiModel + Clone + std::fmt::
 
     fn collection_from_wallets<'a>(wallets: &'a mut Wallets) -> &'a mut Vec<Self>;
 
-    /*
-    fn remove_address(&mut self, address: A) -> Result<bool, String>;
-    */
+    fn remove_address(&mut self, address: Self::A) -> Result<bool, String>;
 }
