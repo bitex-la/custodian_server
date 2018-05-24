@@ -63,12 +63,10 @@ fn main() {
                 wallets::multisig::destroy,
                 addresses::plain::create,
                 addresses::plain::destroy,
-                /*
-                hd_addresses::create,
-                hd_addresses::destroy,
-                multisig_addresses::create,
-                multisig_addresses::destroy,
-                */
+                addresses::hd::create,
+                addresses::hd::destroy,
+                addresses::multisig::create,
+                addresses::multisig::destroy,
                 stop
             ],
         )
