@@ -17,6 +17,7 @@ mod wallet_test {
     use std::fs::File;
     use std::sync::MutexGuard;
     use custodian_server::handlers::wallets;
+    use custodian_server::handlers::addresses;
     use custodian_server::server_state::ServerState;
 
     fn rocket() -> rocket::Rocket {
@@ -42,6 +43,12 @@ mod wallet_test {
                 wallets::multisig::create,
                 wallets::multisig::update,
                 wallets::multisig::destroy,
+                addresses::plain::create,
+                addresses::plain::destroy,
+                addresses::hd::create,
+                addresses::hd::destroy,
+                addresses::multisig::create,
+                addresses::multisig::destroy,
             ],
         )
     }
@@ -168,6 +175,15 @@ mod wallet_test {
         let plain_wallet = &get_wallets(&client).plains;
 
         assert_eq!(plain_wallet.iter().find(|pw| pw.id == Some(1 as u64)).unwrap().version, "91");
+
+        post(
+            &client,
+            "/plain_wallets/1/addresses",
+            r#"{ "data": {
+            "attributes": { "id": "lk1jh314" },
+            "type": "address"
+          }}"#,
+        )
     }
 
     #[test]
