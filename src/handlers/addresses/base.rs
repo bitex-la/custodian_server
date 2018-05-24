@@ -1,4 +1,3 @@
-use std::fmt::Debug;
 use serde_json::to_value;
 
 use jsonapi::model::*;
@@ -6,7 +5,6 @@ use rocket::http::Status;
 use rocket::response::status;
 use rocket_contrib::{Json, Value};
 use server_state::ServerState;
-use models::resource_address::ResourceAddress;
 use models::resource_wallet::ResourceWallet;
 use models::wallets::Wallets;
 

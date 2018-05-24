@@ -1,5 +1,5 @@
 use handlers::wallets::base::{WalletHandler, JsonResult};
-use models::plain_wallet::{PlainWallet, Address};
+use models::plain_wallet::{PlainWallet};
 use server_state::ServerState;
 
 #[get("/plain_wallets", format = "application/json")]

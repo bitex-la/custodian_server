@@ -1,7 +1,5 @@
 use jsonapi::model::*;
-use models::resource_address::ResourceAddress;
 use models::resource_wallet::ResourceWallet;
-use models::wallets::Wallets;
 use rocket::http::Status;
 use rocket::response::status;
 use rocket_contrib::{Json, Value};
