@@ -5,6 +5,7 @@ use std::fs::File;
 use std::ops::Deref;
 use std::thread::sleep;
 use std::time::Duration;
+use std::str::FromStr;
 
 use bitprim::errors::*;
 use bitprim::explorer::OpaqueCollection;
@@ -123,7 +124,7 @@ assert_ok!{ fetches_earliest_transaction_block {
 assert_ok!{ gets_unspents_for_an_address {
   let state = build_500_blocks_state()?;
   let chain = state.executor.get_chain();
-  let addr = PaymentAddress::from_str("mqETuaBY9Tiq1asdsehEyQgCHe34SrXQs9");
+  let addr = PaymentAddress::from_str("mqETuaBY9Tiq1asdsehEyQgCHe34SrXQs9").unwrap();
   let hist = chain.get_history(addr, 1000, 1)?;
   assert!(hist.len() == 2);
   let first = hist.deref().get(0);

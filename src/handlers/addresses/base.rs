@@ -12,16 +12,15 @@ use models::wallets::Wallets;
 
 pub type JsonResult = Result<Json<Value>, status::Custom<String>>;
 
-pub fn create<A, L, W>(
+pub fn create<L, W>(
     state: &ServerState,
     id: u64,
-    address: A,
+    address: W::A,
     lambda: L
     ) -> JsonResult
 where
     for<'a> L: FnOnce(&'a mut Wallets) -> &'a mut Vec<W>,
-    W: JsonApiModel + ResourceWallet<A>,
-    A: ResourceAddress + PartialEq + Debug + JsonApiModel
+    W: ResourceWallet
 {
     let mut wallets = state.wallets_lock();
     let haystack = lambda(&mut wallets);

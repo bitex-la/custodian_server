@@ -1,5 +1,6 @@
 #![feature(plugin)]
 #![plugin(rocket_codegen)]
+#[macro_use] extern crate pretty_assertions;
 
 extern crate custodian_server;
 extern crate rocket;
@@ -123,7 +124,13 @@ mod wallet_test {
 
         assert_eq!(count_wallets(&get_wallets(&client)), 3);
 
-        get(&client, "/plain_wallets/1");
+        assert_eq!(get(&client, "/plain_wallets").body_string().unwrap(),
+          r#"{"data":[{"attributes":{"version":"90"},"id":"1","type":"plain_wallet"}]}"#
+        );
+
+        assert_eq!(get(&client, "/plain_wallets/1").body_string().unwrap(),
+          r#"{"data":{"attributes":{"version":"90"},"id":"1","type":"plain_wallet"}}"#
+        );
     }
 
     #[test]

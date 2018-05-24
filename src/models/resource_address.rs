@@ -1,1 +1,3 @@
-pub trait ResourceAddress {}
+use std;
+use jsonapi::model::*;
+pub trait ResourceAddress : JsonApiModel + PartialEq + std::marker::Sized + std::fmt::Debug {}

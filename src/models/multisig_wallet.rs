@@ -3,9 +3,10 @@ use std::io::Read;
 use bitprim::executor::Executor;
 use jsonapi::model::*;
 
-use models::hd_wallet::HdAddress;
+pub use models::hd_wallet::HdAddress;
 use models::resource_wallet::ResourceWallet;
 use models::wallet::Wallet;
+use models::wallets::Wallets;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MultisigWallet {
@@ -87,7 +88,9 @@ impl Wallet for MultisigWallet {
 
 from_data_wallet!(MultisigWallet);
 
-impl ResourceWallet<HdAddress> for MultisigWallet {
+impl ResourceWallet for MultisigWallet {
+    type A = HdAddress;
+
     fn raw_id(&self) -> Option<u64> {
         self.id
     }
@@ -101,12 +104,20 @@ impl ResourceWallet<HdAddress> for MultisigWallet {
       MultisigWallet{ addresses, ..newer }
     }
 
-    fn add_address(&mut self, address: HdAddress) {
+    fn add_address(&mut self, address: Self::A) {
         self.addresses.push(address);
     }
 
-    fn get_addresses(&self) -> Vec<HdAddress> {
+    fn get_addresses(&self) -> Vec<Self::A> {
         self.addresses.clone()
+    }
+
+    fn default_fields() -> &'static str {
+      "version,xpubs,signers"
+    }
+
+    fn collection_from_wallets<'a>(wallets: &'a mut Wallets) -> &'a mut Vec<Self> {
+      wallets.multisigs.as_mut()
     }
 
     /*
