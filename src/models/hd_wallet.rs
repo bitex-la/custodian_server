@@ -88,6 +88,10 @@ impl ResourceWallet for HdWallet {
         "version,xpub"
     }
 
+    fn address_fields() -> &'static str {
+        "address, path"
+    }
+
     fn collection_from_wallets<'a>(wallets: &'a mut Wallets) -> &'a mut Vec<Self> {
         wallets.hds.as_mut()
     }

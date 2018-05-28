@@ -35,7 +35,17 @@ pub trait ResourceWallet: std::marker::Sized + JsonApiModel + Clone + std::fmt::
         ))
     }
 
+    fn addresses_query() -> Query {
+        Query::from_params(&format!(
+            "include=[]&fields[{}]={}",
+            Self::jsonapi_type(),
+            Self::address_fields()
+        ))
+    }
+
     fn default_fields() -> &'static str;
+
+    fn address_fields() -> &'static str;
 
     fn collection_from_wallets<'a>(wallets: &'a mut Wallets) -> &'a mut Vec<Self>;
 

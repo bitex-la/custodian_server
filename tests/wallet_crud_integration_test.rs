@@ -43,10 +43,13 @@ mod wallet_test {
                 wallets::multisig::create,
                 wallets::multisig::update,
                 wallets::multisig::destroy,
+                addresses::plain::index,
                 addresses::plain::create,
                 addresses::plain::destroy,
+                addresses::hd::index,
                 addresses::hd::create,
                 addresses::hd::destroy,
+                addresses::multisig::index,
                 addresses::multisig::create,
                 addresses::multisig::destroy,
             ],
@@ -172,18 +175,25 @@ mod wallet_test {
           }}"#,
         );
 
-        let plain_wallet = &get_wallets(&client).plains;
-
-        assert_eq!(plain_wallet.iter().find(|pw| pw.id == Some(1 as u64)).unwrap().version, "91");
+        assert_eq!(
+            get(&client, "/plain_wallets/1").body_string().unwrap(),
+            r#"{"data":{"attributes":{"version":"91"},"id":"1","type":"plain_wallet"}}"#
+        );
 
         post(
             &client,
-            "/plain_wallets/1/addresses",
+            "/plain_wallets/1/relationships/addresses",
             r#"{ "data": {
-            "attributes": { "id": "lk1jh314" },
+            "attributes": { },
+            "id": "lk1jh314",
             "type": "address"
           }}"#,
-        )
+        );
+
+        assert_eq!(
+            get(&client, "/plain_wallets/1/relationships/addresses").body_string().unwrap(),
+            r#"{"data":[{"attributes":{},"id":"lk1jh314","type":"address"}]}"#
+        );
     }
 
     #[test]

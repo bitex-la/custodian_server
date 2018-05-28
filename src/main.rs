@@ -61,10 +61,13 @@ fn main() {
                 wallets::multisig::create,
                 wallets::multisig::update,
                 wallets::multisig::destroy,
+                addresses::plain::index,
                 addresses::plain::create,
                 addresses::plain::destroy,
+                addresses::hd::index,
                 addresses::hd::create,
                 addresses::hd::destroy,
+                addresses::multisig::index,
                 addresses::multisig::create,
                 addresses::multisig::destroy,
                 stop

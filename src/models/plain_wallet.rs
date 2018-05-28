@@ -89,6 +89,10 @@ impl ResourceWallet for PlainWallet {
         "version"
     }
 
+    fn address_fields() -> &'static str {
+        "id"
+    }
+
     fn collection_from_wallets<'a>(wallets: &'a mut Wallets) -> &'a mut Vec<Self> {
         wallets.plains.as_mut()
     }
