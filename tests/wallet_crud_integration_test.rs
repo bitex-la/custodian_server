@@ -166,13 +166,23 @@ mod wallet_test {
         assert_eq!(count_wallets(&get_wallets(&client)), 3);
 
         assert_eq!(
-            get(&client, "/plain_wallets").body_string().unwrap(),
-            r#"{"data":[{"attributes":{"version":"90"},"id":"1","type":"plain_wallet"}]}"#
+            get(&client, "/plain_wallets/1").body_string().unwrap(),
+            r#"{"data":{"attributes":{"version":"90"},"id":"1","type":"plain_wallet"}}"#
+        );
+
+        post(
+            &client,
+            "/plain_wallets",
+            r#"{ "data": {
+            "attributes": { "version": "54" },
+            "type": "plain_wallet"
+          }
+        }"#,
         );
 
         assert_eq!(
-            get(&client, "/plain_wallets/1").body_string().unwrap(),
-            r#"{"data":{"attributes":{"version":"90"},"id":"1","type":"plain_wallet"}}"#
+            get(&client, "/plain_wallets").body_string().unwrap(),
+            r#"{"data":[{"attributes":{"version":"90"},"id":"1","type":"plain_wallet"},{"attributes":{"version":"54"},"id":"2","type":"plain_wallet"}]}"#
         );
 
         put(
@@ -218,6 +228,22 @@ mod wallet_test {
             get(&client, "/plain_wallets/1/relationships/addresses").body_string().unwrap(),
             r#"{"data":[]}"#
         );
+
+        assert_eq!(
+            get(&client, "/plain_wallets/1").body_string().unwrap(),
+            r#"{"data":{"attributes":{"version":"91"},"id":"1","type":"plain_wallet"}}"#
+        );
+
+        delete( &client, "/plain_wallets/1", "");
+
+        let response = client.get("/plain_wallets/1").header(ContentType::JSON).dispatch();
+        assert_eq!(response.status(), Status::NotFound);
+
+        assert_eq!(
+            get(&client, "/plain_wallets").body_string().unwrap(),
+            r#"{"data":[{"attributes":{"version":"54"},"id":"2","type":"plain_wallet"}]}"#
+        );
+
     }
 
     #[test]
