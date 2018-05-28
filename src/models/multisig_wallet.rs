@@ -86,7 +86,7 @@ impl Wallet for MultisigWallet {
     }
 }
 
-from_data_wallet!(MultisigWallet);
+from_data!(MultisigWallet);
 
 impl ResourceWallet for MultisigWallet {
     type A = HdAddress;

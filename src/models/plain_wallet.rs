@@ -13,7 +13,7 @@ pub struct Address {
 }
 impl ResourceAddress for Address {}
 jsonapi_model!(Address; "address");
-from_data_wallet!(Address);
+from_data!(Address);
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PlainWallet {
@@ -56,7 +56,7 @@ impl Wallet for PlainWallet {
     }
 }
 
-from_data_wallet!(PlainWallet);
+from_data!(PlainWallet);
 
 impl ResourceWallet for PlainWallet {
     type A = Address;

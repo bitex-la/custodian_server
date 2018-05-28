@@ -54,8 +54,8 @@ impl Wallet for HdWallet {
     }
 }
 
-from_data_wallet!(HdWallet);
-from_data_wallet!(HdAddress);
+from_data!(HdWallet);
+from_data!(HdAddress);
 
 impl ResourceWallet for HdWallet {
     type A = HdAddress;
