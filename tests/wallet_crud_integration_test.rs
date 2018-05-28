@@ -97,6 +97,15 @@ mod wallet_test {
         assert_eq!(response.status(), Status::Ok);
     }
 
+    fn delete(client: &Client, url: &str, body: &str) {
+        let response = client
+            .delete(url)
+            .header(ContentType::JSON)
+            .body(body)
+            .dispatch();
+        assert_eq!(response.status(), Status::Ok);
+    }
+
     fn get<'a>(client: &'a Client, url: &'a str) -> LocalResponse<'a> {
         let response = client.get(url).header(ContentType::JSON).dispatch();
         assert_eq!(response.status(), Status::Ok);
@@ -193,6 +202,21 @@ mod wallet_test {
         assert_eq!(
             get(&client, "/plain_wallets/1/relationships/addresses").body_string().unwrap(),
             r#"{"data":[{"attributes":{},"id":"lk1jh314","type":"address"}]}"#
+        );
+
+        delete(
+            &client,
+            "/plain_wallets/1/relationships/addresses",
+            r#"{ "data": {
+            "attributes": { },
+            "id": "lk1jh314",
+            "type": "address"
+          }}"#,
+        );
+
+        assert_eq!(
+            get(&client, "/plain_wallets/1/relationships/addresses").body_string().unwrap(),
+            r#"{"data":[]}"#
         );
     }
 
