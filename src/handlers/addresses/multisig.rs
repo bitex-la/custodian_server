@@ -6,11 +6,11 @@ use server_state::ServerState;
 
 #[post("/multisig_wallets/<id>/addresses", format = "application/json", data = "<address>")]
 pub fn create(state: &ServerState, id: u64, address: HdAddress) -> JsonResult {
-    MultisigWallet::create(state, id, address)
+    MultisigWallet::address_create(state, id, address)
 }
 
 #[delete("/multisig_wallets/<id>/addresses", format = "application/json", data = "<address>")]
 pub fn destroy(state: &ServerState, id: u64, address: HdAddress) -> JsonResult {
-    MultisigWallet::destroy(state, id, address)
+    MultisigWallet::address_destroy(state, id, address)
 }
 

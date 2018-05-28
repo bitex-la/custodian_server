@@ -10,7 +10,7 @@ use server_state::ServerState;
 pub type JsonResult = Result<Json<Value>, status::Custom<String>>;
 
 pub trait AddressHandler: ResourceWallet {
-    fn create(state: &ServerState, id: u64, address: Self::A) -> JsonResult {
+    fn address_create(state: &ServerState, id: u64, address: Self::A) -> JsonResult {
         let mut wallets = state.wallets_lock();
         let haystack = Self::collection_from_wallets(&mut wallets);
 
@@ -42,7 +42,7 @@ pub trait AddressHandler: ResourceWallet {
         }
     }
 
-    fn destroy(state: &ServerState, id: u64, address: Self::A) -> JsonResult {
+    fn address_destroy(state: &ServerState, id: u64, address: Self::A) -> JsonResult {
         let mut wallets = state.wallets_lock();
         let haystack = Self::collection_from_wallets(&mut wallets);
 
