@@ -1,8 +1,8 @@
 use handlers::addresses::base::AddressHandler;
-use handlers::addresses::base::JsonResult;
 use models::plain_wallet::Address;
 use models::plain_wallet::PlainWallet;
 use server_state::ServerState;
+use handlers::handler::JsonResult;
 
 #[get("/plain_wallets/<id>/relationships/addresses", format = "application/json")]
 pub fn index(state: &ServerState, id: u64) -> JsonResult {

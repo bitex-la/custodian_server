@@ -1,6 +1,7 @@
-use handlers::wallets::base::{JsonResult, WalletHandler};
+use handlers::wallets::base::WalletHandler;
 use models::plain_wallet::PlainWallet;
 use server_state::ServerState;
+use handlers::handler::JsonResult;
 
 #[get("/plain_wallets", format = "application/json")]
 pub fn index(state: &ServerState) -> JsonResult {

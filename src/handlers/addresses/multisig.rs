@@ -1,8 +1,8 @@
 use handlers::addresses::base::AddressHandler;
-use handlers::addresses::base::JsonResult;
 use models::multisig_wallet::HdAddress;
 use models::multisig_wallet::MultisigWallet;
 use server_state::ServerState;
+use handlers::handler::JsonResult;
 
 #[get("/multisig_wallets/<id>/relationships/addresses", format = "application/json")]
 pub fn index(state: &ServerState, id: u64) -> JsonResult {

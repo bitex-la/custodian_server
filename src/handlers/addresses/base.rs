@@ -1,13 +1,9 @@
-use serde_json::to_value;
-
 use jsonapi::model::*;
 use models::resource_wallet::ResourceWallet;
 use rocket::http::Status;
 use rocket::response::status;
-use rocket_contrib::{Json, Value};
 use server_state::ServerState;
-
-pub type JsonResult = Result<Json<Value>, status::Custom<String>>;
+use handlers::handler::{JsonResult, parse_to_value};
 
 pub trait AddressHandler: ResourceWallet {
     fn address_index(state: &ServerState, id: u64) -> JsonResult {
@@ -15,15 +11,10 @@ pub trait AddressHandler: ResourceWallet {
         let haystack = Self::collection_from_wallets(&mut wallets);
 
         match haystack.iter_mut().find(|wallet| wallet.id() == id) {
-            Some(maybe_wallet) => {
-                match to_value(vec_to_jsonapi_document_with_query(
+            Some(maybe_wallet) =>
+                parse_to_value(vec_to_jsonapi_document_with_query(
                         maybe_wallet.get_addresses().to_vec(),
-                        &Self::addresses_query(),
-                        )) {
-                    Ok(value) => Ok(Json(value)),
-                    Err(err) => Err(status::Custom(Status::InternalServerError, err.to_string())),
-                }
-            },
+                        &Self::addresses_query())),
             None => Err(status::Custom(
                     Status::NotFound,
                     format!("Wallet {:?} Not Found", id),
@@ -46,9 +37,7 @@ pub trait AddressHandler: ResourceWallet {
                     None => {
                         haystack[wallet_position].add_address(address);
                         match haystack[wallet_position].get_addresses().last() {
-                            Some(last_address) => Ok(Json(
-                                    to_value(last_address.to_jsonapi_document()).unwrap_or(Value::Null),
-                                    )),
+                            Some(last_address) => parse_to_value(last_address.to_jsonapi_document()),
                             None => Err(status::Custom(
                                     Status::InternalServerError,
                                     "Problem adding address".to_string(),
@@ -72,9 +61,7 @@ pub trait AddressHandler: ResourceWallet {
             Some(value) => match haystack[value].find_address_position(&address) {
                 Some(position) => {
                     haystack[value].remove_address(position);
-                    Ok(Json(
-                            to_value(address.to_jsonapi_document()).unwrap_or(Value::Null),
-                            ))
+                    parse_to_value(address.to_jsonapi_document())
                 }
                 None => Err(status::Custom(
                         Status::NotFound,
