@@ -7,3 +7,5 @@
 hosts.cache
 tests/btc-testnet-files/*
 rusty-tags.vi
+.idea
+custodian_server.iml
