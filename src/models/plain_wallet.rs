@@ -74,7 +74,11 @@ impl ResourceWallet for PlainWallet {
 
     fn merge(self, newer: Self) -> Self {
         let addresses = self.addresses;
-        PlainWallet { addresses, id: self.id, ..newer }
+        PlainWallet {
+            addresses,
+            id: self.id,
+            ..newer
+        }
     }
 
     fn add_address(&mut self, address: Self::A) {

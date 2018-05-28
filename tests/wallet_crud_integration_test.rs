@@ -8,7 +8,10 @@ extern crate rocket;
 
 #[cfg(test)]
 mod wallet_test {
+    use custodian_server::handlers::addresses;
+    use custodian_server::handlers::wallets;
     use custodian_server::models::wallets::Wallets;
+    use custodian_server::server_state::ServerState;
     use rocket;
     use rocket::http::ContentType;
     use rocket::http::Status;
@@ -16,9 +19,6 @@ mod wallet_test {
     use rocket::local::LocalResponse;
     use std::fs::File;
     use std::sync::MutexGuard;
-    use custodian_server::handlers::wallets;
-    use custodian_server::handlers::addresses;
-    use custodian_server::server_state::ServerState;
 
     fn rocket() -> rocket::Rocket {
         let f = File::create("/dev/null").unwrap();
@@ -210,7 +210,9 @@ mod wallet_test {
         );
 
         assert_eq!(
-            get(&client, "/plain_wallets/1/relationships/addresses").body_string().unwrap(),
+            get(&client, "/plain_wallets/1/relationships/addresses")
+                .body_string()
+                .unwrap(),
             r#"{"data":[{"attributes":{},"id":"lk1jh314","type":"address"}]}"#
         );
 
@@ -225,7 +227,9 @@ mod wallet_test {
         );
 
         assert_eq!(
-            get(&client, "/plain_wallets/1/relationships/addresses").body_string().unwrap(),
+            get(&client, "/plain_wallets/1/relationships/addresses")
+                .body_string()
+                .unwrap(),
             r#"{"data":[]}"#
         );
 
@@ -234,16 +238,18 @@ mod wallet_test {
             r#"{"data":{"attributes":{"version":"91"},"id":"1","type":"plain_wallet"}}"#
         );
 
-        delete( &client, "/plain_wallets/1", "");
+        delete(&client, "/plain_wallets/1", "");
 
-        let response = client.get("/plain_wallets/1").header(ContentType::JSON).dispatch();
+        let response = client
+            .get("/plain_wallets/1")
+            .header(ContentType::JSON)
+            .dispatch();
         assert_eq!(response.status(), Status::NotFound);
 
         assert_eq!(
             get(&client, "/plain_wallets").body_string().unwrap(),
             r#"{"data":[{"attributes":{"version":"54"},"id":"2","type":"plain_wallet"}]}"#
         );
-
     }
 
     #[test]

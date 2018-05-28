@@ -1,9 +1,9 @@
+use handlers::handler::{parse_to_value, JsonResult};
 use jsonapi::model::*;
 use models::resource_wallet::ResourceWallet;
 use rocket::http::Status;
 use rocket::response::status;
 use server_state::ServerState;
-use handlers::handler::{JsonResult, parse_to_value};
 
 pub trait WalletHandler: ResourceWallet {
     fn index(state: &ServerState) -> JsonResult {
@@ -12,7 +12,8 @@ pub trait WalletHandler: ResourceWallet {
 
         parse_to_value(vec_to_jsonapi_document_with_query(
             all.clone(),
-            &Self::default_query()))
+            &Self::default_query(),
+        ))
     }
 
     fn show(state: &ServerState, id: u64) -> JsonResult {
@@ -21,7 +22,9 @@ pub trait WalletHandler: ResourceWallet {
         let maybe_wallet = &haystack.iter().find(|&wallet| wallet.id() == id);
 
         match maybe_wallet {
-            Some(wallet) => parse_to_value(wallet.to_jsonapi_document_with_query(&Self::default_query())),
+            Some(wallet) => {
+                parse_to_value(wallet.to_jsonapi_document_with_query(&Self::default_query()))
+            }
             None => Err(status::Custom(Status::NotFound, format!("{:?}", id))),
         }
     }

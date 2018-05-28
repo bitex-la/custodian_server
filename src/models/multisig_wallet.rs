@@ -104,7 +104,11 @@ impl ResourceWallet for MultisigWallet {
 
     fn merge(self, newer: Self) -> Self {
         let addresses = self.addresses;
-        MultisigWallet { addresses, id: self.id, ..newer }
+        MultisigWallet {
+            addresses,
+            id: self.id,
+            ..newer
+        }
     }
 
     fn add_address(&mut self, address: Self::A) {

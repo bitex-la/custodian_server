@@ -1,7 +1,7 @@
+use handlers::handler::JsonResult;
 use handlers::wallets::base::WalletHandler;
 use models::hd_wallet::HdWallet;
 use server_state::ServerState;
-use handlers::handler::JsonResult;
 
 #[get("/hd_wallets", format = "application/json")]
 pub fn index(state: &ServerState) -> JsonResult {

@@ -1,8 +1,8 @@
-use rocket_contrib::{Json, Value};
-use rocket::response::status;
 use rocket::http::Status;
-use serde_json::to_value;
+use rocket::response::status;
+use rocket_contrib::{Json, Value};
 use serde::ser::Serialize;
+use serde_json::to_value;
 
 pub type JsonResult = Result<Json<Value>, status::Custom<String>>;
 
