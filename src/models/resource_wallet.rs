@@ -1,9 +1,11 @@
 use jsonapi::model::*;
 use models::resource_address::ResourceAddress;
 use models::wallets::Wallets;
+use models::wallet::Wallet;
+
 use std;
 
-pub trait ResourceWallet: std::marker::Sized + JsonApiModel + Clone + std::fmt::Debug {
+pub trait ResourceWallet: std::marker::Sized + JsonApiModel + Clone + std::fmt::Debug + Wallet {
     type A: ResourceAddress;
     fn raw_id(&self) -> Option<u64>;
 

@@ -31,20 +31,22 @@ pub struct PlainWallet {
 
 jsonapi_model!(PlainWallet; "plain_wallet"; has many addresses);
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PlainUtxo {
+    pub id: Option<u64>,
     pub prev_hash: String,
     pub prev_index: u32,
     pub address: Address,
     pub amount: u64,
 }
+jsonapi_model!(PlainUtxo; "plain_utxo");
 
 impl Wallet for PlainWallet {
     type Utxo = PlainUtxo;
-    type A = Address;
+    type WA = Address;
 
     fn construct_utxo(&self, received: Received, address: &Address) -> Self::Utxo {
-        PlainUtxo { prev_hash: received.transaction_hash, prev_index: received.position, address: address.clone(), amount: received.satoshis }
+        PlainUtxo { id: None, prev_hash: received.transaction_hash, prev_index: received.position, address: address.clone(), amount: received.satoshis }
     }
 
     fn get_addresses<'a>(&'a self) -> &'a Vec<Address> {

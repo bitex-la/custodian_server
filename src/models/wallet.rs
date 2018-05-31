@@ -1,14 +1,16 @@
 use std::str::FromStr;
+use std;
 
+use jsonapi::model::*;
 use bitprim::executor::Executor;
 use bitprim::explorer::Received;
 use bitprim::payment_address::PaymentAddress;
 
 use models::resource_address::ResourceAddress;
 
-pub trait Wallet {
-    type Utxo;
-    type A: ResourceAddress;
+pub trait Wallet: std::marker::Sized + JsonApiModel + Clone + std::fmt::Debug {
+    type Utxo: JsonApiModel;
+    type WA: ResourceAddress;
 
     fn get_utxos(&self, exec: &Executor, limit: Option<u64>, since: Option<u64>) -> Vec<Option<Self::Utxo>> {
         let explorer = exec.explorer();
@@ -39,7 +41,7 @@ pub trait Wallet {
         }).collect()
     }
 
-    fn construct_utxo(&self, received: Received, address: &Self::A) -> Self::Utxo;
+    fn construct_utxo(&self, received: Received, address: &Self::WA) -> Self::Utxo;
 
-    fn get_addresses<'a>(&'a self) -> &'a Vec<Self::A>;
+    fn get_addresses<'a>(&'a self) -> &'a Vec<Self::WA>;
 }

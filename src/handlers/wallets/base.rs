@@ -2,6 +2,7 @@ use handlers::handler::{parse_to_value, JsonResult};
 use jsonapi::model::*;
 use models::resource_wallet::ResourceWallet;
 use rocket::http::Status;
+use rocket_contrib::{Json, Value};
 use rocket::response::status;
 use server_state::ServerState;
 
@@ -14,6 +15,24 @@ pub trait WalletHandler: ResourceWallet {
             all.clone(),
             &Self::default_query(),
         ))
+    }
+
+    fn get_utxos(state: &ServerState, id: u64, limit: Option<u64>, since: Option<u64>) -> JsonResult {
+        let mut wallets = state.wallets_lock();
+        let haystack = Self::collection_from_wallets(&mut wallets);
+        let maybe_wallet = &haystack.iter().find(|&wallet| wallet.id() == id);
+
+        match maybe_wallet {
+            Some(wallet) => {
+                parse_to_value(
+                    vec_to_jsonapi_document_with_query(
+                        wallet.get_utxos(&state.executor, limit, since).into_iter().map(|w| w.unwrap()).collect(), //TODO: fix unwrap
+                        &Self::default_query())
+                ) 
+            },
+            None => Err(status::Custom(Status::NotFound, format!("{:?}", id))),
+        }
+
     }
 
     fn show(state: &ServerState, id: u64) -> JsonResult {

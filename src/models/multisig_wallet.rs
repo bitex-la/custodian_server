@@ -20,7 +20,9 @@ pub struct MultisigWallet {
 
 jsonapi_model!(MultisigWallet; "multisig_wallet");
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MultisigUtxo {
+    pub id: Option<u64>,
     pub prev_hash: String,
     pub prev_index: u32,
     pub address: HdAddress,
@@ -28,18 +30,22 @@ pub struct MultisigUtxo {
     pub script_type: String,
     pub multisig: MultisigDefinition,
 }
+jsonapi_model!(MultisigUtxo; "multi_utxo");
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MultisigDefinition {
     pub signatures: Vec<String>,
     pub m: usize,
     pub pubkeys: Vec<PubkeyDefinition>,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PubkeyDefinition {
     pub address_n: Vec<u64>,
     pub node: NodeDefinition,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct NodeDefinition {
     pub chain_code: String,
     pub depth: u64,
@@ -50,7 +56,7 @@ pub struct NodeDefinition {
 
 impl Wallet for MultisigWallet {
     type Utxo = MultisigUtxo;
-    type A = HdAddress;
+    type WA = HdAddress;
 
     fn construct_utxo(&self, received: Received, address: &HdAddress) -> Self::Utxo {
         let pubkeys = self.xpubs
@@ -67,6 +73,7 @@ impl Wallet for MultisigWallet {
             })
         .collect();
         MultisigUtxo { 
+            id: None,
             prev_hash: received.transaction_hash, 
             prev_index: received.position, 
             address: address.clone(), 
