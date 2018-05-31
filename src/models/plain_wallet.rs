@@ -1,5 +1,6 @@
 use std::io::Read;
 use std::str::FromStr;
+use std::fmt;
 
 use bitprim::executor::Executor;
 use bitprim::payment_address::PaymentAddress;
@@ -14,6 +15,11 @@ pub struct Address {
     pub id: Option<String>,
 }
 impl ResourceAddress for Address {}
+impl fmt::Display for Address {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        write!(fmt, "{}", self.id.as_ref().map_or("", |id| id))
+    }
+}
 jsonapi_model!(Address; "address");
 from_data!(Address);
 
@@ -26,13 +32,6 @@ pub struct PlainWallet {
 }
 
 jsonapi_model!(PlainWallet; "plain_wallet"; has many addresses);
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Dog {
-    pub id: Option<u64>,
-    pub name: String,
-}
-jsonapi_model!(Dog; "dogs");
 
 #[derive(Debug)]
 pub struct PlainUtxo {
@@ -49,7 +48,7 @@ impl Wallet for PlainWallet {
         let explorer = exec.explorer();
 
         self.addresses.iter().flat_map(|address| {
-            match PaymentAddress::from_str(&address.clone().id.unwrap_or("invalid address".to_string())) {
+            match PaymentAddress::from_str(&address.to_string()) {
                 Ok(valid_address) => {
                     match explorer.address_unspents(valid_address, 10_000, 1000) {
                         Ok(vec_received) => {

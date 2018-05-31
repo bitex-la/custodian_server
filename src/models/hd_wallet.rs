@@ -1,4 +1,5 @@
 use std::io::Read;
+use std::fmt;
 
 use bitprim::executor::Executor;
 use jsonapi::model::*;
@@ -31,6 +32,12 @@ pub struct HdAddress {
     pub id: Option<String>,
     pub address: String,
     pub path: Vec<u64>,
+}
+
+impl fmt::Display for HdAddress {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        write!(fmt, "{}", self.address)
+    }
 }
 
 jsonapi_model!(HdAddress; "hd_address");
