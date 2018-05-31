@@ -1,7 +1,6 @@
 use std::io::Read;
 use std::fmt;
 
-use bitprim::executor::Executor;
 use bitprim::explorer::Received;
 use jsonapi::model::*;
 
@@ -46,21 +45,6 @@ jsonapi_model!(HdAddress; "hd_address");
 impl Wallet for HdWallet {
     type Utxo = HdUtxo;
     type A = HdAddress;
-
-    fn get_utxos(&self, _exec: &Executor) -> Vec<Option<Self::Utxo>> {
-        vec![]
-        /*
-            prev_hash: "abc".to_string(),
-            prev_index: 1,
-            address: HdAddress {
-                id: Some("1".to_string()),
-                address: "abc".to_string(),
-                path: vec![0, 1, 0],
-            },
-            amount: 100000000,
-        }]
-        */
-    }
 
     fn construct_utxo(&self, received: Received, address: &HdAddress) -> Self::Utxo {
         HdUtxo { prev_hash: received.transaction_hash, prev_index: received.position, address: address.clone(), amount: received.satoshis }

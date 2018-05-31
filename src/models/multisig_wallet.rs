@@ -1,6 +1,5 @@
 use std::io::Read;
 
-use bitprim::executor::Executor;
 use bitprim::explorer::Received;
 use jsonapi::model::*;
 
@@ -53,9 +52,8 @@ impl Wallet for MultisigWallet {
     type Utxo = MultisigUtxo;
     type A = HdAddress;
 
-    fn get_utxos(&self, _exec: &Executor) -> Vec<Option<Self::Utxo>> {
-        vec![]
-        /*let pubkeys = self.xpubs
+    fn construct_utxo(&self, received: Received, address: &HdAddress) -> Self::Utxo {
+        let pubkeys = self.xpubs
             .iter()
             .map(|xpub| PubkeyDefinition {
                 address_n: vec![0, 0, 1],
@@ -67,27 +65,7 @@ impl Wallet for MultisigWallet {
                     public_key: xpub.to_string(),
                 },
             })
-            .collect();
-        vec![MultisigUtxo {
-            prev_hash: "abc".to_string(),
-            prev_index: 1,
-            address: HdAddress {
-                id: "1".to_string(),
-                address: "abc".to_string(),
-                path: vec![0, 1, 0],
-            },
-            amount: 100000000,
-            script_type: "SPENDMULTISIG".to_string(),
-            multisig: MultisigDefinition {
-                signatures: vec![String::new(), String::new(), String::new()],
-                m: self.xpubs.len(),
-                pubkeys
-            },
-        }]
-        */
-    }
-
-    fn construct_utxo(&self, received: Received, address: &HdAddress) -> Self::Utxo {
+        .collect();
         MultisigUtxo { 
             prev_hash: received.transaction_hash, 
             prev_index: received.position, 
@@ -97,7 +75,7 @@ impl Wallet for MultisigWallet {
             multisig: MultisigDefinition {
                 signatures: vec![String::new(), String::new(), String::new()],
                 m: self.xpubs.len(),
-                pubkeys: vec![]
+                pubkeys
             }}
     }
 
