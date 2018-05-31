@@ -3,6 +3,7 @@ use std::str::FromStr;
 use std::fmt;
 
 use bitprim::executor::Executor;
+use bitprim::explorer::Received;
 use bitprim::payment_address::PaymentAddress;
 use jsonapi::model::*;
 use models::resource_address::ResourceAddress;
@@ -43,6 +44,7 @@ pub struct PlainUtxo {
 
 impl Wallet for PlainWallet {
     type Utxo = PlainUtxo;
+    type A = Address;
 
     fn get_utxos(&self, exec: &Executor) -> Vec<Option<Self::Utxo>> {
         let explorer = exec.explorer();
@@ -53,7 +55,8 @@ impl Wallet for PlainWallet {
                     match explorer.address_unspents(valid_address, 10_000, 1000) {
                         Ok(vec_received) => {
                             vec_received.into_iter().map(|received| {
-                                Some(PlainUtxo { prev_hash: received.transaction_hash, prev_index: received.position, address: address.clone(), amount: received.satoshis })
+                                Some(self.construct_utxo(received, address))
+                                //Some(PlainUtxo { prev_hash: received.transaction_hash, prev_index: received.position, address: address.clone(), amount: received.satoshis })
                             }).collect()
                         },
                         Err(err) => {
@@ -68,6 +71,10 @@ impl Wallet for PlainWallet {
                 }
             }
         }).collect()
+    }
+
+    fn construct_utxo(&self, received: Received, address: &Address) -> Self::Utxo {
+        PlainUtxo { prev_hash: received.transaction_hash, prev_index: received.position, address: address.clone(), amount: received.satoshis }
     }
 }
 

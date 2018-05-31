@@ -1,6 +1,7 @@
 use std::io::Read;
 
 use bitprim::executor::Executor;
+use bitprim::explorer::Received;
 use jsonapi::model::*;
 
 pub use models::hd_wallet::HdAddress;
@@ -22,7 +23,7 @@ jsonapi_model!(MultisigWallet; "multisig_wallet");
 
 pub struct MultisigUtxo {
     pub prev_hash: String,
-    pub prev_index: u64,
+    pub prev_index: u32,
     pub address: HdAddress,
     pub amount: u64,
     pub script_type: String,
@@ -50,6 +51,7 @@ pub struct NodeDefinition {
 
 impl Wallet for MultisigWallet {
     type Utxo = MultisigUtxo;
+    type A = HdAddress;
 
     fn get_utxos(&self, _exec: &Executor) -> Vec<Option<Self::Utxo>> {
         vec![]
@@ -83,6 +85,20 @@ impl Wallet for MultisigWallet {
             },
         }]
         */
+    }
+
+    fn construct_utxo(&self, received: Received, address: &HdAddress) -> Self::Utxo {
+        MultisigUtxo { 
+            prev_hash: received.transaction_hash, 
+            prev_index: received.position, 
+            address: address.clone(), 
+            amount: received.satoshis, 
+            script_type: "SPENDMULTISIG".to_string(),
+            multisig: MultisigDefinition {
+                signatures: vec![String::new(), String::new(), String::new()],
+                m: self.xpubs.len(),
+                pubkeys: vec![]
+            }}
     }
 }
 
