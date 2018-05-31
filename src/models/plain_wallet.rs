@@ -49,7 +49,7 @@ impl Wallet for PlainWallet {
     fn get_utxos(&self, exec: &Executor) -> Vec<Option<Self::Utxo>> {
         let explorer = exec.explorer();
 
-        self.addresses.iter().flat_map(|address| {
+        self.get_addresses().iter().flat_map(|address| {
             match PaymentAddress::from_str(&address.to_string()) {
                 Ok(valid_address) => {
                     match explorer.address_unspents(valid_address, 10_000, 1000) {
@@ -75,6 +75,10 @@ impl Wallet for PlainWallet {
 
     fn construct_utxo(&self, received: Received, address: &Address) -> Self::Utxo {
         PlainUtxo { prev_hash: received.transaction_hash, prev_index: received.position, address: address.clone(), amount: received.satoshis }
+    }
+
+    fn get_addresses<'a>(&'a self) -> &'a Vec<Address> {
+        &self.addresses
     }
 }
 

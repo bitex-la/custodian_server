@@ -100,6 +100,10 @@ impl Wallet for MultisigWallet {
                 pubkeys: vec![]
             }}
     }
+
+    fn get_addresses<'a>(&'a self) -> &'a Vec<HdAddress> {
+        &self.addresses
+    }
 }
 
 from_data!(MultisigWallet);

@@ -65,6 +65,10 @@ impl Wallet for HdWallet {
     fn construct_utxo(&self, received: Received, address: &HdAddress) -> Self::Utxo {
         HdUtxo { prev_hash: received.transaction_hash, prev_index: received.position, address: address.clone(), amount: received.satoshis }
     }
+
+    fn get_addresses<'a>(&'a self) -> &'a Vec<HdAddress> {
+        &self.addresses
+    }
 }
 
 from_data!(HdWallet);
