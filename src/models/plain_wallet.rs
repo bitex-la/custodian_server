@@ -1,6 +1,8 @@
 use std::io::Read;
+use std::str::FromStr;
 
 use bitprim::executor::Executor;
+use bitprim::payment_address::PaymentAddress;
 use jsonapi::model::*;
 use models::resource_address::ResourceAddress;
 use models::resource_wallet::ResourceWallet;
@@ -35,7 +37,7 @@ jsonapi_model!(Dog; "dogs");
 #[derive(Debug)]
 pub struct PlainUtxo {
     pub prev_hash: String,
-    pub prev_index: u64,
+    pub prev_index: u32,
     pub address: Address,
     pub amount: u64,
 }
@@ -43,16 +45,30 @@ pub struct PlainUtxo {
 impl Wallet for PlainWallet {
     type Utxo = PlainUtxo;
 
-    fn get_utxos(&self, _exec: &Executor) -> Vec<Self::Utxo> {
-        vec![]
-        /*
-        vec![PlainUtxo {
-            prev_hash: "abc".to_string(),
-            prev_index: 1,
-            address: Address{id: "abc".to_string()},
-            amount: 100000000,
-        }]
-        */
+    fn get_utxos(&self, exec: &Executor) -> Vec<Option<Self::Utxo>> {
+        let explorer = exec.explorer();
+
+        self.addresses.iter().flat_map(|address| {
+            match PaymentAddress::from_str(&address.clone().id.unwrap_or("invalid address".to_string())) {
+                Ok(valid_address) => {
+                    match explorer.address_unspents(valid_address, 10_000, 1000) {
+                        Ok(vec_received) => {
+                            vec_received.into_iter().map(|received| {
+                                Some(PlainUtxo { prev_hash: received.transaction_hash, prev_index: received.position, address: address.clone(), amount: received.satoshis })
+                            }).collect()
+                        },
+                        Err(err) => {
+                            println!("{:?}", err);
+                            vec![None]
+                        }
+                    }
+                },
+                Err(err)         => { 
+                    println!("{:?}", err);
+                    vec![None]
+                }
+            }
+        }).collect()
     }
 }
 

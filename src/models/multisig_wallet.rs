@@ -51,7 +51,7 @@ pub struct NodeDefinition {
 impl Wallet for MultisigWallet {
     type Utxo = MultisigUtxo;
 
-    fn get_utxos(&self, _exec: &Executor) -> Vec<Self::Utxo> {
+    fn get_utxos(&self, _exec: &Executor) -> Vec<Option<Self::Utxo>> {
         vec![]
         /*let pubkeys = self.xpubs
             .iter()

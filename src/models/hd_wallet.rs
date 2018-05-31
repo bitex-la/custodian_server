@@ -38,7 +38,7 @@ jsonapi_model!(HdAddress; "hd_address");
 impl Wallet for HdWallet {
     type Utxo = HdUtxo;
 
-    fn get_utxos(&self, _exec: &Executor) -> Vec<Self::Utxo> {
+    fn get_utxos(&self, _exec: &Executor) -> Vec<Option<Self::Utxo>> {
         vec![]
         /*
             prev_hash: "abc".to_string(),
