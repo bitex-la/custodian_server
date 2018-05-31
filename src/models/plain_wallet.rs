@@ -43,7 +43,7 @@ jsonapi_model!(PlainUtxo; "plain_utxo");
 
 impl Wallet for PlainWallet {
     type Utxo = PlainUtxo;
-    type WA = Address;
+    type RA = Address;
 
     fn construct_utxo(&self, received: Received, address: &Address) -> Self::Utxo {
         PlainUtxo { id: None, prev_hash: received.transaction_hash, prev_index: received.position, address: address.clone(), amount: received.satoshis }

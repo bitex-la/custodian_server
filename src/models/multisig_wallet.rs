@@ -56,7 +56,7 @@ pub struct NodeDefinition {
 
 impl Wallet for MultisigWallet {
     type Utxo = MultisigUtxo;
-    type WA = HdAddress;
+    type RA = HdAddress;
 
     fn construct_utxo(&self, received: Received, address: &HdAddress) -> Self::Utxo {
         let pubkeys = self.xpubs

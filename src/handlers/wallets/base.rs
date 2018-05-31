@@ -2,7 +2,6 @@ use handlers::handler::{parse_to_value, JsonResult};
 use jsonapi::model::*;
 use models::resource_wallet::ResourceWallet;
 use rocket::http::Status;
-use rocket_contrib::{Json, Value};
 use rocket::response::status;
 use server_state::ServerState;
 
