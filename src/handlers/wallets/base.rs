@@ -24,9 +24,9 @@ pub trait WalletHandler: ResourceWallet {
         match maybe_wallet {
             Some(wallet) => {
                 parse_to_value(
-                    vec_to_jsonapi_document_with_query(
-                        wallet.get_utxos(&state.executor, limit, since),
-                        &Self::default_query())
+                    vec_to_jsonapi_document(
+                        wallet.get_utxos(&state.executor, limit, since)
+                    )
                 ) 
             },
             None => Err(status::Custom(Status::NotFound, format!("{:?}", id))),

@@ -33,16 +33,19 @@ mod wallet_test {
                 wallets::plain::create,
                 wallets::plain::update,
                 wallets::plain::destroy,
+                wallets::plain::get_utxos,
                 wallets::hd::index,
                 wallets::hd::show,
                 wallets::hd::create,
                 wallets::hd::update,
                 wallets::hd::destroy,
+                wallets::hd::get_utxos,
                 wallets::multisig::index,
                 wallets::multisig::show,
                 wallets::multisig::create,
                 wallets::multisig::update,
                 wallets::multisig::destroy,
+                wallets::multisig::get_utxos,
                 addresses::plain::index,
                 addresses::plain::create,
                 addresses::plain::destroy,
@@ -126,6 +129,7 @@ mod wallet_test {
     // Showing the first plain wallet sees the change.
     // Destroys the first plain wallet
     // Lists all wallets again, only the second plain wallet exists.
+    // Get utxos for address mhjp3ZgbGxx5qc9Y8dvk1F71QeQcE9swLE
     #[test]
     fn goes_through_the_full_wallet_lifecycle() {
         let client = Client::new(rocket()).expect("valid rocket instance");
@@ -250,6 +254,22 @@ mod wallet_test {
             get(&client, "/plain_wallets").body_string().unwrap(),
             r#"{"data":[{"attributes":{"version":"54"},"id":"2","type":"plain_wallet"}]}"#
         );
+
+        post(
+            &client,
+            "/plain_wallets/2/relationships/addresses",
+            r#"{ "data": {
+            "attributes": { },
+            "id": "mhjp3ZgbGxx5qc9Y8dvk1F71QeQcE9swLE",
+            "type": "address"
+          }}"#,
+        );
+
+        assert_eq!(
+            get(&client, "/plain_wallets/2/get_utxos?").body_string().unwrap(),
+            r#"{"data":[]}"#
+        );
+
     }
 
     #[test]
