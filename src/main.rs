@@ -1,6 +1,7 @@
 #![feature(ptr_internals)]
 #![feature(plugin)]
 #![plugin(rocket_codegen)]
+#![feature(custom_derive)]
 
 extern crate bitprim;
 extern crate ctrlc;
@@ -52,16 +53,19 @@ fn main() {
                 wallets::plain::create,
                 wallets::plain::update,
                 wallets::plain::destroy,
+                wallets::plain::get_utxos,
                 wallets::hd::index,
                 wallets::hd::show,
                 wallets::hd::create,
                 wallets::hd::update,
                 wallets::hd::destroy,
+                wallets::hd::get_utxos,
                 wallets::multisig::index,
                 wallets::multisig::show,
                 wallets::multisig::create,
                 wallets::multisig::update,
                 wallets::multisig::destroy,
+                wallets::multisig::get_utxos,
                 addresses::plain::index,
                 addresses::plain::create,
                 addresses::plain::destroy,
