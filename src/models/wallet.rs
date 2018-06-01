@@ -12,7 +12,7 @@ pub trait Wallet: std::marker::Sized + JsonApiModel + Clone + std::fmt::Debug {
     type Utxo: JsonApiModel;
     type RA: ResourceAddress;
 
-    fn get_utxos(&self, exec: &Executor, limit: Option<u64>, since: Option<u64>) -> Vec<Option<Self::Utxo>> {
+    fn get_utxos(&self, exec: &Executor, limit: Option<u64>, since: Option<u64>) -> Vec<Self::Utxo> {
         let explorer = exec.explorer();
 
         self.get_addresses().iter().flat_map(|address| {
@@ -24,18 +24,18 @@ pub trait Wallet: std::marker::Sized + JsonApiModel + Clone + std::fmt::Debug {
                                                     since.unwrap_or(last_height.unwrap_or(1_000) - 1_000)) {
                         Ok(vec_received) => {
                             vec_received.into_iter().map(|received| {
-                                Some(self.construct_utxo(received, address))
+                                self.construct_utxo(received, address)
                             }).collect()
                         },
                         Err(err) => {
                             println!("{:?}", err);
-                            vec![None]
+                            vec![]
                         }
                     }
                 },
                 Err(err)         => { 
                     println!("{:?}", err);
-                    vec![None]
+                    vec![]
                 }
             }
         }).collect()
