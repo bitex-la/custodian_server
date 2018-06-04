@@ -266,7 +266,7 @@ mod wallet_test {
         );
 
         assert_eq!(
-            get(&client, "/plain_wallets/2/get_utxos?").body_string().unwrap(),
+            get(&client, "/plain_wallets/2/get_utxos?since=400").body_string().unwrap(),
             r#"{"data":[]}"#
         );
 

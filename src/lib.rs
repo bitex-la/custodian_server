@@ -15,6 +15,7 @@ extern crate serde_json;
 extern crate serde_derive;
 #[macro_use]
 extern crate jsonapi;
+extern crate bitcoin;
 
 #[macro_use]
 pub mod data_guards;

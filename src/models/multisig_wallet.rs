@@ -1,6 +1,9 @@
 use std::io::Read;
+use std::str::FromStr;
+use std::str;
 
 use bitprim::explorer::Received;
+use bitcoin::util::bip32::ExtendedPubKey;
 use jsonapi::model::*;
 
 pub use models::hd_wallet::HdAddress;
@@ -61,15 +64,20 @@ impl Wallet for MultisigWallet {
     fn construct_utxo(&self, received: Received, address: &HdAddress) -> Self::Utxo {
         let pubkeys = self.xpubs
             .iter()
-            .map(|xpub| PubkeyDefinition {
-                address_n: vec![0, 0, 1],
-                node: NodeDefinition {
-                    chain_code: "Hello".to_string(),
-                    depth: 0,
-                    child_num: 0,
-                    fingerprint: 0,
-                    public_key: xpub.to_string(),
-                },
+            .map(|xpub| {
+                let chain_code = ExtendedPubKey::from_str(xpub).map(|xp| {
+                    str::from_utf8(&xp.identifier()).unwrap_or("").to_string()
+                });
+                PubkeyDefinition {
+                    address_n: address.path.clone(),
+                    node: NodeDefinition {
+                        chain_code: chain_code.unwrap_or(String::new()),
+                        depth: 0,
+                        child_num: 0,
+                        fingerprint: 0,
+                        public_key: xpub.to_string(),
+                    },
+                }
             })
         .collect();
         MultisigUtxo { 
@@ -80,7 +88,7 @@ impl Wallet for MultisigWallet {
             amount: received.satoshis, 
             script_type: "SPENDMULTISIG".to_string(),
             multisig: MultisigDefinition {
-                signatures: vec![String::new(), String::new(), String::new()],
+                signatures: self.xpubs.iter().map(|_s| String::new()).collect(),
                 m: self.xpubs.len(),
                 pubkeys
             }}

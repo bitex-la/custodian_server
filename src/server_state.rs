@@ -26,6 +26,7 @@ impl ServerState {
         let exec = Executor::new(config_path, out, err);
         exec.initchain()?;
         exec.run_wait()?;
+
         Ok(Self {
             executor: exec,
             wallets: Mutex::new(Wallets {
