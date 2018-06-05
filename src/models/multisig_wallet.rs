@@ -25,7 +25,7 @@ jsonapi_model!(MultisigWallet; "multisig_wallet");
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MultisigUtxo {
-    pub id: Option<u64>,
+    pub id: Option<String>,
     pub prev_hash: String,
     pub prev_index: u32,
     pub address: HdAddress,
@@ -81,9 +81,9 @@ impl Wallet for MultisigWallet {
             })
         .collect();
         MultisigUtxo { 
-            id: None,
-            prev_hash: received.transaction_hash, 
-            prev_index: received.position, 
+            id: Some(format!("{}-{}", received.transaction_hash, received.position)),
+            prev_hash: received.transaction_hash,
+            prev_index: received.position,
             address: address.clone(), 
             amount: received.satoshis, 
             script_type: "SPENDMULTISIG".to_string(),

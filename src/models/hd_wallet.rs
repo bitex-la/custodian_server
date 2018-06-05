@@ -22,13 +22,13 @@ jsonapi_model!(HdWallet; "hd_wallet");
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HdUtxo {
-    pub id: Option<u64>,
+    pub id: Option<String>,
     pub prev_hash: String,
     pub prev_index: u32,
     pub address: HdAddress,
     pub amount: u64,
 }
-jsonapi_model!(HdUtxo; "hd_utxo");
+jsonapi_model!(HdUtxo; "hd_utxo"; has one address);
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct HdAddress {
@@ -51,7 +51,7 @@ impl Wallet for HdWallet {
 
     fn construct_utxo(&self, received: Received, address: &HdAddress) -> Self::Utxo {
         HdUtxo {
-            id: None,
+            id: Some(format!("{}-{}", received.transaction_hash, received.position)),
             prev_hash: received.transaction_hash,
             prev_index: received.position,
             address: address.clone(),
