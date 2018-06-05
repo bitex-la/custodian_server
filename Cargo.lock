@@ -105,11 +105,13 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 [[package]]
 name = "bitprim"
 version = "0.1.0"
-source = "git+https://github.com/bitex-la/bitprim-rust#6d086ce9f25478359e6aa1efacb7af79da967fff"
+source = "git+https://github.com/bitex-la/bitprim-rust#540c686f953a26d1bfb7d5682237ef02bdb5f051"
 dependencies = [
  "error-chain 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.2.42 (registry+https://github.com/rust-lang/crates.io-index)",
  "regex 0.2.11 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde 1.0.66 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde_derive 1.0.66 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
