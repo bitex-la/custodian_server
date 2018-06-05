@@ -19,6 +19,8 @@ mod wallet_test {
     use rocket::local::LocalResponse;
     use std::fs::File;
     use std::sync::MutexGuard;
+    use std::io::BufReader;
+    use std::io::Read;
 
     fn rocket() -> rocket::Rocket {
         let f = File::create("/dev/null").unwrap();
@@ -117,6 +119,16 @@ mod wallet_test {
 
     fn count_wallets(wallets: &Wallets) -> usize {
         wallets.plains.len() + wallets.hds.len() + wallets.multisigs.len()
+    }
+
+    fn load_plain_utxo_fixture_file() -> String {
+        let mut file = File::open("./tests/data/plain_utxos.json").expect("file not found");
+        let mut buf_reader = BufReader::new(file);
+        let mut contents = String::new();
+        buf_reader.read_to_string(&mut contents)
+            .expect("something went wrong reading the file");
+
+        contents.replace("\n", "").replace(" ", "")
     }
 
     // Adds 1 wallet of each type
@@ -267,7 +279,7 @@ mod wallet_test {
 
         assert_eq!(
             get(&client, "/plain_wallets/2/get_utxos?since=400").body_string().unwrap(),
-            r#"{"data":[]}"#
+            load_plain_utxo_fixture_file()
         );
 
     }
