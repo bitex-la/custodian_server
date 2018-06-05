@@ -121,8 +121,8 @@ mod wallet_test {
         wallets.plains.len() + wallets.hds.len() + wallets.multisigs.len()
     }
 
-    fn load_plain_utxo_fixture_file() -> String {
-        let mut file = File::open("./tests/data/plain_utxos.json").expect("file not found");
+    fn load_fixture_file(path: &str) -> String {
+        let mut file = File::open(path).expect("file not found");
         let mut buf_reader = BufReader::new(file);
         let mut contents = String::new();
         buf_reader.read_to_string(&mut contents)
@@ -141,7 +141,10 @@ mod wallet_test {
     // Showing the first plain wallet sees the change.
     // Destroys the first plain wallet
     // Lists all wallets again, only the second plain wallet exists.
-    // Get utxos for address mhjp3ZgbGxx5qc9Y8dvk1F71QeQcE9swLE
+    // Add address mhjp3ZgbGxx5qc9Y8dvk1F71QeQcE9swLE to a plain wallet.
+    // Get utxos for address mhjp3ZgbGxx5qc9Y8dvk1F71QeQcE9swLE in plain wallet.
+    // Create a MultisigWallet.
+    // Get Multisig Utxos for multisig wallet.
     #[test]
     fn goes_through_the_full_wallet_lifecycle() {
         let client = Client::new(rocket()).expect("valid rocket instance");
@@ -279,9 +282,37 @@ mod wallet_test {
 
         assert_eq!(
             get(&client, "/plain_wallets/2/get_utxos?since=400").body_string().unwrap(),
-            load_plain_utxo_fixture_file()
+            load_fixture_file("./tests/data/plain_utxos.json")
         );
 
+        post(
+            &client,
+            "/multisig_wallets",
+            r#"{ "data": {
+            "type": "multisig_wallet",
+            "attributes": {
+                "version": "90",
+                "xpubs": ["xpub661MyMwAqRbcGCmcnz4JtnieVyuvgQFGqZqw3KS1g9khndpF3segkAYbYCKKaQ9Di2ZuWLaZU4Axt7TrKq41aVYx8XTbDbQFzhhDMntKLU5",
+                          "xpub661MyMwAqRbcFwc3Nmz8WmMU9okGmeVSmuprwNHCVsfhy6vMyg6g79octqwNftK4g62TMWmb7UtVpnAWnANzqwtKrCDFe2UaDCv1HoErssE",
+                          "xpub661MyMwAqRbcGkqPSKVkwTMtFZzEpbWXjM4t1Dv1XQbfMxtyLRGupWkp3fcSCDtp6nd1AUrRtq8tnFGTYgkY1pB9muwzaBDnJSMo2rVENhz"],
+                "signers": 2
+            }
+        }}"#,
+        );
+
+        post(
+            &client,
+            "/multisig_wallets/2/relationships/addresses",
+            r#"{ "data": {
+            "attributes": { "address": "2NAHscN6XVqUPzBSJHC3fhkeF5SQVxiR9p9", "path": [42, 1, 1]},
+            "type": "hd_address"
+          }}"#,
+        );
+
+        assert_eq!(
+            get(&client, "/multisig_wallets/2/get_utxos?since=400").body_string().unwrap(),
+            load_fixture_file("./tests/data/multisig_utxos.json")
+        );
     }
 
     #[test]
