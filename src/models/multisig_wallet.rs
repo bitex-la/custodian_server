@@ -65,17 +65,19 @@ impl Wallet for MultisigWallet {
         let pubkeys = self.xpubs
             .iter()
             .map(|xpub| {
-                let chain_code = ExtendedPubKey::from_str(xpub).map(|xp| {
-                    str::from_utf8(&xp.identifier()).unwrap_or("").to_string()
-                });
+                let (chain_code, pub_key) = if let Ok(extended_pub_key) = ExtendedPubKey::from_str(xpub) {
+                    (str::from_utf8(&extended_pub_key.identifier()).unwrap_or("").to_string(),
+                     str::from_utf8(&extended_pub_key.public_key.serialize()).unwrap_or("").to_string())
+                } else { (String::new(), String::new()) };
+
                 PubkeyDefinition {
                     address_n: address.path.clone(),
                     node: NodeDefinition {
-                        chain_code: chain_code.unwrap_or(String::new()),
+                        chain_code: chain_code,
                         depth: 0,
                         child_num: 0,
                         fingerprint: 0,
-                        public_key: xpub.to_string(),
+                        public_key: pub_key,
                     },
                 }
             })
