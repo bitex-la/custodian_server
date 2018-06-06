@@ -1,8 +1,8 @@
 use std;
 use std::str::FromStr;
 
+use bitprim::errors::Error;
 use bitprim::executor::Executor;
-use bitprim::explorer::Explorer;
 use bitprim::explorer::Received;
 use bitprim::payment_address::PaymentAddress;
 use jsonapi::model::*;
@@ -25,9 +25,9 @@ pub trait Wallet: std::marker::Sized + JsonApiModel + Clone + std::fmt::Debug {
         let since = self.get_since(exec, maybe_since);
 
         self.get_transactions_for_wallet(
-            explorer,
             limit.unwrap_or(10_000),
             since,
+            |address, limit, since| explorer.address_unspents(address, limit, since),
             |received: Received, address| self.construct_utxo(received, address),
         )
     }
@@ -43,9 +43,9 @@ pub trait Wallet: std::marker::Sized + JsonApiModel + Clone + std::fmt::Debug {
         let since = self.get_since(exec, maybe_since);
 
         self.get_transactions_for_wallet(
-            explorer,
             limit.unwrap_or(10_000),
             since,
+            |address, limit, since| explorer.address_incoming(address, limit, since),
             |received: Received, address| self.construct_transaction(received, address),
         )
     }
@@ -83,22 +83,22 @@ pub trait Wallet: std::marker::Sized + JsonApiModel + Clone + std::fmt::Debug {
         })
     }
 
-    fn get_transactions_for_wallet<T, F>(
+    fn get_transactions_for_wallet<T, F, E>(
         &self,
-        explorer: Explorer,
         limit: u64,
         since: u64,
+        explorer_fn: E,
         tx: F,
     ) -> Vec<T>
     where
+        E: Fn(PaymentAddress, u64, u64) -> Result<Vec<Received>, Error>,
         F: Fn(Received, &Self::RA) -> T,
     {
         let mut result: Vec<T> = vec![];
         for address in self.get_addresses() {
             if let Ok(valid_address) = PaymentAddress::from_str(&address.to_string()) {
-                let vec_received = explorer
-                    .address_unspents(valid_address, limit, since)
-                    .expect("Not expecting failure on explore address unspent!");
+                let vec_received = explorer_fn(valid_address, limit, since)
+                    .expect("Not expecting failure on explore transaction!");
 
                 for received in vec_received {
                     result.push(tx(received, address))
