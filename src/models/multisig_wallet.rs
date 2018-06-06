@@ -58,7 +58,7 @@ pub struct NodeDefinition {
 }
 
 impl MultisigWallet {
-    fn to_hex(&self, arr: &[u8]) -> String {
+    fn slice_to_hex(&self, arr: &[u8]) -> String {
         arr.iter().map(|c| format!("{:02x}", c)).collect()
     }
 }
@@ -72,8 +72,8 @@ impl Wallet for MultisigWallet {
             .iter()
             .map(|xpub| {
                 let (chain_code, pub_key) = if let Ok(extended_pub_key) = ExtendedPubKey::from_str(xpub) {
-                    (self.to_hex(&extended_pub_key.chain_code.data()),
-                     self.to_hex(&extended_pub_key.public_key.serialize()))
+                    (self.slice_to_hex(&extended_pub_key.chain_code.data()),
+                     self.slice_to_hex(&extended_pub_key.public_key.serialize()))
                 } else { (String::new(), String::new()) };
 
                 PubkeyDefinition {
