@@ -5,3 +5,4 @@ pub mod resource_address;
 pub mod resource_wallet;
 pub mod wallet;
 pub mod wallets;
+pub mod transaction;

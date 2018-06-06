@@ -8,6 +8,7 @@ use bitprim::explorer::Received;
 use bitprim::payment_address::PaymentAddress;
 
 use models::resource_address::ResourceAddress;
+use models::transaction::Transaction;
 
 pub trait Wallet: std::marker::Sized + JsonApiModel + Clone + std::fmt::Debug {
     type Utxo: JsonApiModel;
@@ -18,26 +19,37 @@ pub trait Wallet: std::marker::Sized + JsonApiModel + Clone + std::fmt::Debug {
 
         let since = self.get_since(exec, maybe_since);
 
-        self.get_transactions_for_wallet(explorer, limit.unwrap_or(10_000), since, |tx, add| { self.construct_utxo(tx, add) })
+        self.get_transactions_for_wallet(explorer,
+                                         limit.unwrap_or(10_000),
+                                         since,
+                                         |received: Received, address| {
+                                             self.construct_utxo(received, address)
+                                         })
     }
 
-    fn get_incoming(&self, exec: &Executor, limit: Option<u64>, maybe_since: Option<u64>) -> Vec<Received> {
+    fn get_incoming(&self, exec: &Executor, limit: Option<u64>, maybe_since: Option<u64>) -> Vec<Transaction<Self::RA>> {
         let explorer = exec.explorer();
 
         let since = self.get_since(exec, maybe_since);
 
-        let mut result: Vec<Received> = vec![];
-        for address in self.get_addresses() {
-            if let Ok(valid_address) = PaymentAddress::from_str(&address.to_string()) {
-                let vec_received = explorer.address_incoming(valid_address, limit.unwrap_or(10_000), since)
-                    .expect("Not expecting failure on explore address unspent!");
+        self.get_transactions_for_wallet(explorer,
+                                         limit.unwrap_or(10_000),
+                                         since,
+                                         |received: Received, address| {
+                                             self.construct_transaction(received, address)
+                                         })
+    }
 
-                for received in vec_received {
-                    result.push(received)
-                }
-            }
-        }
-        result
+    fn construct_transaction(&self, received: Received, address: &Self::RA) -> Transaction<Self::RA> {
+        Transaction {
+            id: Some(format!("{}-{}", received.transaction_hash, received.position)),
+            satoshis: received.satoshis,
+            transaction_hash: received.transaction_hash,
+            position: received.position,
+            is_spent: received.is_spent,
+            block_height: received.block_height,
+            address: (*address).clone()
+        } 
     }
 
     fn construct_utxo(&self, received: Received, address: &Self::RA) -> Self::Utxo;
