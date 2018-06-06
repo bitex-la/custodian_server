@@ -4,6 +4,7 @@ use models::resource_wallet::ResourceWallet;
 use rocket::http::Status;
 use rocket::response::status;
 use server_state::ServerState;
+use bitprim::executor::Executor;
 
 pub trait WalletHandler: ResourceWallet {
     fn index(state: &ServerState) -> JsonResult {
@@ -17,23 +18,29 @@ pub trait WalletHandler: ResourceWallet {
     }
 
     fn get_utxos(state: &ServerState, id: u64, limit: Option<u64>, since: Option<u64>) -> JsonResult {
-        let mut wallets = state.wallets_lock();
-        let haystack = Self::collection_from_wallets(&mut wallets);
-        let maybe_wallet = &haystack.iter().find(|&wallet| wallet.id() == id);
-
-        match maybe_wallet {
-            Some(wallet) => {
-                parse_to_value(
-                    vec_to_jsonapi_document(
-                        wallet.get_utxos(&state.executor, limit, since)
-                    )
-                ) 
-            },
-            None => Err(status::Custom(Status::NotFound, format!("{:?}", id))),
-        }
+        WalletHandler::get_transactions(state,
+                                        id,
+                                        limit,
+                                        since,
+                                        |executor: &Executor, wallet: &&Self, limit, since| { 
+                                            wallet.get_utxos(executor, limit, since) 
+                                        })
     }
 
     fn get_incoming(state: &ServerState, id: u64, limit: Option<u64>, since: Option<u64>) -> JsonResult {
+        WalletHandler::get_transactions(state,
+                                        id,
+                                        limit,
+                                        since,
+                                        |executor: &Executor, wallet: &&Self, limit, since| { 
+                                            wallet.get_incoming(executor, limit, since) 
+                                        })
+    }
+
+    fn get_transactions<F, T: JsonApiModel>(state: &ServerState, id: u64, limit: Option<u64>, since: Option<u64>, fn_tx: F) -> JsonResult
+        where F: FnOnce(&Executor, &&Self, Option<u64>, Option<u64>) -> Vec<T>
+    {
+
         let mut wallets = state.wallets_lock();
         let haystack = Self::collection_from_wallets(&mut wallets);
         let maybe_wallet = &haystack.iter().find(|&wallet| wallet.id() == id);
@@ -42,7 +49,7 @@ pub trait WalletHandler: ResourceWallet {
             Some(wallet) => {
                 parse_to_value(
                     vec_to_jsonapi_document(
-                        wallet.get_incoming(&state.executor, limit, since)
+                        fn_tx(&state.executor, wallet, limit, since)
                     )
                 ) 
             },
