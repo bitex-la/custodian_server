@@ -27,7 +27,7 @@ pub trait Wallet: std::marker::Sized + JsonApiModel + Clone + std::fmt::Debug {
                                          })
     }
 
-    fn get_incoming(&self, exec: &Executor, limit: Option<u64>, maybe_since: Option<u64>) -> Vec<Transaction<Self::RA>> {
+    fn get_incoming(&self, exec: &Executor, limit: Option<u64>, maybe_since: Option<u64>) -> Vec<Transaction> {
         let explorer = exec.explorer();
 
         let since = self.get_since(exec, maybe_since);
@@ -40,7 +40,7 @@ pub trait Wallet: std::marker::Sized + JsonApiModel + Clone + std::fmt::Debug {
                                          })
     }
 
-    fn construct_transaction(&self, received: Received, address: &Self::RA) -> Transaction<Self::RA> {
+    fn construct_transaction(&self, received: Received, address: &Self::RA) -> Transaction {
         Transaction {
             id: Some(format!("{}-{}", received.transaction_hash, received.position)),
             satoshis: received.satoshis,
@@ -48,7 +48,7 @@ pub trait Wallet: std::marker::Sized + JsonApiModel + Clone + std::fmt::Debug {
             position: received.position,
             is_spent: received.is_spent,
             block_height: received.block_height,
-            address: (*address).clone()
+            address: address.to_string()
         } 
     }
 

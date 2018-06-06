@@ -36,18 +36,21 @@ mod wallet_test {
                 wallets::plain::update,
                 wallets::plain::destroy,
                 wallets::plain::get_utxos,
+                wallets::plain::get_incoming,
                 wallets::hd::index,
                 wallets::hd::show,
                 wallets::hd::create,
                 wallets::hd::update,
                 wallets::hd::destroy,
                 wallets::hd::get_utxos,
+                wallets::hd::get_incoming,
                 wallets::multisig::index,
                 wallets::multisig::show,
                 wallets::multisig::create,
                 wallets::multisig::update,
                 wallets::multisig::destroy,
                 wallets::multisig::get_utxos,
+                wallets::multisig::get_incoming,
                 addresses::plain::index,
                 addresses::plain::create,
                 addresses::plain::destroy,
@@ -145,6 +148,7 @@ mod wallet_test {
     // Get utxos for address mhjp3ZgbGxx5qc9Y8dvk1F71QeQcE9swLE in plain wallet.
     // Create a MultisigWallet.
     // Get Multisig Utxos for multisig wallet.
+    // Get Multisig incoming transactions for multisig wallet.
     #[test]
     fn goes_through_the_full_wallet_lifecycle() {
         let client = Client::new(rocket()).expect("valid rocket instance");
@@ -312,6 +316,11 @@ mod wallet_test {
         assert_eq!(
             get(&client, "/multisig_wallets/2/get_utxos?since=400").body_string().unwrap(),
             load_fixture_file("./tests/data/multisig_utxos.json")
+        );
+
+        assert_eq!(
+            get(&client, "/multisig_wallets/2/get_incoming?since=400").body_string().unwrap(),
+            load_fixture_file("./tests/data/multisig_incoming_transactions.json")
         );
     }
 

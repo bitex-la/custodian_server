@@ -31,7 +31,23 @@ pub trait WalletHandler: ResourceWallet {
             },
             None => Err(status::Custom(Status::NotFound, format!("{:?}", id))),
         }
+    }
 
+    fn get_incoming(state: &ServerState, id: u64, limit: Option<u64>, since: Option<u64>) -> JsonResult {
+        let mut wallets = state.wallets_lock();
+        let haystack = Self::collection_from_wallets(&mut wallets);
+        let maybe_wallet = &haystack.iter().find(|&wallet| wallet.id() == id);
+
+        match maybe_wallet {
+            Some(wallet) => {
+                parse_to_value(
+                    vec_to_jsonapi_document(
+                        wallet.get_incoming(&state.executor, limit, since)
+                    )
+                ) 
+            },
+            None => Err(status::Custom(Status::NotFound, format!("{:?}", id))),
+        }
     }
 
     fn show(state: &ServerState, id: u64) -> JsonResult {
