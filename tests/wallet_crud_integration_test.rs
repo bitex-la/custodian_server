@@ -18,9 +18,9 @@ mod wallet_test {
     use rocket::local::Client;
     use rocket::local::LocalResponse;
     use std::fs::File;
-    use std::sync::MutexGuard;
     use std::io::BufReader;
     use std::io::Read;
+    use std::sync::MutexGuard;
 
     fn rocket() -> rocket::Rocket {
         let f = File::create("/dev/null").unwrap();
@@ -128,7 +128,8 @@ mod wallet_test {
         let mut file = File::open(path).expect("file not found");
         let mut buf_reader = BufReader::new(file);
         let mut contents = String::new();
-        buf_reader.read_to_string(&mut contents)
+        buf_reader
+            .read_to_string(&mut contents)
             .expect("something went wrong reading the file");
 
         contents.replace("\n", "").replace(" ", "")
@@ -285,7 +286,9 @@ mod wallet_test {
         );
 
         assert_eq!(
-            get(&client, "/plain_wallets/2/get_utxos?since=400").body_string().unwrap(),
+            get(&client, "/plain_wallets/2/get_utxos?since=400")
+                .body_string()
+                .unwrap(),
             load_fixture_file("./tests/data/plain_utxos.json")
         );
 
@@ -314,12 +317,16 @@ mod wallet_test {
         );
 
         assert_eq!(
-            get(&client, "/multisig_wallets/2/get_utxos?since=400").body_string().unwrap(),
+            get(&client, "/multisig_wallets/2/get_utxos?since=400")
+                .body_string()
+                .unwrap(),
             load_fixture_file("./tests/data/multisig_utxos.json")
         );
 
         assert_eq!(
-            get(&client, "/multisig_wallets/2/get_incoming?since=400").body_string().unwrap(),
+            get(&client, "/multisig_wallets/2/get_incoming?since=400")
+                .body_string()
+                .unwrap(),
             load_fixture_file("./tests/data/multisig_incoming_transactions.json")
         );
     }

@@ -1,9 +1,9 @@
 use std::io::Read;
-use std::str::FromStr;
 use std::str;
+use std::str::FromStr;
 
-use bitprim::explorer::Received;
 use bitcoin::util::bip32::ExtendedPubKey;
+use bitprim::explorer::Received;
 use jsonapi::model::*;
 
 pub use models::hd_wallet::HdAddress;
@@ -68,13 +68,19 @@ impl Wallet for MultisigWallet {
     type RA = HdAddress;
 
     fn construct_utxo(&self, received: Received, address: &HdAddress) -> Self::Utxo {
-        let pubkeys = self.xpubs
+        let pubkeys = self
+            .xpubs
             .iter()
             .map(|xpub| {
-                let (chain_code, pub_key) = if let Ok(extended_pub_key) = ExtendedPubKey::from_str(xpub) {
-                    (self.slice_to_hex(&extended_pub_key.chain_code.data()),
-                     self.slice_to_hex(&extended_pub_key.public_key.serialize()))
-                } else { (String::new(), String::new()) };
+                let (chain_code, pub_key) =
+                    if let Ok(extended_pub_key) = ExtendedPubKey::from_str(xpub) {
+                        (
+                            self.slice_to_hex(&extended_pub_key.chain_code.data()),
+                            self.slice_to_hex(&extended_pub_key.public_key.serialize()),
+                        )
+                    } else {
+                        (String::new(), String::new())
+                    };
 
                 PubkeyDefinition {
                     address_n: address.path.clone(),
@@ -87,19 +93,23 @@ impl Wallet for MultisigWallet {
                     },
                 }
             })
-        .collect();
-        MultisigUtxo { 
-            id: Some(format!("{}-{}", received.transaction_hash, received.position)),
+            .collect();
+        MultisigUtxo {
+            id: Some(format!(
+                "{}-{}",
+                received.transaction_hash, received.position
+            )),
             prev_hash: received.transaction_hash,
             prev_index: received.position,
-            address: address.clone(), 
-            amount: received.satoshis, 
+            address: address.clone(),
+            amount: received.satoshis,
             script_type: "SPENDMULTISIG".to_string(),
             multisig: MultisigDefinition {
                 signatures: self.xpubs.iter().map(|_s| String::new()).collect(),
                 m: self.xpubs.len(),
-                pubkeys
-            }}
+                pubkeys,
+            },
+        }
     }
 
     fn get_addresses<'a>(&'a self) -> &'a Vec<HdAddress> {

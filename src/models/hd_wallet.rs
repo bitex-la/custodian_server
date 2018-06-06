@@ -1,5 +1,5 @@
-use std::io::Read;
 use std::fmt;
+use std::io::Read;
 
 use bitprim::explorer::Received;
 use jsonapi::model::*;
@@ -51,11 +51,14 @@ impl Wallet for HdWallet {
 
     fn construct_utxo(&self, received: Received, address: &HdAddress) -> Self::Utxo {
         HdUtxo {
-            id: Some(format!("{}-{}", received.transaction_hash, received.position)),
+            id: Some(format!(
+                "{}-{}",
+                received.transaction_hash, received.position
+            )),
             prev_hash: received.transaction_hash,
             prev_index: received.position,
             address: address.clone(),
-            amount: received.satoshis
+            amount: received.satoshis,
         }
     }
 

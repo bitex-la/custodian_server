@@ -8,7 +8,7 @@ pub struct Transaction {
     pub position: u32,
     pub is_spent: bool,
     pub block_height: u32,
-    pub address: String
+    pub address: String,
 }
 
 jsonapi_model!(Transaction; "transaction");
