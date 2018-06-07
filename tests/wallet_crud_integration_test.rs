@@ -8,6 +8,13 @@ extern crate rocket;
 
 #[cfg(test)]
 mod wallet_test {
+
+    #[cfg(feature="btc")]
+    const CURRENCY: &str = "btc";
+
+    #[cfg(feature="bch")]
+    const CURRENCY: &str = "bch";
+
     use custodian_server::handlers::addresses;
     use custodian_server::handlers::wallets;
     use custodian_server::models::wallets::Wallets;
@@ -24,8 +31,9 @@ mod wallet_test {
 
     fn rocket() -> rocket::Rocket {
         let f = File::create("/dev/null").unwrap();
+
         let state: ServerState =
-            ServerState::new("./tests/btc-testnet.cfg", &f, &f).expect("Error creating State");
+            ServerState::new(&format!("./tests/{}-testnet.cfg", CURRENCY), &f, &f).expect("Error creating State");
 
         rocket::ignite().manage(state).mount(
             "/",
