@@ -22,9 +22,11 @@ mod data_guards;
 mod handlers;
 mod models;
 mod server_state;
+
+use std::env;
+use std::io;
 use handlers::{addresses, wallets};
 use server_state::ServerState;
-use std::fs::File;
 
 #[cfg(test)]
 mod tests;
@@ -35,18 +37,13 @@ fn stop(state: &ServerState) -> String {
     "Stopping soon.".to_string()
 }
 
-#[cfg(feature="btc")]
-const CURRENCY: &str = "btc";
-
-#[cfg(feature="bch")]
-const CURRENCY: &str = "bch";
-
 fn main() {
-    let f = File::create("/dev/null").expect("/dev/null not available");
+    let args: Vec<String> = env::args().collect();
 
-    println!("CURRENCY: {}", CURRENCY);
+    let conf_path = &args.get(1).expect("You need to provide a path for a config file.");
+
     let state: ServerState =
-        ServerState::new(&format!("./tests/{}-testnet.cfg", CURRENCY), &f, &f).expect("Error creating State");
+        ServerState::new(conf_path, &io::stdout(), &io::stderr()).expect("Error creating State");
 
     ctrlc::set_handler(move || {
         println!("Do not signal. Stop by visiting /stop");
