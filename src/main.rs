@@ -35,11 +35,18 @@ fn stop(state: &ServerState) -> String {
     "Stopping soon.".to_string()
 }
 
+#[cfg(feature="btc")]
+const CURRENCY: &str = "btc";
+
+#[cfg(feature="bch")]
+const CURRENCY: &str = "bch";
+
 fn main() {
     let f = File::create("/dev/null").expect("/dev/null not available");
 
+    println!("CURRENCY: {}", CURRENCY);
     let state: ServerState =
-        ServerState::new("./tests/btc-testnet.cfg", &f, &f).expect("Error creating State");
+        ServerState::new(&format!("./tests/{}-testnet.cfg", CURRENCY), &f, &f).expect("Error creating State");
 
     ctrlc::set_handler(move || {
         println!("Do not signal. Stop by visiting /stop");
