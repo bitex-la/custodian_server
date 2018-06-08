@@ -25,7 +25,7 @@ mod server_state;
 
 use std::env;
 use std::io;
-use handlers::{addresses, wallets};
+use handlers::{addresses, wallets, blocks};
 use server_state::ServerState;
 
 #[cfg(test)]
@@ -84,6 +84,7 @@ fn main() {
                 addresses::multisig::index,
                 addresses::multisig::create,
                 addresses::multisig::destroy,
+                blocks::base::last,
                 stop
             ],
         )

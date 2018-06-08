@@ -17,6 +17,7 @@ mod wallet_test {
 
     use custodian_server::handlers::addresses;
     use custodian_server::handlers::wallets;
+    use custodian_server::handlers::blocks;
     use custodian_server::models::wallets::Wallets;
     use custodian_server::server_state::ServerState;
     use rocket;
@@ -68,6 +69,7 @@ mod wallet_test {
                 addresses::multisig::index,
                 addresses::multisig::create,
                 addresses::multisig::destroy,
+                blocks::base::last,
             ],
         )
     }
@@ -336,6 +338,13 @@ mod wallet_test {
                 .body_string()
                 .unwrap(),
             load_fixture_file("./tests/data/multisig_incoming_transactions.json")
+        );
+
+        assert_eq!(
+            get(&client, "/blocks/last")
+                .body_string()
+                .unwrap(),
+            r#"{"data":{"attributes":{"height":4145,"timestamp":1338102363},"id":"000000007dacb5d4d071404703e73839b0f47fc82f912d75fab7933bf5306735","type":"block"}}"#,
         );
     }
 

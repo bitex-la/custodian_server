@@ -4,5 +4,6 @@ pub mod plain_wallet;
 pub mod resource_address;
 pub mod resource_wallet;
 pub mod transaction;
+pub mod block;
 pub mod wallet;
 pub mod wallets;
