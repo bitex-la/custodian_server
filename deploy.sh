@@ -13,8 +13,7 @@ else
     exit
 fi
 
-cargo clean
-cargo +nightly build --release
+cargo +nightly build --release --features $CURRENCY
 trezor-agent $HOME/.ssh/config -- scp target/release/custodian_server user@200.89.175.55:/tmp/custodian_server 
 
 trezor-agent $HOME/.ssh/config -- ssh user@200.89.175.55 screen -d -m "sudo su -c 'cp /tmp/custodian_server /var/apps/custodian_server/$CURRENCY/' bitex"
