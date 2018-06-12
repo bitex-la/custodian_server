@@ -15,6 +15,9 @@ mod wallet_test {
     #[cfg(feature="bch")]
     const CURRENCY: &str = "bch";
 
+    #[cfg(feature="ltc")]
+    const CURRENCY: &str = "ltc";
+
     use custodian_server::handlers::addresses;
     use custodian_server::handlers::wallets;
     use custodian_server::handlers::blocks;

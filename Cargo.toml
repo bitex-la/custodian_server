@@ -15,7 +15,7 @@ serde_json = "1.0"
 serde_derive = "1.0"
 bitcoin = "0.13.1"
 jsonapi = { git = "https://github.com/bitex-la/jsonapi-rust" }
-bitprim = { git = "https://github.com/bitex-la/bitprim-rust", features = ["bch"] }
+bitprim = { git = "https://github.com/bitex-la/bitprim-rust", features = ["btc"] }
 
 [build-dependencies]
 regex = "1.0"
@@ -29,6 +29,7 @@ features = ["json"]
 pretty_assertions = "*"
 
 [features]
-#default = ["bch"]
+#default = ["btc"]
 btc = []
 bch = []
+ltc = []

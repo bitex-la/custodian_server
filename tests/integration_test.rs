@@ -24,6 +24,9 @@ const CURRENCY: &str = "btc";
 #[cfg(feature="bch")]
 const CURRENCY: &str = "bch";
 
+#[cfg(feature="ltc")]
+const CURRENCY: &str = "ltc";
+
 macro_rules! assert_ok {
     ($name:ident $body:block) => {
         #[test]

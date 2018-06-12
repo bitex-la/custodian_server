@@ -3,7 +3,7 @@
 rm -rf tests/btc-testnet-files/database
 rm -rf tests/btc-testnet-files/log
 reset
-cargo +nightly test runs_500_blocks_sync -- --test-threads=1 --nocapture
+cargo test runs_500_blocks_sync -- --test-threads=1 --nocapture
 if [ $? -ne 0 ]
 then
   echo "Failed to run test. Database is likely invalid. Fix stuff and try again."
