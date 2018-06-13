@@ -23,10 +23,10 @@ mod handlers;
 mod models;
 mod server_state;
 
+use handlers::{addresses, blocks, wallets};
+use server_state::ServerState;
 use std::env;
 use std::io;
-use handlers::{addresses, wallets, blocks};
-use server_state::ServerState;
 
 #[cfg(test)]
 mod tests;
@@ -40,7 +40,9 @@ fn stop(state: &ServerState) -> String {
 fn main() {
     let args: Vec<String> = env::args().collect();
 
-    let conf_path = &args.get(1).expect("You need to provide a path for a config file.");
+    let conf_path = &args
+        .get(1)
+        .expect("You need to provide a path for a config file.");
 
     let state: ServerState =
         ServerState::new(conf_path, &io::stdout(), &io::stderr()).expect("Error creating State");

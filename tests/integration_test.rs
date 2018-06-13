@@ -18,13 +18,13 @@ use custodian_server::server_state::ServerState;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 
-#[cfg(feature="btc")]
+#[cfg(feature = "btc")]
 const CURRENCY: &str = "btc";
 
-#[cfg(feature="bch")]
+#[cfg(feature = "bch")]
 const CURRENCY: &str = "bch";
 
-#[cfg(feature="ltc")]
+#[cfg(feature = "ltc")]
 const CURRENCY: &str = "ltc";
 
 macro_rules! assert_ok {
@@ -52,7 +52,8 @@ fn build_test_executor() -> Result<Executor> {
 
 fn build_500_blocks_state() -> Result<ServerState> {
     let f = File::create("/dev/null").unwrap();
-    let state: ServerState = ServerState::new(&format!("./tests/{}-testnet.cfg", CURRENCY), &f, &f)?;
+    let state: ServerState =
+        ServerState::new(&format!("./tests/{}-testnet.cfg", CURRENCY), &f, &f)?;
     while state.executor.get_chain().get_last_height()? < 500 {
         println!(
             "Syncing {:?}",
