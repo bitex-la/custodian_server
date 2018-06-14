@@ -8,6 +8,7 @@ extern crate ctrlc;
 extern crate libc;
 extern crate rocket;
 extern crate rocket_contrib;
+extern crate rocket_cors;
 extern crate serde;
 extern crate serde_json;
 #[macro_use]
@@ -28,6 +29,9 @@ use server_state::ServerState;
 use std::env;
 use std::io;
 
+use rocket::http::Method;
+use rocket_cors::{AllowedOrigins, AllowedHeaders};
+
 #[cfg(test)]
 mod tests;
 
@@ -39,7 +43,14 @@ fn stop(state: &ServerState) -> String {
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-
+    let (allowed_origins, _) = AllowedOrigins::some(&["http://localhost:9966"]);
+    let options = rocket_cors::Cors {
+        allowed_origins: allowed_origins,
+        allowed_methods: vec![Method::Get, Method::Post, Method::Put, Method::Delete].into_iter().map(From::from).collect(),
+        allowed_headers: AllowedHeaders::some(&["Authorization", "Accept", "Origin", "Access-Control-Request-Headers", "Access-Control-Request-Method"]),
+        allow_credentials: true,
+        ..Default::default()
+    };
     let conf_path = &args
         .get(1)
         .expect("You need to provide a path for a config file.");
@@ -90,5 +101,6 @@ fn main() {
                 stop
             ],
         )
+        .attach(options)
         .launch();
 }
