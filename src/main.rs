@@ -30,7 +30,7 @@ use std::env;
 use std::io;
 
 use rocket::http::Method;
-use rocket_cors::{AllowedOrigins, AllowedHeaders};
+use rocket_cors::{AllowedOrigins};
 
 #[cfg(test)]
 mod tests;
@@ -47,7 +47,6 @@ fn main() {
     let options = rocket_cors::Cors {
         allowed_origins: allowed_origins,
         allowed_methods: vec![Method::Get, Method::Post, Method::Put, Method::Delete].into_iter().map(From::from).collect(),
-        allowed_headers: AllowedHeaders::some(&["Authorization", "Accept", "Origin", "Access-Control-Request-Headers", "Access-Control-Request-Method"]),
         allow_credentials: true,
         ..Default::default()
     };
