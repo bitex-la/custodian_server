@@ -21,7 +21,7 @@ pub struct MultisigWallet {
     pub signers: u64,
 }
 
-jsonapi_model!(MultisigWallet; "multisig_wallet");
+jsonapi_model!(MultisigWallet; "multisig_wallet"; has many addresses);
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MultisigUtxo {

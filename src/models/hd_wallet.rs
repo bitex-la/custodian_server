@@ -18,7 +18,7 @@ pub struct HdWallet {
     pub xpub: String,
 }
 
-jsonapi_model!(HdWallet; "hd_wallet");
+jsonapi_model!(HdWallet; "hd_wallet"; has many addresses);
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HdUtxo {
