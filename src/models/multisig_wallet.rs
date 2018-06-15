@@ -170,6 +170,6 @@ impl ResourceWallet for MultisigWallet {
         self.addresses
             .clone()
             .into_iter()
-            .position(|in_address| in_address.id == address.id)
+            .position(|in_address| in_address.to_string() == address.to_string())
     }
 }
