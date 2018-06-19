@@ -300,7 +300,7 @@ mod wallet_test {
         );
 
         assert_eq!(
-            get(&client, "/plain_wallets/2/get_utxos?since=0&limit=600")
+            get(&client, "/plain_wallets/2/get_utxos?since=0&limit=400")
                 .body_string()
                 .unwrap(),
             load_fixture_file("./tests/data/plain_utxos.json")
@@ -359,7 +359,7 @@ mod wallet_test {
             get(&client, "/blocks/last")
                 .body_string()
                 .unwrap(),
-            r#"{"data":{"attributes":{"height":4145,"timestamp":1338102363},"id":"000000007dacb5d4d071404703e73839b0f47fc82f912d75fab7933bf5306735","type":"block"}}"#,
+            r#"{"data":{"attributes":{"height":4109,"timestamp":1338059127},"id":"0000000005618907cb6a234fd732fd16cb230cfe726137e281aa467165029ffb","type":"block"}}"#,
         );
     }
 

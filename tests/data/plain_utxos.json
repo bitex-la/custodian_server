@@ -53,11 +53,11 @@
         },
         {
             "attributes": {
-                "amount": 489384,
-                "prev_hash": "389d1c62ad634a3ef81e83a4537a9fc2a38b38634888e753b910378e3c5aa537",
+                "amount": 1066659,
+                "prev_hash": "5b57446e1feab14ddb8a72bf410d9d4eda2718a61fe23115386c62a3a2469c6c",
                 "prev_index": 1
             },
-            "id": "389d1c62ad634a3ef81e83a4537a9fc2a38b38634888e753b910378e3c5aa537-1",
+            "id": "5b57446e1feab14ddb8a72bf410d9d4eda2718a61fe23115386c62a3a2469c6c-1",
             "relationships": {
                 "address": {
                     "data": {
@@ -70,11 +70,11 @@
         },
         {
             "attributes": {
-                "amount": 1066659,
-                "prev_hash": "5b57446e1feab14ddb8a72bf410d9d4eda2718a61fe23115386c62a3a2469c6c",
+                "amount": 489384,
+                "prev_hash": "389d1c62ad634a3ef81e83a4537a9fc2a38b38634888e753b910378e3c5aa537",
                 "prev_index": 1
             },
-            "id": "5b57446e1feab14ddb8a72bf410d9d4eda2718a61fe23115386c62a3a2469c6c-1",
+            "id": "389d1c62ad634a3ef81e83a4537a9fc2a38b38634888e753b910378e3c5aa537-1",
             "relationships": {
                 "address": {
                     "data": {

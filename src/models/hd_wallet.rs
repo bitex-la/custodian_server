@@ -28,7 +28,7 @@ pub struct HdUtxo {
     pub address: HdAddress,
     pub amount: u64,
 }
-jsonapi_model!(HdUtxo; "hd_utxo"; has one address);
+jsonapi_model!(HdUtxo; "hd_utxo");
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct HdAddress {
