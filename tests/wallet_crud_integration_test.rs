@@ -300,7 +300,7 @@ mod wallet_test {
         );
 
         assert_eq!(
-            get(&client, "/plain_wallets/2/get_utxos?since=400")
+            get(&client, "/plain_wallets/2/get_utxos?since=0&limit=600")
                 .body_string()
                 .unwrap(),
             load_fixture_file("./tests/data/plain_utxos.json")
@@ -320,6 +320,17 @@ mod wallet_test {
             }
         }}"#,
         );
+
+        post(
+            &client,
+            "/hd_wallets/1/relationships/addresses",
+            r#"{ "data": {
+            "attributes": { "address": "2NAHscN6XVqUPzBSJHC3fhkeF5SQVxiR9p9", "path": []},
+            "type": "hd_address"
+          }}"#,
+        );
+
+        get(&client, "/hd_wallets/1/get_utxos?since=0&limit=600");
 
         post(
             &client,

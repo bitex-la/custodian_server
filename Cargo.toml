@@ -30,7 +30,7 @@ features = ["json"]
 pretty_assertions = "*"
 
 [features]
-#default = ["btc"]
+default = ["btc"]
 btc = []
 bch = []
 ltc = []
