@@ -54,7 +54,7 @@ pub trait Wallet: std::marker::Sized + JsonApiModel + Clone + std::fmt::Debug {
         Transaction {
             id: Some(format!(
                 "{}-{}",
-                received.transaction_hash, received.position
+                received.transaction_hash.to_hex(), received.position
             )),
             satoshis: received.satoshis,
             transaction_hash: received.transaction_hash,

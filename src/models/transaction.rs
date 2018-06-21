@@ -1,10 +1,11 @@
+use bitprim::hash::Hash;
 use jsonapi::model::*;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Transaction {
     pub id: Option<String>,
     pub satoshis: u64,
-    pub transaction_hash: String,
+    pub transaction_hash: Hash,
     pub position: u32,
     pub is_spent: bool,
     pub block_height: u32,

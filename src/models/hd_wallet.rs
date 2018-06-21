@@ -53,9 +53,9 @@ impl Wallet for HdWallet {
         HdUtxo {
             id: Some(format!(
                 "{}-{}",
-                received.transaction_hash, received.position
+                received.transaction_hash.to_hex(), received.position
             )),
-            prev_hash: received.transaction_hash,
+            prev_hash: received.transaction_hash.to_hex(),
             prev_index: received.position,
             address: address.clone(),
             amount: received.satoshis,
