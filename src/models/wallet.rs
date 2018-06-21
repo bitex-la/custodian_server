@@ -1,6 +1,7 @@
 use std;
 use std::str::FromStr;
 
+use bitprim::chain::Chain;
 use bitprim::errors::Error;
 use bitprim::executor::Executor;
 use bitprim::explorer::Received;
@@ -46,23 +47,12 @@ pub trait Wallet: std::marker::Sized + JsonApiModel + Clone + std::fmt::Debug {
             limit.unwrap_or(10_000),
             since,
             |address, limit, since| explorer.address_incoming(address, limit, since),
-            |received: Received, address| self.construct_transaction(received, address),
+            |received: Received, address| self.construct_transaction(exec.get_chain(), received, address),
         )
     }
 
-    fn construct_transaction(&self, received: Received, address: &Self::RA) -> Transaction {
-        Transaction {
-            id: Some(format!(
-                "{}-{}",
-                received.transaction_hash.to_hex(), received.position
-            )),
-            satoshis: received.satoshis,
-            transaction_hash: received.transaction_hash,
-            position: received.position,
-            is_spent: received.is_spent,
-            block_height: received.block_height,
-            address: address.to_string(),
-        }
+    fn construct_transaction(&self, chain: Chain, received: Received, address: &Self::RA) -> Transaction {
+        Transaction::new(received, chain, address.to_string())
     }
 
     fn construct_utxo(&self, received: Received, address: &Self::RA) -> Self::Utxo;

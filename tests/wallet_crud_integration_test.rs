@@ -342,7 +342,7 @@ mod wallet_test {
         );
 
         assert_eq!(
-            get(&client, "/multisig_wallets/2/get_utxos?since=400")
+            get(&client, "/multisig_wallets/2/get_utxos?since=0&limit=400")
                 .body_string()
                 .unwrap(),
             load_fixture_file("./tests/data/multisig_utxos.json")
