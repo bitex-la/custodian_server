@@ -105,7 +105,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 [[package]]
 name = "bitprim"
 version = "0.1.0"
-source = "git+https://github.com/bitex-la/bitprim-rust#e64a1c066e211537d948a58c2cd498386bbe5697"
+source = "git+https://github.com/bitex-la/bitprim-rust#4235c171577f6ca86349bb51e4b458a5af26007b"
 dependencies = [
  "error-chain 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.2.42 (registry+https://github.com/rust-lang/crates.io-index)",
