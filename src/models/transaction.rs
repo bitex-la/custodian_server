@@ -18,10 +18,9 @@ pub struct Transaction {
 jsonapi_model!(Transaction; "transaction");
 
 impl Transaction {
-    pub fn new(tx: Received, chain: Chain, address: String) -> Self {
+    pub fn new(tx: Received, address: String) -> Self {
         let hash = tx.transaction_hash;
         let hex_value = hash.to_hex();
-        let raw_transaction = chain.get_transaction(hash, 0).expect("Problem connecting with Node to get Transaction");
         Transaction {
             id: Some(format!("{}-{}", hex_value, tx.position)),
             satoshis: tx.satoshis,
@@ -30,8 +29,8 @@ impl Transaction {
             is_spent: tx.is_spent,
             block_height: tx.block_height,
             address: address,
-            version: raw_transaction.0.version(),
-            locktime: raw_transaction.0.locktime()
+            version: tx.version,
+            locktime: tx.locktime
         }
     }
 }
