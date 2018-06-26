@@ -1,5 +1,5 @@
 use bitprim::explorer::Received;
-use bitprim::chain::Chain;
+use bitprim::executor::Executor;
 use jsonapi::model::*;
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -18,9 +18,9 @@ pub struct Transaction {
 jsonapi_model!(Transaction; "transaction");
 
 impl Transaction {
-    pub fn new(tx: Received, address: String) -> Self {
-        let hash = tx.transaction_hash;
-        let hex_value = hash.to_hex();
+    pub fn new(exec: &Executor, tx: Received, address: String) -> Self {
+        let transaction = tx.get_transaction(exec);
+        let hex_value = transaction.hash().to_hex();
         Transaction {
             id: Some(format!("{}-{}", hex_value, tx.position)),
             satoshis: tx.satoshis,
@@ -29,8 +29,8 @@ impl Transaction {
             is_spent: tx.is_spent,
             block_height: tx.block_height,
             address: address,
-            version: tx.version,
-            locktime: tx.locktime
+            version: transaction.version(),
+            locktime: transaction.locktime()
         }
     }
 }
