@@ -46,12 +46,12 @@ pub trait Wallet: std::marker::Sized + JsonApiModel + Clone + std::fmt::Debug {
             limit.unwrap_or(10_000),
             since,
             |address, limit, since| explorer.address_incoming(address, limit, since),
-            |received: Received, address| self.construct_transaction(exec, received, address),
+            |received: Received, address| self.construct_transaction(received, address),
         )
     }
 
-    fn construct_transaction(&self, exec: &Executor, received: Received, address: &Self::RA) -> Transaction {
-        Transaction::new(exec, received, address.to_string())
+    fn construct_transaction(&self, received: Received, address: &Self::RA) -> Transaction {
+        Transaction::new(received, address.to_string())
     }
 
     fn construct_utxo(&self, received: Received, address: &Self::RA) -> Self::Utxo;
