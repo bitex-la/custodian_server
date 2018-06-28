@@ -10,6 +10,7 @@ pub use models::hd_wallet::HdAddress;
 use models::resource_wallet::ResourceWallet;
 use models::wallet::Wallet;
 use models::wallets::Wallets;
+use models::transaction::Transaction;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MultisigWallet {
@@ -26,12 +27,10 @@ jsonapi_model!(MultisigWallet; "multisig_wallet"; has many addresses);
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MultisigUtxo {
     pub id: Option<String>,
-    pub prev_hash: String,
-    pub prev_index: u32,
     pub address: HdAddress,
-    pub amount: u64,
     pub script_type: String,
     pub multisig: MultisigDefinition,
+    pub transaction: Transaction
 }
 jsonapi_model!(MultisigUtxo; "multi_utxo");
 
@@ -99,16 +98,14 @@ impl Wallet for MultisigWallet {
                 "{}-{}",
                 received.transaction_hash.to_hex(), received.position
             )),
-            prev_hash: received.transaction_hash.to_hex(),
-            prev_index: received.position,
             address: address.clone(),
-            amount: received.satoshis,
             script_type: "SPENDMULTISIG".to_string(),
             multisig: MultisigDefinition {
                 signatures: self.xpubs.iter().map(|_s| String::new()).collect(),
                 m: self.xpubs.len(),
                 pubkeys,
             },
+            transaction: Transaction::new(received, address.to_string())
         }
     }
 

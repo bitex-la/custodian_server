@@ -3,7 +3,7 @@ use bitprim::explorer::InputDetail;
 use bitprim::explorer::OutputDetail;
 use jsonapi::model::*;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Transaction {
     pub id: Option<String>,
     pub satoshis: u64,

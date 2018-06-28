@@ -8,6 +8,7 @@ use models::resource_address::ResourceAddress;
 use models::resource_wallet::ResourceWallet;
 use models::wallet::Wallet;
 use models::wallets::Wallets;
+use models::transaction::Transaction;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HdWallet {
@@ -23,10 +24,8 @@ jsonapi_model!(HdWallet; "hd_wallet"; has many addresses);
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HdUtxo {
     pub id: Option<String>,
-    pub prev_hash: String,
-    pub prev_index: u32,
     pub address: HdAddress,
-    pub amount: u64,
+    pub transaction: Transaction
 }
 jsonapi_model!(HdUtxo; "hd_utxo");
 
@@ -55,10 +54,8 @@ impl Wallet for HdWallet {
                 "{}-{}",
                 received.transaction_hash.to_hex(), received.position
             )),
-            prev_hash: received.transaction_hash.to_hex(),
-            prev_index: received.position,
             address: address.clone(),
-            amount: received.satoshis,
+            transaction: Transaction::new(received, address.to_string())
         }
     }
 
