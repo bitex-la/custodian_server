@@ -24,7 +24,7 @@ mod handlers;
 mod models;
 mod server_state;
 
-use handlers::{addresses, blocks, wallets};
+use handlers::{addresses, blocks, transactions, wallets};
 use server_state::ServerState;
 use std::env;
 use std::io;
@@ -66,6 +66,7 @@ fn main() {
         .mount(
             "/",
             routes![
+                transactions::base::broadcast,
                 wallets::plain::index,
                 wallets::plain::show,
                 wallets::plain::create,
