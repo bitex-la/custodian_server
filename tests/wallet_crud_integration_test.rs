@@ -6,6 +6,8 @@ extern crate pretty_assertions;
 extern crate custodian_server;
 extern crate rocket;
 
+extern crate serde_json;
+
 #[cfg(test)]
 mod wallet_test {
 
@@ -32,6 +34,8 @@ mod wallet_test {
     use std::io::BufReader;
     use std::io::Read;
     use std::sync::MutexGuard;
+
+    use serde_json::{Value, Error};
 
     fn rocket() -> rocket::Rocket {
         let f = File::create("/dev/null").unwrap();
@@ -355,7 +359,8 @@ mod wallet_test {
             load_fixture_file("./tests/data/multisig_incoming_transactions.json")
         );
 
-        get(&client, "/blocks/last");
+        let v: Value = ::serde_json::from_str(&get(&client, "/blocks/last").body_string().unwrap()).unwrap();
+        assert_eq!(v["data"]["attributes"]["height"].as_u64().unwrap() > 400, true);
     }
 
     #[test]
