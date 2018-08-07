@@ -43,7 +43,7 @@ fn stop(state: &ServerState) -> String {
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    let (allowed_origins, _) = AllowedOrigins::some(&["http://localhost:9966"]);
+    let (allowed_origins, _) = AllowedOrigins::some(&["http://localhost", "http://34.198.61.110"]);
     let options = rocket_cors::Cors {
         allowed_origins: allowed_origins,
         allowed_methods: vec![Method::Get, Method::Post, Method::Put, Method::Delete].into_iter().map(From::from).collect(),
