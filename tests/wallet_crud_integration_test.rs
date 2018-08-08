@@ -71,12 +71,15 @@ mod wallet_test {
                 addresses::plain::index,
                 addresses::plain::create,
                 addresses::plain::destroy,
+                addresses::plain::balance,
                 addresses::hd::index,
                 addresses::hd::create,
                 addresses::hd::destroy,
+                addresses::hd::balance,
                 addresses::multisig::index,
                 addresses::multisig::create,
                 addresses::multisig::destroy,
+                addresses::multisig::balance,
                 blocks::base::last,
             ],
         )
@@ -335,6 +338,13 @@ mod wallet_test {
         );
 
         get(&client, "/hd_wallets/1/get_utxos?since=0&limit=600");
+
+        assert_eq!(
+            get(&client, "/hd_wallets/relationships/addresses/2NAHscN6XVqUPzBSJHC3fhkeF5SQVxiR9p9/balance?since=0&limit=600")
+                .body_string()
+                .unwrap(),
+            "1309846".to_string()
+        );
 
         post(
             &client,

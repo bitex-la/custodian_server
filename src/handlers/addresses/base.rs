@@ -1,5 +1,9 @@
+use std::str::FromStr;
+
+use bitprim::payment_address::PaymentAddress;
 use handlers::handler::{parse_to_value, JsonResult};
 use jsonapi::model::*;
+use bitprim::executor::Executor;
 use models::resource_wallet::ResourceWallet;
 use rocket::http::Status;
 use rocket::response::status;
@@ -73,6 +77,19 @@ pub trait AddressHandler: ResourceWallet {
                 Status::NotFound,
                 format!("Wallet with id {:?} Not Found", id),
             )),
+        }
+    }
+
+    fn balance(exec: &Executor, address: String, limit: Option<u64>, since: Option<u64>) -> JsonResult {
+        let explorer = exec.explorer();
+
+        if let Ok(valid_address) = PaymentAddress::from_str(&address) {
+            match explorer.address_unspents(valid_address, limit.unwrap_or(10_000), since.unwrap_or(0)) {
+                Ok(vec_received) => parse_to_value(vec_received.iter().map(|r| r.satoshis).into_iter().sum::<u64>()),
+                Err(error) => Err(status::Custom(Status::InternalServerError, error.to_string()))
+            }
+        } else {
+            Err(status::Custom(Status::InternalServerError, "Invalid Address".to_string()))
         }
     }
 }

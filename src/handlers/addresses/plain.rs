@@ -1,4 +1,5 @@
 use handlers::addresses::base::AddressHandler;
+use handlers::handler::GetTransactionParams;
 use handlers::handler::JsonResult;
 use models::plain_wallet::Address;
 use models::plain_wallet::PlainWallet;
@@ -21,4 +22,11 @@ pub fn create(state: &ServerState, id: u64, address: Address) -> JsonResult {
 )]
 pub fn destroy(state: &ServerState, id: u64, address: Address) -> JsonResult {
     PlainWallet::address_destroy(state, id, address)
+}
+
+#[get(
+    "/plain_wallets/relationships/addresses/<address>/balance?<params>", format = "application/json"
+)]
+pub fn balance(state: &ServerState, address: String, params: GetTransactionParams) -> JsonResult {
+    PlainWallet::balance(&state.executor, address, params.limit, params.since)
 }

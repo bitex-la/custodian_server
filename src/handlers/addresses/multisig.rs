@@ -1,4 +1,5 @@
 use handlers::addresses::base::AddressHandler;
+use handlers::handler::GetTransactionParams;
 use handlers::handler::JsonResult;
 use models::multisig_wallet::HdAddress;
 use models::multisig_wallet::MultisigWallet;
@@ -25,4 +26,11 @@ pub fn create(state: &ServerState, id: u64, address: HdAddress) -> JsonResult {
 )]
 pub fn destroy(state: &ServerState, id: u64, address: HdAddress) -> JsonResult {
     MultisigWallet::address_destroy(state, id, address)
+}
+
+#[get(
+    "/multisig_wallets/relationships/addresses/<address>/balance?<params>", format = "application/json"
+)]
+pub fn balance(state: &ServerState, address: String, params: GetTransactionParams) -> JsonResult {
+    MultisigWallet::balance(&state.executor, address, params.limit, params.since)
 }
