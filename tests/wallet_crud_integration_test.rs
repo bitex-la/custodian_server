@@ -22,6 +22,7 @@ mod wallet_test {
 
     use custodian_server::handlers::addresses;
     use custodian_server::handlers::blocks;
+    use custodian_server::handlers::transactions;
     use custodian_server::handlers::wallets;
     use custodian_server::models::wallets::Wallets;
     use custodian_server::server_state::ServerState;
@@ -81,6 +82,7 @@ mod wallet_test {
                 addresses::multisig::destroy,
                 addresses::multisig::balance,
                 blocks::base::last,
+                transactions::base::broadcast
             ],
         )
     }
@@ -371,6 +373,8 @@ mod wallet_test {
 
         let v: Value = ::serde_json::from_str(&get(&client, "/blocks/last").body_string().unwrap()).unwrap();
         assert_eq!(v["data"]["attributes"]["height"].as_u64().unwrap() > 400, true);
+
+        post(&client, "/transactions/broadcast", r#"01000000017b1eabe0209b1fe794124575ef807057c77ada2138ae4fa8d6c4de0398a14f3f00000000494830450221008949f0cb400094ad2b5eb399d59d01c14d73d8fe6e96df1a7150deb388ab8935022079656090d7f6bac4c9a94e0aad311a4268e082a725f8aeae0573fb12ff866a5f01ffffffff01f0ca052a010000001976a914cbc20a7664f2f69e5355aa427045bc15e7c6c77288ac00000000"#);
     }
 
     #[test]
