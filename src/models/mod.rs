@@ -7,4 +7,3 @@ pub mod resource_wallet;
 pub mod transaction;
 pub mod wallet;
 pub mod wallets;
-pub mod rsk;

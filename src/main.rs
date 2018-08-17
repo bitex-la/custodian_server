@@ -24,7 +24,7 @@ mod handlers;
 mod models;
 mod server_state;
 
-use handlers::{addresses, blocks, transactions, wallets, rsk};
+use handlers::{addresses, blocks, transactions, wallets};
 use server_state::ServerState;
 use std::env;
 use std::io;
@@ -101,7 +101,6 @@ fn main() {
                 addresses::multisig::destroy,
                 addresses::multisig::balance,
                 blocks::base::last,
-                rsk::temp_addresses,
                 stop
             ],
         )
