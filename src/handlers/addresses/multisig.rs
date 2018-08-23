@@ -34,3 +34,8 @@ pub fn destroy(state: &ServerState, id: u64, address: HdAddress) -> JsonResult {
 pub fn balance(state: &ServerState, address: String, params: GetTransactionParams) -> JsonResult {
     MultisigWallet::balance(&state.executor, address, params.limit, params.since)
 }
+
+#[get("/multisig_wallets/relationships/addresses/<address>/get_utxos?<params>", format = "application/json")]
+pub fn get_utxos(state: &ServerState, address: String, params: GetTransactionParams) -> JsonResult {
+    MultisigWallet::get_utxos(&state.executor, address, params.limit, params.since)
+}

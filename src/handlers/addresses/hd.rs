@@ -28,3 +28,8 @@ pub fn destroy(state: &ServerState, id: u64, address: HdAddress) -> JsonResult {
 pub fn balance(state: &ServerState, address: String, params: GetTransactionParams) -> JsonResult {
     HdWallet::balance(&state.executor, address, params.limit, params.since)
 }
+
+#[get("/hd_wallets/relationships/addresses/<address>/get_utxos?<params>", format = "application/json")]
+pub fn get_utxos(state: &ServerState, address: String, params: GetTransactionParams) -> JsonResult {
+    HdWallet::get_utxos(&state.executor, address, params.limit, params.since)
+}

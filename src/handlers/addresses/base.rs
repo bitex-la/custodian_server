@@ -92,6 +92,19 @@ pub trait AddressHandler: ResourceWallet {
             Err(status::Custom(Status::InternalServerError, "Invalid Address".to_string()))
         }
     }
+
+    fn get_utxos(exec: &Executor, address: String, limit: Option<u64>, since: Option<u64>) -> JsonResult {
+        let explorer = exec.explorer();
+
+        if let Ok(valid_address) = PaymentAddress::from_str(&address) {
+            match explorer.address_unspents(valid_address, limit.unwrap_or(10_000), since.unwrap_or(0)) {
+                Ok(vec_received) => parse_to_value(vec_received),
+                Err(error) => Err(status::Custom(Status::InternalServerError, error.to_string()))
+            }
+        } else {
+            Err(status::Custom(Status::InternalServerError, "Invalid Address".to_string()))
+        }
+    }
 }
 
 impl<R: ResourceWallet> AddressHandler for R {}
