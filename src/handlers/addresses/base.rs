@@ -99,9 +99,14 @@ pub trait AddressHandler: ResourceWallet {
 
         if let Ok(valid_address) = PaymentAddress::from_str(&address) {
             match explorer.address_unspents(valid_address, limit.unwrap_or(10_000), since.unwrap_or(0)) {
-                Ok(vec_received) => parse_to_value(vec_received.into_iter().map(|received| {
-                    Transaction::new(received, address.clone())
-                }).collect::<Vec<Transaction>>()),
+                Ok(vec_received) => parse_to_value(
+                    vec_to_jsonapi_document_with_query(
+                        vec_received.into_iter().map(|received| {
+                            Transaction::new(received, address.clone())
+                        }).collect::<Vec<Transaction>>(),
+                        &Self::addresses_query()
+                    )
+                ),
                 Err(error) => Err(status::Custom(Status::InternalServerError, error.to_string()))
             }
         } else {
