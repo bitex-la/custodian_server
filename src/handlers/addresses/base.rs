@@ -5,6 +5,7 @@ use handlers::handler::{parse_to_value, JsonResult};
 use jsonapi::model::*;
 use bitprim::executor::Executor;
 use models::resource_wallet::ResourceWallet;
+use models::transaction::Transaction;
 use rocket::http::Status;
 use rocket::response::status;
 use server_state::ServerState;
@@ -98,7 +99,9 @@ pub trait AddressHandler: ResourceWallet {
 
         if let Ok(valid_address) = PaymentAddress::from_str(&address) {
             match explorer.address_unspents(valid_address, limit.unwrap_or(10_000), since.unwrap_or(0)) {
-                Ok(vec_received) => parse_to_value(vec_received),
+                Ok(vec_received) => parse_to_value(vec_received.into_iter().map(|received| {
+                    Transaction::new(received, address.clone())
+                }).collect::<Vec<Transaction>>()),
                 Err(error) => Err(status::Custom(Status::InternalServerError, error.to_string()))
             }
         } else {
