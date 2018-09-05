@@ -1,0 +1,7 @@
+./tests/btc-testnet-files
+./tests/ltc-testnet-files
+./tests/bch-testnet-files
+./target/
+./archive/
+rusty-tags.vi
+./blockchain/
