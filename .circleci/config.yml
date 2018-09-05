@@ -1,0 +1,8 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: wernerae/custodian_server:latest
+    steps:
+      - checkout
+      - run: ./run_tests.sh goes_through_the_full_wallet_lifecycle
