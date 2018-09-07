@@ -1,6 +1,7 @@
 FROM rustlang/rust:nightly
 
 WORKDIR /usr/src/custodian_server
+COPY Cargo.toml .
 COPY . .
 
 EXPOSE 9100
