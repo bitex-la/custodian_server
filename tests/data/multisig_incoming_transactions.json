@@ -6,38 +6,6 @@
                 "block_height": 507,
                 "inputs": [
                     {
-                        "prev_hash": "158d6bbe586b4e00347f992e8296532d69f902d0ead32d964b6c87d4f8f0d3ea",
-                        "prev_index": 0,
-                        "script_sig": "48304502203b3a934cbeec9c9598ff023177cc510487570c2161807b7d94121e1bb4283d25022100df97d569f3ce6a890044accc0f7d10da44bee987a4fdc8b8f527f2f505e94552012102d9083b5b928a06d95b1d7240e6240eff790c52974b1996943d9f957bdbb65033",
-                        "sequence": 4294967295
-                    }
-                ],
-                "is_spent": false,
-                "locktime": 0,
-                "outputs": [
-                    {
-                        "amount": 4814421497,
-                        "script_pubkey": "76a9149f927f4d165d2bb344defb13e9499662cef4098b88ac"
-                    },
-                    {
-                        "amount": 681715,
-                        "script_pubkey": "a914bafa6025dc2e0f18d4b9f25a61d0430bf63db74187"
-                    }
-                ],
-                "position": 1,
-                "satoshis": 681715,
-                "transaction_hash": "956b30c3c4335f019dbee60c60d76994319473acac356f774c7858cd5c968e40",
-                "version": 1
-            },
-            "id": "956b30c3c4335f019dbee60c60d76994319473acac356f774c7858cd5c968e40-1",
-            "type": "transaction"
-        },
-        {
-            "attributes": {
-                "address": "2NAHscN6XVqUPzBSJHC3fhkeF5SQVxiR9p9",
-                "block_height": 507,
-                "inputs": [
-                    {
                         "prev_hash": "77de49d0db6afc2e682af6d04644fb76d1149c29e495422288691c64b130f602",
                         "prev_index": 1,
                         "script_sig": "48304502205fdcbef4f00bd61f73bf83bc5adf539c03d89febb1b923e11cd1c8f074dce4ce02210083ea19088f087546c1be0753bb6e5de54964e060c4da30e3a3b85d6c7058470f012103f480f1b648d0d5167804ad4d586e0e757cc33fde0e133fd036e45d60d2db59e1",
@@ -68,6 +36,38 @@
                 "version": 1
             },
             "id": "0ded7f014fa3213e9b000bc81b8151bc6f2f926b9afea6e3643c8ad658353c72-1",
+            "type": "transaction"
+        },
+        {
+            "attributes": {
+                "address": "2NAHscN6XVqUPzBSJHC3fhkeF5SQVxiR9p9",
+                "block_height": 507,
+                "inputs": [
+                    {
+                        "prev_hash": "158d6bbe586b4e00347f992e8296532d69f902d0ead32d964b6c87d4f8f0d3ea",
+                        "prev_index": 0,
+                        "script_sig": "48304502203b3a934cbeec9c9598ff023177cc510487570c2161807b7d94121e1bb4283d25022100df97d569f3ce6a890044accc0f7d10da44bee987a4fdc8b8f527f2f505e94552012102d9083b5b928a06d95b1d7240e6240eff790c52974b1996943d9f957bdbb65033",
+                        "sequence": 4294967295
+                    }
+                ],
+                "is_spent": false,
+                "locktime": 0,
+                "outputs": [
+                    {
+                        "amount": 4814421497,
+                        "script_pubkey": "76a9149f927f4d165d2bb344defb13e9499662cef4098b88ac"
+                    },
+                    {
+                        "amount": 681715,
+                        "script_pubkey": "a914bafa6025dc2e0f18d4b9f25a61d0430bf63db74187"
+                    }
+                ],
+                "position": 1,
+                "satoshis": 681715,
+                "transaction_hash": "956b30c3c4335f019dbee60c60d76994319473acac356f774c7858cd5c968e40",
+                "version": 1
+            },
+            "id": "956b30c3c4335f019dbee60c60d76994319473acac356f774c7858cd5c968e40-1",
             "type": "transaction"
         },
         {
@@ -152,44 +152,6 @@
                 "block_height": 443,
                 "inputs": [
                     {
-                        "prev_hash": "98f56eacb1c0d7091ebfaa220f03726071dc9d197f4447a139d7b16c9040fef2",
-                        "prev_index": 0,
-                        "script_sig": "48304502202c3a4ace414dc139be109b921b419989352e6ddac4afeeb1048d70c2e66001ac02210093671c3a086224fc8b103a9e1f6dbebed4820cac45c61400c95d15f18f1d2eb70121035f1eab2054015281ae2d1d9d6dc6f3d3768d5657a356d90cb5fb2d5b2fdf5d02",
-                        "sequence": 4294967295
-                    },
-                    {
-                        "prev_hash": "004fb224dc90eed293a1383d3dc99fa9d5b23ab3192786baa6018395c32f5d23",
-                        "prev_index": 0,
-                        "script_sig": "48304502205e35db189f32690399f0c088cdc312a6a3d4d1fdfa918de39774756b37be87f0022100e74f375d0da52418604649e789ac4d980a9d56bfdc801121ada2508dfcf422ec012102df449730390ef4065b5825c32ca7d87773104fc4bf353d0150b0085a03be680e",
-                        "sequence": 4294967295
-                    }
-                ],
-                "is_spent": true,
-                "locktime": 0,
-                "outputs": [
-                    {
-                        "amount": 1396400,
-                        "script_pubkey": "76a914fcbf1d990a92352235ed4dcedb2911a45cccab3d88ac"
-                    },
-                    {
-                        "amount": 643500,
-                        "script_pubkey": "a914bafa6025dc2e0f18d4b9f25a61d0430bf63db74187"
-                    }
-                ],
-                "position": 1,
-                "satoshis": 643500,
-                "transaction_hash": "243f38d7127d5dd23a737932ba6e2f6699f93df44db17082cfa71b542542f852",
-                "version": 1
-            },
-            "id": "243f38d7127d5dd23a737932ba6e2f6699f93df44db17082cfa71b542542f852-1",
-            "type": "transaction"
-        },
-        {
-            "attributes": {
-                "address": "2NAHscN6XVqUPzBSJHC3fhkeF5SQVxiR9p9",
-                "block_height": 443,
-                "inputs": [
-                    {
                         "prev_hash": "3756f59ad6fe686bc3adb5b69849a1a46908812225e6c7a50718cf5d981b547d",
                         "prev_index": 1,
                         "script_sig": "483045022100869516ba8ffbaf2b9f256c58660f10617706155411e8cf08700363d4318ecc830220409e5f8776f7442aa1cac87f4358217c4bbd8306c88ad50580b2eb0de50ee1da01210246c052f96d90e43b0a2594cae25fbe4fe193078cebfecc739d1230ad25b08bca",
@@ -220,6 +182,44 @@
                 "version": 1
             },
             "id": "81fa58dc058b60f725bd703651c9bcd17b436705a8aa5c29815d0b8e2980e729-1",
+            "type": "transaction"
+        },
+        {
+            "attributes": {
+                "address": "2NAHscN6XVqUPzBSJHC3fhkeF5SQVxiR9p9",
+                "block_height": 443,
+                "inputs": [
+                    {
+                        "prev_hash": "98f56eacb1c0d7091ebfaa220f03726071dc9d197f4447a139d7b16c9040fef2",
+                        "prev_index": 0,
+                        "script_sig": "48304502202c3a4ace414dc139be109b921b419989352e6ddac4afeeb1048d70c2e66001ac02210093671c3a086224fc8b103a9e1f6dbebed4820cac45c61400c95d15f18f1d2eb70121035f1eab2054015281ae2d1d9d6dc6f3d3768d5657a356d90cb5fb2d5b2fdf5d02",
+                        "sequence": 4294967295
+                    },
+                    {
+                        "prev_hash": "004fb224dc90eed293a1383d3dc99fa9d5b23ab3192786baa6018395c32f5d23",
+                        "prev_index": 0,
+                        "script_sig": "48304502205e35db189f32690399f0c088cdc312a6a3d4d1fdfa918de39774756b37be87f0022100e74f375d0da52418604649e789ac4d980a9d56bfdc801121ada2508dfcf422ec012102df449730390ef4065b5825c32ca7d87773104fc4bf353d0150b0085a03be680e",
+                        "sequence": 4294967295
+                    }
+                ],
+                "is_spent": true,
+                "locktime": 0,
+                "outputs": [
+                    {
+                        "amount": 1396400,
+                        "script_pubkey": "76a914fcbf1d990a92352235ed4dcedb2911a45cccab3d88ac"
+                    },
+                    {
+                        "amount": 643500,
+                        "script_pubkey": "a914bafa6025dc2e0f18d4b9f25a61d0430bf63db74187"
+                    }
+                ],
+                "position": 1,
+                "satoshis": 643500,
+                "transaction_hash": "243f38d7127d5dd23a737932ba6e2f6699f93df44db17082cfa71b542542f852",
+                "version": 1
+            },
+            "id": "243f38d7127d5dd23a737932ba6e2f6699f93df44db17082cfa71b542542f852-1",
             "type": "transaction"
         },
         {
