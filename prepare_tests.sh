@@ -12,5 +12,3 @@ else
   mv tests/btc-testnet-files/database tests/btc-testnet-files/prepared_database
   echo "Ok all done"
 fi
-
-

@@ -1,63 +1,112 @@
 #![feature(ptr_internals)]
 #![feature(plugin)]
 #![plugin(rocket_codegen)]
+#![feature(custom_derive)]
 
+extern crate bitprim;
+extern crate ctrlc;
 extern crate libc;
 extern crate rocket;
-extern crate ctrlc;
-extern crate bitprim;
+extern crate rocket_contrib;
+extern crate rocket_cors;
+extern crate serde;
+extern crate serde_json;
+#[macro_use]
+extern crate serde_derive;
+#[macro_use]
+extern crate jsonapi;
+
+extern crate bitcoin;
+
+#[macro_use]
+mod data_guards;
+mod handlers;
+mod models;
 mod server_state;
-mod wallet;
+
+use handlers::{addresses, blocks, transactions, wallets};
 use server_state::ServerState;
-use std::fs::File;
-use bitprim::PaymentAddress;
-use wallet::Wallet;
+use std::env;
+use std::io;
 
-#[cfg(test)] mod tests;
+use rocket::http::Method;
+use rocket_cors::{AllowedOrigins};
 
-#[get("/")]
-fn hello(state: &ServerState) -> String {
-  let chain = state.executor.get_chain();
-  let mut wallets = state.wallets_lock();
-  wallets.push(Wallet::Legacy{
-    id: "hello".to_string(),
-    version: "hello".to_string(),
-    addresses: vec!["hello".to_string()]
-  });
-
-  let addr = PaymentAddress::from_str("mqETuaBY9Tiq1asdsehEyQgCHe34SrXQs9");
-  let hist = chain.get_history(addr, 1000, 1).unwrap();
-
-  format!("Block: {:?}. Points: {:?}. Wallets: {:?}",
-          chain.get_last_height().expect("height"),
-          hist.count(),
-          *wallets)
-}
-/*
-#[post("/wallets", format = "application/json", data = "wallet")]
-fn create_plain_wallet(state: &ServerState) {
-}
-*/
+#[cfg(test)]
+mod tests;
 
 #[get("/stop")]
 fn stop(state: &ServerState) -> String {
-  state.graceful_stop();
-  format!("Stopping soon.")
+    state.graceful_stop();
+    "Stopping soon.".to_string()
 }
 
 fn main() {
-  let f = File::create("/dev/null")
-    .expect("/dev/null not available");
+    let args: Vec<String> = env::args().collect();
+    let (allowed_origins, _) = AllowedOrigins::some(&["http://localhost", "http://34.198.61.110"]);
+    let options = rocket_cors::Cors {
+        allowed_origins: allowed_origins,
+        allowed_methods: vec![Method::Get, Method::Post, Method::Put, Method::Delete].into_iter().map(From::from).collect(),
+        allow_credentials: true,
+        ..Default::default()
+    };
+    let conf_path = &args
+        .get(1)
+        .expect("You need to provide a path for a config file.");
 
-  let state = ServerState::new("./tests/btc-testnet.cfg", &f, &f)
-    .expect("Error creating State");
-  
-  ctrlc::set_handler(move || {
-    println!("Do not signal. Stop by visiting /stop");
-  }).expect("Error setting Ctrl-C handler");
-	
-  rocket::ignite()
-    .manage(state)
-    .mount("/", routes![hello, stop])
-    .launch();
+    let state: ServerState =
+        ServerState::new(conf_path, &io::stdout(), &io::stderr()).expect("Error creating State");
+
+    ctrlc::set_handler(move || {
+        println!("Do not signal. Stop by visiting /stop");
+    }).expect("Error setting Ctrl-C handler");
+
+    rocket::ignite()
+        .manage(state)
+        .mount(
+            "/",
+            routes![
+                transactions::base::broadcast,
+                wallets::plain::index,
+                wallets::plain::show,
+                wallets::plain::create,
+                wallets::plain::update,
+                wallets::plain::destroy,
+                wallets::plain::get_utxos,
+                wallets::plain::get_incoming,
+                wallets::hd::index,
+                wallets::hd::show,
+                wallets::hd::create,
+                wallets::hd::update,
+                wallets::hd::destroy,
+                wallets::hd::get_utxos,
+                wallets::hd::get_incoming,
+                wallets::multisig::index,
+                wallets::multisig::show,
+                wallets::multisig::create,
+                wallets::multisig::update,
+                wallets::multisig::destroy,
+                wallets::multisig::get_utxos,
+                wallets::multisig::get_incoming,
+                addresses::plain::index,
+                addresses::plain::create,
+                addresses::plain::destroy,
+                addresses::plain::balance,
+                addresses::plain::get_utxos,
+                addresses::hd::index,
+                addresses::hd::create,
+                addresses::hd::destroy,
+                addresses::hd::balance,
+                addresses::hd::get_utxos,
+                addresses::multisig::index,
+                addresses::multisig::create,
+                addresses::multisig::destroy,
+                addresses::multisig::balance,
+                addresses::multisig::get_utxos,
+                blocks::base::last,
+                stop
+            ],
+        )
+        .attach(options)
+        .launch();
 }
