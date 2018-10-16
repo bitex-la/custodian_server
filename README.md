@@ -1,6 +1,6 @@
 # Bitprim powered bitcoin node for corporate custodian tasks
 
-[![CircleCI](https://circleci.com/gh/werner/custodian_server.svg?style=svg)](https://circleci.com/gh/werner/custodian_server)
+[![CircleCI](https://circleci.com/gh/bitex-la/custodian_server.svg?style=svg)](https://circleci.com/gh/bitex-la/custodian_server)
 
 ## Intro to docker
 - [Getting started](https://docs.docker.com/get-started/#recap-and-cheat-sheet)
