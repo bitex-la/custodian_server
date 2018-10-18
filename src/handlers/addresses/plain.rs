@@ -5,33 +5,33 @@ use models::plain_wallet::Address;
 use models::plain_wallet::PlainWallet;
 use server_state::ServerState;
 
-#[get("/plain_wallets/<id>/relationships/addresses", format = "application/json")]
+#[get("/plain_wallets/<id>/relationships/addresses")]
 pub fn index(state: &ServerState, id: u64) -> JsonResult {
     PlainWallet::address_index(state, id)
 }
 
 #[post(
-    "/plain_wallets/<id>/relationships/addresses", format = "application/json", data = "<address>"
+    "/plain_wallets/<id>/relationships/addresses", data = "<address>"
 )]
 pub fn create(state: &ServerState, id: u64, address: Address) -> JsonResult {
     PlainWallet::address_create(state, id, address)
 }
 
 #[delete(
-    "/plain_wallets/<id>/relationships/addresses", format = "application/json", data = "<address>"
+    "/plain_wallets/<id>/relationships/addresses", data = "<address>"
 )]
 pub fn destroy(state: &ServerState, id: u64, address: Address) -> JsonResult {
     PlainWallet::address_destroy(state, id, address)
 }
 
 #[get(
-    "/plain_wallets/relationships/addresses/<address>/balance?<params>", format = "application/json"
+    "/plain_wallets/relationships/addresses/<address>/balance?<params>"
 )]
 pub fn balance(state: &ServerState, address: String, params: GetTransactionParams) -> JsonResult {
     PlainWallet::balance(&state.executor, address, params.limit, params.since)
 }
 
-#[get("/plain_wallets/relationships/addresses/<address>/get_utxos?<params>", format = "application/json")]
+#[get("/plain_wallets/relationships/addresses/<address>/get_utxos?<params>")]
 pub fn get_utxos(state: &ServerState, address: String, params: GetTransactionParams) -> JsonResult {
     PlainWallet::get_utxos(&state.executor, address, params.limit, params.since)
 }

@@ -3,7 +3,7 @@ use jsonapi::model::*;
 use models::block::Block;
 use server_state::ServerState;
 
-#[get("/blocks/last", format = "application/json")]
+#[get("/blocks/last")]
 pub fn last(state: &ServerState) -> JsonResult {
     let chain = state.executor.get_chain();
     let last_height = chain.get_last_height().unwrap_or(1);
