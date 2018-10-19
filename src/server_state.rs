@@ -2,6 +2,7 @@ use bitprim::errors::*;
 use bitprim::executor::executor_destruct;
 use bitprim::Executor;
 use models::wallets::Wallets;
+use models::database::Database;
 use rocket::http::Status;
 use rocket::outcome::Outcome;
 use rocket::request::{self, FromRequest, Request};
@@ -13,7 +14,7 @@ use std::sync::{Mutex, MutexGuard};
 
 pub struct ServerState {
     pub executor: Executor,
-    pub wallets: Mutex<Wallets>,
+    pub database: Mutex<Database>,
     stopping: AtomicBool,
 }
 
@@ -29,18 +30,13 @@ impl ServerState {
 
         Ok(Self {
             executor: exec,
-            wallets: Mutex::new(Wallets {
-                id: None,
-                plains: vec![],
-                hds: vec![],
-                multisigs: vec![],
-            }),
+            database: Mutex::new(Database::new()),
             stopping: AtomicBool::new(false),
         })
     }
 
-    pub fn wallets_lock(&self) -> MutexGuard<Wallets> {
-        self.wallets.lock().unwrap()
+    pub fn database_lock(&self) -> MutexGuard<Database> {
+        self.database.lock().expect("The lock has been poisoned")
     }
 
     pub fn graceful_stop(&self) {

@@ -1,7 +1,8 @@
 use jsonapi::model::*;
+use tiny_ram_db::Table;
 use models::resource_address::ResourceAddress;
 use models::wallet::Wallet;
-use models::wallets::Wallets;
+use models::database::Database;
 
 use std;
 
@@ -51,7 +52,7 @@ pub trait ResourceWallet:
 
     fn address_fields() -> &'static str;
 
-    fn collection_from_wallets<'a>(wallets: &'a mut Wallets) -> &'a mut Vec<Self>;
+    fn wallets_from_database<'a>(database: &'a mut Database) -> &'a mut Table<Self>;
 
     fn remove_address(&mut self, index: usize);
 

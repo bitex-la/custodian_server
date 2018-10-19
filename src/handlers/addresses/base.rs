@@ -12,8 +12,8 @@ use server_state::ServerState;
 
 pub trait AddressHandler: ResourceWallet {
     fn address_index(state: &ServerState, id: u64) -> JsonResult {
-        let mut wallets = state.wallets_lock();
-        let haystack = Self::collection_from_wallets(&mut wallets);
+        let mut database = state.database_lock();
+        let haystack = Self::wallets_from_database(&mut database);
 
         match haystack.iter_mut().find(|wallet| wallet.id() == id) {
             Some(maybe_wallet) => parse_to_value(vec_to_jsonapi_document_with_query(
@@ -28,8 +28,8 @@ pub trait AddressHandler: ResourceWallet {
     }
 
     fn address_create(state: &ServerState, id: u64, address: Self::A) -> JsonResult {
-        let mut wallets = state.wallets_lock();
-        let haystack = Self::collection_from_wallets(&mut wallets);
+        let mut database = state.database_lock();
+        let haystack = Self::wallets_from_database(&mut database);
 
         match haystack.iter().position(|wallet| wallet.id() == id) {
             Some(wallet_position) => {
@@ -60,8 +60,8 @@ pub trait AddressHandler: ResourceWallet {
     }
 
     fn address_destroy(state: &ServerState, id: u64, address: Self::A) -> JsonResult {
-        let mut wallets = state.wallets_lock();
-        let haystack = Self::collection_from_wallets(&mut wallets);
+        let mut database = state.database_lock();
+        let haystack = Self::wallets_from_database(&mut database);
 
         match haystack.iter().position(|wallet| wallet.id() == id) {
             Some(value) => match haystack[value].find_address_position(&address) {

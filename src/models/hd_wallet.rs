@@ -3,11 +3,12 @@ use std::io::Read;
 
 use bitprim::explorer::Received;
 use jsonapi::model::*;
+use tiny_ram_db::Table;
 
 use models::resource_address::ResourceAddress;
 use models::resource_wallet::ResourceWallet;
 use models::wallet::Wallet;
-use models::wallets::Wallets;
+use models::database::Database;
 use models::transaction::Transaction;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -106,8 +107,8 @@ impl ResourceWallet for HdWallet {
         "address, path"
     }
 
-    fn collection_from_wallets<'a>(wallets: &'a mut Wallets) -> &'a mut Vec<Self> {
-        wallets.hds.as_mut()
+    fn wallets_from_database<'a>(database: &'a mut Database) -> &'a mut Table<Self> {
+        &mut database.hd_wallets
     }
 
     fn remove_address(&mut self, index: usize) {

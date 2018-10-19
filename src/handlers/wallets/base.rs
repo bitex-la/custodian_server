@@ -5,16 +5,16 @@ use models::resource_wallet::ResourceWallet;
 use rocket::http::Status;
 use rocket::response::status;
 use server_state::ServerState;
+use models::hd_wallet::HdWallet;
 
 pub trait WalletHandler: ResourceWallet {
     fn index(state: &ServerState) -> JsonResult {
-        let mut wallets = state.wallets_lock();
-        let all = Self::collection_from_wallets(&mut wallets);
+        let mut database = state.database_lock();
+        //let all = Self::wallets_from_database(&mut database);
 
-        parse_to_value(vec_to_jsonapi_document_with_query(
-            all.clone(),
-            &Self::default_query(),
-        ))
+        let all = database.hd_wallets.data.values().into_iter().map(|w| w).collect::<Vec<HdWallet>>();
+
+        parse_to_value(all)
     }
 
     fn get_utxos(
@@ -61,8 +61,8 @@ pub trait WalletHandler: ResourceWallet {
     where
         F: FnOnce(&Executor, &&Self, Option<u64>, Option<u64>) -> Vec<T>,
     {
-        let mut wallets = state.wallets_lock();
-        let haystack = Self::collection_from_wallets(&mut wallets);
+        let mut database = state.database_lock();
+        let haystack = Self::wallets_from_database(&mut database);
         let maybe_wallet = &haystack.iter().find(|&wallet| wallet.id() == id);
 
         match maybe_wallet {
@@ -77,8 +77,8 @@ pub trait WalletHandler: ResourceWallet {
     }
 
     fn show(state: &ServerState, id: u64) -> JsonResult {
-        let mut wallets = state.wallets_lock();
-        let haystack = Self::collection_from_wallets(&mut wallets);
+        let mut database = state.database_lock();
+        let haystack = Self::wallets_from_database(&mut database);
         let maybe_wallet = &haystack.iter().find(|&wallet| wallet.id() == id);
 
         match maybe_wallet {
@@ -90,8 +90,8 @@ pub trait WalletHandler: ResourceWallet {
     }
 
     fn create(state: &ServerState, new: Self) -> JsonResult {
-        let mut wallets = state.wallets_lock();
-        let haystack = Self::collection_from_wallets(&mut wallets);
+        let mut database = state.database_lock();
+        let haystack = Self::wallets_from_database(&mut database);
 
         if haystack
             .iter()
@@ -113,8 +113,8 @@ pub trait WalletHandler: ResourceWallet {
     }
 
     fn update(state: &ServerState, id: u64, new: Self) -> JsonResult {
-        let mut wallets = state.wallets_lock();
-        let haystack = Self::collection_from_wallets(&mut wallets);
+        let mut database = state.database_lock();
+        let haystack = Self::wallets_from_database(&mut database);
 
         let maybe_position = &haystack.iter().position(|ref wallet| wallet.id() == id);
 
@@ -130,8 +130,8 @@ pub trait WalletHandler: ResourceWallet {
     }
 
     fn destroy(state: &ServerState, id: u64) -> JsonResult {
-        let mut wallets = state.wallets_lock();
-        let haystack = Self::collection_from_wallets(&mut wallets);
+        let mut database = state.database_lock();
+        let haystack = Self::wallets_from_database(&mut database);
         let maybe_position = &haystack.iter().position(|ref wallet| wallet.id() == id);
 
         match maybe_position {

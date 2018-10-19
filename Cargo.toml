@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["nubis <yo@nubis.im>"]
 
 [dependencies]
+tiny_ram_db = "0.1.2"
 pear_codegen = "0.0.20"
 libc = "0.2.40"
 rocket = "0.3.10"
