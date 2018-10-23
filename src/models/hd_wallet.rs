@@ -9,6 +9,7 @@ use models::resource_address::ResourceAddress;
 use models::resource_wallet::ResourceWallet;
 use models::wallet::Wallet;
 use models::database::Database;
+use models::database::HdWalletIndex;
 use models::transaction::Transaction;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -70,6 +71,7 @@ from_data!(HdAddress);
 
 impl ResourceWallet for HdWallet {
     type A = HdAddress;
+    type Index = HdWalletIndex;
 
     fn raw_id(&self) -> Option<u64> {
         self.id
@@ -107,7 +109,7 @@ impl ResourceWallet for HdWallet {
         "address, path"
     }
 
-    fn wallets_from_database<'a>(database: &'a mut Database) -> &'a mut Table<Self> {
+    fn wallets_from_database<'a>(database: &'a mut Database) -> &'a mut Table<Self, Self::Index> {
         &mut database.hd_wallets
     }
 

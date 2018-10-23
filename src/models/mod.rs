@@ -8,3 +8,4 @@ pub mod transaction;
 pub mod wallet;
 pub mod wallets;
 pub mod database;
+pub mod jsonapi_record;

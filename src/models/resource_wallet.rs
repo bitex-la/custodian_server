@@ -1,15 +1,18 @@
+use std::marker::Sized;
+use std::fmt::Debug;
 use jsonapi::model::*;
 use tiny_ram_db::Table;
+use tiny_ram_db::Indexer;
 use models::resource_address::ResourceAddress;
 use models::wallet::Wallet;
 use models::database::Database;
 
-use std;
-
 pub trait ResourceWallet:
-    std::marker::Sized + JsonApiModel + Clone + std::fmt::Debug + Wallet
+    Sized + Clone + Debug + Wallet
 {
     type A: ResourceAddress;
+    type Index;
+
     fn raw_id(&self) -> Option<u64>;
 
     fn id(&self) -> u64 {
@@ -52,7 +55,7 @@ pub trait ResourceWallet:
 
     fn address_fields() -> &'static str;
 
-    fn wallets_from_database<'a>(database: &'a mut Database) -> &'a mut Table<Self>;
+    fn wallets_from_database<'a>(database: &'a mut Database) -> &'a mut Table<Self, Self::Index>;
 
     fn remove_address(&mut self, index: usize);
 

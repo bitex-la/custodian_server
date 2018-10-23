@@ -15,7 +15,7 @@ pub trait AddressHandler: ResourceWallet {
         let mut database = state.database_lock();
         let haystack = Self::wallets_from_database(&mut database);
 
-        match haystack.iter_mut().find(|wallet| wallet.id() == id) {
+        match haystack.find(id) {
             Some(maybe_wallet) => parse_to_value(vec_to_jsonapi_document_with_query(
                 maybe_wallet.get_addresses().to_vec(),
                 &Self::addresses_query(),

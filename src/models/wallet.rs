@@ -10,7 +10,7 @@ use jsonapi::model::*;
 use models::resource_address::ResourceAddress;
 use models::transaction::Transaction;
 
-pub trait Wallet: std::marker::Sized + JsonApiModel + Clone + std::fmt::Debug {
+pub trait Wallet: std::marker::Sized + Clone + std::fmt::Debug {
     type Utxo: JsonApiModel;
     type RA: ResourceAddress;
 

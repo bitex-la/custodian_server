@@ -12,7 +12,7 @@ pub trait WalletHandler: ResourceWallet {
         let mut database = state.database_lock();
         //let all = Self::wallets_from_database(&mut database);
 
-        let all = database.hd_wallets.data.values().into_iter().map(|w| w).collect::<Vec<HdWallet>>();
+        let all = database.hd_wallets.data.values().into_iter().map(|w| w.data).collect::<Vec<HdWallet>>();
 
         parse_to_value(all)
     }

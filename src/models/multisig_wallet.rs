@@ -11,6 +11,7 @@ pub use models::hd_wallet::HdAddress;
 use models::resource_wallet::ResourceWallet;
 use models::wallet::Wallet;
 use models::database::Database;
+use models::database::MultisigWalletWalletIndex;
 use models::transaction::Transaction;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -119,6 +120,7 @@ from_data!(MultisigWallet);
 
 impl ResourceWallet for MultisigWallet {
     type A = HdAddress;
+    type Index = MultisigWalletWalletIndex;
 
     fn raw_id(&self) -> Option<u64> {
         self.id
@@ -156,7 +158,7 @@ impl ResourceWallet for MultisigWallet {
         "address, path"
     }
 
-    fn wallets_from_database<'a>(database: &'a mut Database) -> &'a mut Table<Self> {
+    fn wallets_from_database<'a>(database: &'a mut Database) -> &'a mut Table<Self, Self::Index> {
         &mut database.multisig_wallets
     }
 
