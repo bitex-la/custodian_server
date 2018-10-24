@@ -10,12 +10,13 @@ impl<T> JsonApiModel for JsonApiRecord<T>
 where
     for<'de> T: Deserialize<'de>,
     T: Serialize,
+    Self: JsonApiResource
 {
     fn jsonapi_type() -> &'static str {
-        stringify!(T)
+        Self::_in_type()
     }
     fn jsonapi_id(&self) -> Option<String> {
-        Some(self.0.id.to_string())
+        Some(self.0.id.unwrap_or(0).to_string())
     }
     fn relationship_fields() -> Option<&'static [&'static str]> {
         None
@@ -26,4 +27,8 @@ where
     fn build_included(&self, _fields: &Option<Vec<String>>) -> Option<Resources> {
         None
     }
+}
+
+pub trait JsonApiResource {
+    fn _in_type() -> &'static str { "record" }
 }

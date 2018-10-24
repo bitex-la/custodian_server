@@ -10,7 +10,7 @@ use models::resource_wallet::ResourceWallet;
 use models::wallet::Wallet;
 use models::database::Database;
 use models::transaction::Transaction;
-use models::jsonapi_record::JsonApiRecord;
+use models::jsonapi_record::{ JsonApiRecord, JsonApiResource };
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct HdWallet {
@@ -20,6 +20,10 @@ pub struct HdWallet {
 }
 
 from_data!(JsonApiRecord<HdWallet>);
+
+impl JsonApiResource for JsonApiRecord<HdWallet> {
+    fn _in_type() -> &'static str { "hd_wallet" }
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HdUtxo {
@@ -39,6 +43,10 @@ impl fmt::Display for HdAddress {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         write!(fmt, "{}", self.public_address.as_ref().map_or("", |id| id))
     }
+}
+
+impl JsonApiResource for JsonApiRecord<HdAddress> {
+    fn _in_type() -> &'static str { "hd_address" }
 }
 
 impl Wallet for HdWallet {

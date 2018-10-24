@@ -7,7 +7,7 @@ use models::database::Database;
 use models::resource_address::ResourceAddress;
 use models::resource_wallet::ResourceWallet;
 use models::wallet::Wallet;
-use models::jsonapi_record::JsonApiRecord;
+use models::jsonapi_record::{ JsonApiRecord, JsonApiResource };
 use tiny_ram_db::{PlainTable, Record};
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -24,6 +24,10 @@ impl fmt::Display for Address {
     }
 }
 
+impl JsonApiResource for JsonApiRecord<Address> {
+    fn _in_type() -> &'static str { "address" }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct PlainWallet {
     pub version: String,
@@ -31,6 +35,10 @@ pub struct PlainWallet {
 }
 
 from_data!(JsonApiRecord<PlainWallet>);
+
+impl JsonApiResource for JsonApiRecord<PlainWallet> {
+    fn _in_type() -> &'static str { "plain_wallet" }
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PlainUtxo {

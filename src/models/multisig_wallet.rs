@@ -13,7 +13,7 @@ use models::resource_address::ResourceAddress;
 use models::wallet::Wallet;
 use models::database::Database;
 use models::transaction::Transaction;
-use models::jsonapi_record::JsonApiRecord;
+use models::jsonapi_record::{ JsonApiRecord, JsonApiResource };
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct MultisigWallet {
@@ -24,6 +24,10 @@ pub struct MultisigWallet {
 }
 
 from_data!(JsonApiRecord<MultisigWallet>);
+
+impl JsonApiResource for JsonApiRecord<MultisigWallet> {
+    fn _in_type() -> &'static str { "multisig_wallet" }
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct MultisigAddress {
@@ -40,6 +44,10 @@ impl fmt::Display for MultisigAddress {
 }
 
 impl ResourceAddress for MultisigAddress {}
+
+impl JsonApiResource for JsonApiRecord<MultisigAddress> {
+    fn _in_type() -> &'static str { "multisig_address" }
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MultisigUtxo {

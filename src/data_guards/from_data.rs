@@ -12,17 +12,17 @@ macro_rules! from_data {
                 if let Err(e) = data.open().read_to_string(&mut string_data) {
                     return ::rocket::Outcome::Failure((
                         ::rocket::http::Status::InternalServerError,
-                        format!("{:?}", e),
+                        format!("{:#?}", e),
                     ));
                 }
 
                 let raw_json: JsonApiDocument = match ::serde_json::from_str(&string_data) {
                     Ok(value) => value,
                     Err(err) => {
-                        println!("Not a jsonapi document {:?}", &string_data);
+                        println!("Not a jsonapi document {:#?}", &string_data);
                         return ::rocket::Outcome::Failure((
                             ::rocket::http::Status::BadRequest,
-                            format!("Not a json_api document {:?}", err),
+                            format!("Not a json_api document {:#?}", err),
                         ));
                     }
                 };
@@ -31,12 +31,12 @@ macro_rules! from_data {
                     Ok(data) => ::rocket::Outcome::Success(data),
                     Err(err) => {
                         println!(
-                            "Cannot parse from jsonapi document {:?}, {:?}",
+                            "Cannot parse from jsonapi document {:#?}, {:#?}",
                             &raw_json, err
                         );
                         return ::rocket::Outcome::Failure((
                             ::rocket::http::Status::BadRequest,
-                            format!("Cannot parse resource from document {:?}", err),
+                            format!("Cannot parse resource from document {:#?}", err),
                         ));
                     }
                 }
