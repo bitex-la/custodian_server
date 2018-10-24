@@ -1,7 +1,7 @@
 use handlers::addresses::base::AddressHandler;
 use handlers::handler::GetTransactionParams;
 use handlers::handler::JsonResult;
-use models::plain_wallet::Address;
+use models::address::Address;
 use models::plain_wallet::PlainWallet;
 use models::jsonapi_record::JsonApiRecord;
 use server_state::ServerState;

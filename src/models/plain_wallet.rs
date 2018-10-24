@@ -1,32 +1,13 @@
-use std::fmt;
 use std::io::Read;
 
 use bitprim::explorer::Received;
 use jsonapi::model::*;
 use models::database::Database;
-use models::resource_address::ResourceAddress;
 use models::resource_wallet::ResourceWallet;
 use models::wallet::Wallet;
 use models::jsonapi_record::{ JsonApiRecord, JsonApiResource };
-use tiny_ram_db::{PlainTable, Record};
-
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct Address {
-    pub public_address: Option<String>,
-    pub wallet: JsonApiRecord<PlainWallet>,
-}
-from_data!(JsonApiRecord<Address>);
-
-impl ResourceAddress for Address {}
-impl fmt::Display for Address {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        write!(fmt, "{}", self.public_address.as_ref().map_or("", |id| id))
-    }
-}
-
-impl JsonApiResource for JsonApiRecord<Address> {
-    fn _in_type() -> &'static str { "address" }
-}
+use tiny_ram_db::{ PlainTable };
+use models::address::Address;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct PlainWallet {
