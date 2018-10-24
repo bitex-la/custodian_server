@@ -5,13 +5,12 @@ use bitprim::errors::Error;
 use bitprim::executor::Executor;
 use bitprim::explorer::Received;
 use bitprim::payment_address::PaymentAddress;
-use jsonapi::model::*;
 
 use models::resource_address::ResourceAddress;
 use models::transaction::Transaction;
 
 pub trait Wallet: std::marker::Sized + Clone + std::fmt::Debug {
-    type Utxo: JsonApiModel;
+    type Utxo;
     type RA: ResourceAddress;
 
     fn get_utxos(
@@ -56,8 +55,6 @@ pub trait Wallet: std::marker::Sized + Clone + std::fmt::Debug {
 
     fn construct_utxo(&self, received: Received, address: &Self::RA) -> Self::Utxo;
 
-    fn get_addresses<'a>(&'a self) -> &'a Vec<Self::RA>;
-
     fn get_since(&self, exec: &Executor, maybe_since: Option<u64>) -> u64 {
         maybe_since.unwrap_or_else(|| {
             let height = exec
@@ -95,5 +92,10 @@ pub trait Wallet: std::marker::Sized + Clone + std::fmt::Debug {
             }
         }
         result
+    }
+
+    //FIXME: In order to make it compile
+    fn get_addresses(&self) -> Vec<&Self::RA> {
+        vec![]
     }
 }

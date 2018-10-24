@@ -6,6 +6,7 @@ use jsonapi::model::*;
 use bitprim::executor::Executor;
 use models::resource_wallet::ResourceWallet;
 use models::transaction::Transaction;
+use models::jsonapi_record::JsonApiRecord;
 use rocket::http::Status;
 use rocket::response::status;
 use server_state::ServerState;
@@ -15,66 +16,38 @@ pub trait AddressHandler: ResourceWallet {
         let mut database = state.database_lock();
         let haystack = Self::wallets_from_database(&mut database);
 
-        match haystack.find(id) {
-            Some(maybe_wallet) => parse_to_value(vec_to_jsonapi_document_with_query(
-                maybe_wallet.get_addresses().to_vec(),
-                &Self::addresses_query(),
-            )),
-            None => Err(status::Custom(
+        match haystack.find(id as usize) {
+            Ok(maybe_wallet) => parse_to_value(vec!["address"]),
+            Err(_) => Err(status::Custom(
                 Status::NotFound,
                 format!("Wallet {:?} Not Found", id),
             )),
         }
     }
 
-    fn address_create(state: &ServerState, id: u64, address: Self::A) -> JsonResult {
+    fn address_create(state: &ServerState, id: u64, address: JsonApiRecord<Self::A>) -> JsonResult {
         let mut database = state.database_lock();
         let haystack = Self::wallets_from_database(&mut database);
 
-        match haystack.iter().position(|wallet| wallet.id() == id) {
-            Some(wallet_position) => {
-                match haystack[wallet_position].find_address_position(&address) {
-                    Some(_) => Err(status::Custom(
-                        Status::InternalServerError,
-                        format!("Duplicate address {:?}", address),
-                    )),
-                    None => {
-                        haystack[wallet_position].add_address(address);
-                        match haystack[wallet_position].get_addresses().last() {
-                            Some(last_address) => {
-                                parse_to_value(last_address.to_jsonapi_document())
-                            }
-                            None => Err(status::Custom(
-                                Status::InternalServerError,
-                                "Problem adding address".to_string(),
-                            )),
-                        }
-                    }
-                }
+        match haystack.find(id as usize) {
+            Ok(wallet_position) => {
+                //TODO: Create Address
+                parse_to_value("address")
             }
-            None => Err(status::Custom(
+            Err(_) => Err(status::Custom(
                 Status::NotFound,
                 format!("Wallet {:?} Not Found", id),
             )),
         }
     }
 
-    fn address_destroy(state: &ServerState, id: u64, address: Self::A) -> JsonResult {
+    fn address_destroy(state: &ServerState, id: u64, address: JsonApiRecord<Self::A>) -> JsonResult {
         let mut database = state.database_lock();
         let haystack = Self::wallets_from_database(&mut database);
 
-        match haystack.iter().position(|wallet| wallet.id() == id) {
-            Some(value) => match haystack[value].find_address_position(&address) {
-                Some(position) => {
-                    haystack[value].remove_address(position);
-                    parse_to_value(address.to_jsonapi_document())
-                }
-                None => Err(status::Custom(
-                    Status::NotFound,
-                    format!("Address not found {:?}", address),
-                )),
-            },
-            None => Err(status::Custom(
+        match haystack.find(id as usize) {
+            Ok(value) => parse_to_value("address"),
+            Err(_) => Err(status::Custom(
                 Status::NotFound,
                 format!("Wallet with id {:?} Not Found", id),
             )),
@@ -100,12 +73,9 @@ pub trait AddressHandler: ResourceWallet {
         if let Ok(valid_address) = PaymentAddress::from_str(&address) {
             match explorer.address_unspents(valid_address, limit.unwrap_or(10_000), since.unwrap_or(0)) {
                 Ok(vec_received) => parse_to_value(
-                    vec_to_jsonapi_document_with_query(
                         vec_received.into_iter().map(|received| {
                             Transaction::new(received, address.clone())
-                        }).collect::<Vec<Transaction>>(),
-                        &Self::addresses_query()
-                    )
+                        }).collect::<Vec<Transaction>>()
                 ),
                 Err(error) => Err(status::Custom(Status::InternalServerError, error.to_string()))
             }

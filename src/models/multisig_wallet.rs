@@ -1,40 +1,53 @@
+use std::fmt;
 use std::io::Read;
 use std::str;
 use std::str::FromStr;
 
-use tiny_ram_db::Table;
+use tiny_ram_db::PlainTable;
 use bitcoin::util::bip32::ExtendedPubKey;
 use bitprim::explorer::Received;
 use jsonapi::model::*;
 
-pub use models::hd_wallet::HdAddress;
 use models::resource_wallet::ResourceWallet;
+use models::resource_address::ResourceAddress;
 use models::wallet::Wallet;
 use models::database::Database;
-use models::database::MultisigWalletWalletIndex;
 use models::transaction::Transaction;
+use models::jsonapi_record::JsonApiRecord;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct MultisigWallet {
-    pub id: Option<u64>,
+    pub label: String,
     pub version: String,
-    #[serde(default)]
-    pub addresses: Vec<HdAddress>,
     pub xpubs: Vec<String>,
     pub signers: u64,
 }
 
-jsonapi_model!(MultisigWallet; "multisig_wallet"; has many addresses);
+from_data!(JsonApiRecord<MultisigWallet>);
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct MultisigAddress {
+    pub public_address: Option<String>,
+    pub path: Vec<u64>,
+    pub wallet: JsonApiRecord<MultisigWallet>,
+}
+from_data!(JsonApiRecord<MultisigAddress>);
+
+impl fmt::Display for MultisigAddress {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        write!(fmt, "{}", self.public_address.as_ref().map_or("", |id| id))
+    }
+}
+
+impl ResourceAddress for MultisigAddress {}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MultisigUtxo {
-    pub id: Option<String>,
-    pub address: HdAddress,
+    pub address: MultisigAddress,
     pub script_type: String,
     pub multisig: MultisigDefinition,
     pub transaction: Transaction
 }
-jsonapi_model!(MultisigUtxo; "multi_utxo");
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MultisigDefinition {
@@ -66,9 +79,9 @@ impl MultisigWallet {
 
 impl Wallet for MultisigWallet {
     type Utxo = MultisigUtxo;
-    type RA = HdAddress;
+    type RA = MultisigAddress;
 
-    fn construct_utxo(&self, received: Received, address: &HdAddress) -> Self::Utxo {
+    fn construct_utxo(&self, received: Received, address: &MultisigAddress) -> Self::Utxo {
         let pubkeys = self
             .xpubs
             .iter()
@@ -96,10 +109,6 @@ impl Wallet for MultisigWallet {
             })
             .collect();
         MultisigUtxo {
-            id: Some(format!(
-                "{}-{}",
-                received.transaction_hash.to_hex(), received.position
-            )),
             address: address.clone(),
             script_type: "SPENDMULTISIG".to_string(),
             multisig: MultisigDefinition {
@@ -110,66 +119,16 @@ impl Wallet for MultisigWallet {
             transaction: Transaction::new(received, address.to_string())
         }
     }
-
-    fn get_addresses<'a>(&'a self) -> &'a Vec<HdAddress> {
-        &self.addresses
-    }
 }
 
-from_data!(MultisigWallet);
-
 impl ResourceWallet for MultisigWallet {
-    type A = HdAddress;
-    type Index = MultisigWalletWalletIndex;
-
-    fn raw_id(&self) -> Option<u64> {
-        self.id
-    }
-
-    fn set_id(self, new_id: u64) -> Self {
-        MultisigWallet {
-            id: Some(new_id),
-            ..self
-        }
-    }
-
-    fn merge(self, newer: Self) -> Self {
-        let addresses = self.addresses;
-        MultisigWallet {
-            addresses,
-            id: self.id,
-            ..newer
-        }
-    }
-
-    fn add_address(&mut self, address: Self::A) {
-        self.addresses.push(address);
-    }
-
-    fn get_addresses<'a>(&'a mut self) -> &'a mut Vec<Self::A> {
-        self.addresses.as_mut()
-    }
+    type A = MultisigAddress;
 
     fn default_fields() -> &'static str {
         "version,xpubs,signers"
     }
 
-    fn address_fields() -> &'static str {
-        "address, path"
-    }
-
-    fn wallets_from_database<'a>(database: &'a mut Database) -> &'a mut Table<Self, Self::Index> {
+    fn wallets_from_database<'a>(database: &'a mut Database) -> &'a mut PlainTable<Self> {
         &mut database.multisig_wallets
-    }
-
-    fn remove_address(&mut self, index: usize) {
-        self.addresses.remove(index);
-    }
-
-    fn find_address_position(&self, address: &Self::A) -> Option<usize> {
-        self.addresses
-            .clone()
-            .into_iter()
-            .position(|in_address| in_address.to_string() == address.to_string())
     }
 }

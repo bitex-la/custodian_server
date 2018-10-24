@@ -12,5 +12,3 @@ pub struct Wallets {
     pub hds: Vec<HdWallet>,
     pub multisigs: Vec<MultisigWallet>,
 }
-
-jsonapi_model!(Wallets; "wallets"; has many plains, hds, multisigs);

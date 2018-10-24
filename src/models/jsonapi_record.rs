@@ -1,9 +1,9 @@
 use jsonapi::model::*;
-use tiny_ram_db::{ Record };
 use serde::de::Deserialize;
 use serde::ser::Serialize;
+use tiny_ram_db::Record;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct JsonApiRecord<T>(pub Record<T>);
 
 impl<T> JsonApiModel for JsonApiRecord<T>
@@ -12,7 +12,7 @@ where
     T: Serialize,
 {
     fn jsonapi_type() -> &'static str {
-        "record"
+        stringify!(T)
     }
     fn jsonapi_id(&self) -> Option<String> {
         Some(self.0.id.to_string())

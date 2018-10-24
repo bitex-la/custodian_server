@@ -13,8 +13,9 @@ use tiny_ram_db::{PlainTable, Record};
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Address {
     pub public_address: Option<String>,
-    pub wallet: Record<PlainWallet>,
+    pub wallet: JsonApiRecord<PlainWallet>,
 }
+from_data!(JsonApiRecord<Address>);
 
 impl ResourceAddress for Address {}
 impl fmt::Display for Address {
@@ -22,33 +23,14 @@ impl fmt::Display for Address {
         write!(fmt, "{}", self.public_address.as_ref().map_or("", |id| id))
     }
 }
-from_data!(Address);
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct PlainWallet {
     pub version: String,
     pub label: String,
 }
 
-impl JsonApiModel for JsonApiRecord<PlainWallet>
-{
-    fn jsonapi_type() -> &'static str {
-        "plain_wallets"
-    }
-    fn jsonapi_id(&self) -> Option<String> {
-        Some(self.0.id.to_string())
-    }
-    fn relationship_fields() -> Option<&'static [&'static str]> {
-        None
-    }
-    fn build_relationships(&self, _query: &QueryFields) -> Option<Relationships> {
-        None
-    }
-    fn build_included(&self, _fields: &Option<Vec<String>>) -> Option<Resources> {
-        None
-    }
-}
-
+from_data!(JsonApiRecord<PlainWallet>);
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PlainUtxo {
@@ -71,8 +53,6 @@ impl Wallet for PlainWallet {
         }
     }
 }
-
-from_data!(PlainWallet);
 
 impl ResourceWallet for PlainWallet {
     type A = Address;
