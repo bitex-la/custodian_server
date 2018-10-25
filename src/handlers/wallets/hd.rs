@@ -2,6 +2,7 @@ use handlers::handler::GetTransactionParams;
 use handlers::handler::JsonResult;
 use handlers::wallets::base::WalletHandler;
 use models::hd_wallet::HdWallet;
+use models::resource_wallet::ResourceWallet;
 use models::jsonapi_record::JsonApiRecord;
 use server_state::ServerState;
 
@@ -26,12 +27,12 @@ pub fn show(state: &ServerState, id: u64) -> JsonResult {
 }
 
 #[post("/hd_wallets", data = "<wallet>")]
-pub fn create(state: &ServerState, wallet: JsonApiRecord<HdWallet>) -> JsonResult {
+pub fn create(state: &ServerState, wallet: ResourceWallet<HdWallet>) -> JsonResult {
     HdWallet::create(state, wallet)
 }
 
 #[put("/hd_wallets/<id>", data = "<wallet>")]
-pub fn update(state: &ServerState, id: u64, wallet: JsonApiRecord<HdWallet>) -> JsonResult {
+pub fn update(state: &ServerState, id: u64, wallet: ResourceWallet<HdWallet>) -> JsonResult {
     HdWallet::update(state, id, wallet)
 }
 

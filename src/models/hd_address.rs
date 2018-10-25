@@ -13,7 +13,7 @@ pub struct HdAddress {
     pub path: Vec<u64>,
     pub wallet: JsonApiRecord<HdWallet>,
 }
-from_data!(JsonApiRecord<HdAddress>);
+from_data!(HdAddress);
 
 impl ResourceAddress for HdAddress {}
 

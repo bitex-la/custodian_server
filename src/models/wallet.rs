@@ -5,9 +5,11 @@ use bitprim::errors::Error;
 use bitprim::executor::Executor;
 use bitprim::explorer::Received;
 use bitprim::payment_address::PaymentAddress;
+use tiny_ram_db::PlainTable;
 
 use models::resource_address::ResourceAddress;
 use models::transaction::Transaction;
+use models::database::Database;
 
 pub trait Wallet: std::marker::Sized + Clone + std::fmt::Debug {
     type Utxo;
@@ -98,4 +100,10 @@ pub trait Wallet: std::marker::Sized + Clone + std::fmt::Debug {
     fn get_addresses(&self) -> Vec<&Self::RA> {
         vec![]
     }
+
+    fn default_fields() -> &'static str; 
+
+    fn wallets_from_database<'a>(database: &'a mut Database) -> &'a mut PlainTable<Self>;
+
+    fn _in_type() -> &'static str;
 }

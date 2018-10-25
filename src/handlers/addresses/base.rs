@@ -11,47 +11,20 @@ use rocket::http::Status;
 use rocket::response::status;
 use server_state::ServerState;
 
-pub trait AddressHandler: ResourceWallet {
+pub trait AddressHandler 
+where
+    Self: serde::Serialize
+{
     fn address_index(state: &ServerState, id: u64) -> JsonResult {
-        let mut database = state.database_lock();
-        let haystack = Self::wallets_from_database(&mut database);
-
-        match haystack.find(id as usize) {
-            Ok(maybe_wallet) => parse_to_value(vec!["address"]),
-            Err(_) => Err(status::Custom(
-                Status::NotFound,
-                format!("Wallet {:?} Not Found", id),
-            )),
-        }
+        unimplemented!()
     }
 
-    fn address_create(state: &ServerState, id: u64, address: JsonApiRecord<Self::A>) -> JsonResult {
-        let mut database = state.database_lock();
-        let haystack = Self::wallets_from_database(&mut database);
-
-        match haystack.find(id as usize) {
-            Ok(wallet_position) => {
-                //TODO: Create Address
-                parse_to_value("address")
-            }
-            Err(_) => Err(status::Custom(
-                Status::NotFound,
-                format!("Wallet {:?} Not Found", id),
-            )),
-        }
+    fn address_create<A>(state: &ServerState, id: u64, address: A) -> JsonResult {
+        unimplemented!()
     }
 
-    fn address_destroy(state: &ServerState, id: u64, address: JsonApiRecord<Self::A>) -> JsonResult {
-        let mut database = state.database_lock();
-        let haystack = Self::wallets_from_database(&mut database);
-
-        match haystack.find(id as usize) {
-            Ok(value) => parse_to_value("address"),
-            Err(_) => Err(status::Custom(
-                Status::NotFound,
-                format!("Wallet with id {:?} Not Found", id),
-            )),
-        }
+    fn address_destroy<A>(state: &ServerState, id: u64, address: A) -> JsonResult {
+        unimplemented!()
     }
 
     fn balance(exec: &Executor, address: String, limit: Option<u64>, since: Option<u64>) -> JsonResult {
@@ -85,4 +58,4 @@ pub trait AddressHandler: ResourceWallet {
     }
 }
 
-impl<R: ResourceWallet> AddressHandler for R {}
+impl<R: serde::Serialize> AddressHandler for R {}

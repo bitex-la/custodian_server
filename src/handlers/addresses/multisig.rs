@@ -16,7 +16,7 @@ pub fn index(state: &ServerState, id: u64) -> JsonResult {
     format = "application/json",
     data = "<address>"
 )]
-pub fn create(state: &ServerState, id: u64, address: JsonApiRecord<MultisigAddress>) -> JsonResult {
+pub fn create(state: &ServerState, id: u64, address: MultisigAddress) -> JsonResult {
     MultisigWallet::address_create(state, id, address)
 }
 
@@ -25,7 +25,7 @@ pub fn create(state: &ServerState, id: u64, address: JsonApiRecord<MultisigAddre
     format = "application/json",
     data = "<address>"
 )]
-pub fn destroy(state: &ServerState, id: u64, address: JsonApiRecord<MultisigAddress>) -> JsonResult {
+pub fn destroy(state: &ServerState, id: u64, address: MultisigAddress) -> JsonResult {
     MultisigWallet::address_destroy(state, id, address)
 }
 

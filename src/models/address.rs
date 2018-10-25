@@ -11,7 +11,7 @@ pub struct Address {
     pub public_address: Option<String>,
     pub wallet: JsonApiRecord<PlainWallet>,
 }
-from_data!(JsonApiRecord<Address>);
+from_data!(Address);
 
 impl ResourceAddress for Address {}
 impl fmt::Display for Address {

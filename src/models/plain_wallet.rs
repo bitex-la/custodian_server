@@ -15,11 +15,7 @@ pub struct PlainWallet {
     pub label: String,
 }
 
-from_data!(JsonApiRecord<PlainWallet>);
-
-impl JsonApiResource for JsonApiRecord<PlainWallet> {
-    fn _in_type() -> &'static str { "plain_wallet" }
-}
+from_data!(ResourceWallet<PlainWallet>);
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PlainUtxo {
@@ -41,10 +37,8 @@ impl Wallet for PlainWallet {
             amount: received.satoshis,
         }
     }
-}
 
-impl ResourceWallet for PlainWallet {
-    type A = Address;
+    fn _in_type() -> &'static str { "plain_wallet" }
 
     fn default_fields() -> &'static str {
         "version"

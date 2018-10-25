@@ -18,11 +18,7 @@ pub struct HdWallet {
     pub label: String,
 }
 
-from_data!(JsonApiRecord<HdWallet>);
-
-impl JsonApiResource for JsonApiRecord<HdWallet> {
-    fn _in_type() -> &'static str { "hd_wallet" }
-}
+from_data!(ResourceWallet<HdWallet>);
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HdUtxo {
@@ -40,10 +36,8 @@ impl Wallet for HdWallet {
             transaction: Transaction::new(received, address.to_string())
         }
     }
-}
 
-impl ResourceWallet for HdWallet {
-    type A = HdAddress;
+    fn _in_type() -> &'static str { "hd_wallet" }
 
     fn default_fields() -> &'static str {
         "version,xpub"

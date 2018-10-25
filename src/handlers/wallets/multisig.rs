@@ -3,6 +3,7 @@ use handlers::handler::JsonResult;
 use handlers::wallets::base::WalletHandler;
 use models::multisig_wallet::MultisigWallet;
 use models::jsonapi_record::JsonApiRecord;
+use models::resource_wallet::ResourceWallet;
 use server_state::ServerState;
 
 #[get("/multisig_wallets")]
@@ -26,12 +27,12 @@ pub fn show(state: &ServerState, id: u64) -> JsonResult {
 }
 
 #[post("/multisig_wallets", data = "<wallet>")]
-pub fn create(state: &ServerState, wallet: JsonApiRecord<MultisigWallet>) -> JsonResult {
+pub fn create(state: &ServerState, wallet: ResourceWallet<MultisigWallet>) -> JsonResult {
     MultisigWallet::create(state, wallet)
 }
 
 #[put("/multisig_wallets/<id>", data = "<wallet>")]
-pub fn update(state: &ServerState, id: u64, wallet: JsonApiRecord<MultisigWallet>) -> JsonResult {
+pub fn update(state: &ServerState, id: u64, wallet: ResourceWallet<MultisigWallet>) -> JsonResult {
     MultisigWallet::update(state, id, wallet)
 }
 

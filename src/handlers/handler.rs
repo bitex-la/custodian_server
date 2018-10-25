@@ -1,3 +1,5 @@
+use tiny_ram_db;
+use tiny_ram_db::{ Record };
 use rocket::http::Status;
 use rocket::response::status;
 use rocket_contrib::{Json, Value};
@@ -15,6 +17,13 @@ pub struct GetTransactionParams {
 pub fn parse_to_value<T: Serialize>(value: T) -> JsonResult {
     match to_value(value) {
         Ok(value_parsed) => Ok(Json(value_parsed)),
+        Err(err) => Err(status::Custom(Status::InternalServerError, err.to_string())),
+    }
+}
+
+pub fn check_resource_operation<T: Serialize>(result_value: Result<Record<T>, tiny_ram_db::errors::Error>) -> JsonResult {
+    match result_value {
+        Ok(value) => parse_to_value(value),
         Err(err) => Err(status::Custom(Status::InternalServerError, err.to_string())),
     }
 }

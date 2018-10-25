@@ -1,17 +1,22 @@
 use bitprim::executor::Executor;
-use handlers::handler::{parse_to_value, JsonResult};
+use handlers::handler::{ parse_to_value, JsonResult, check_resource_operation };
 use jsonapi::model::*;
+use models::wallet::Wallet;
 use models::hd_wallet::HdWallet;
+use models::jsonapi_record::JsonApiRecord;
 use models::resource_wallet::ResourceWallet;
 use rocket::http::Status;
 use rocket::response::status;
 use server_state::ServerState;
-use models::jsonapi_record::JsonApiRecord;
 
-pub trait WalletHandler: ResourceWallet {
-    //FIXME: Fix return value
+pub trait WalletHandler
+where
+    Self: serde::Serialize + Wallet,
+{
     fn index(state: &ServerState) -> JsonResult {
-        unimplemented!()
+        let mut database = state.database_lock();
+        let wallets = Self::wallets_from_database(&mut database);
+        parse_to_value(wallets)
     }
 
     fn get_utxos(
@@ -65,11 +70,18 @@ pub trait WalletHandler: ResourceWallet {
         unimplemented!()
     }
 
-    fn create(state: &ServerState, new: JsonApiRecord<Self>) -> JsonResult {
-        unimplemented!()
+    fn create(state: &ServerState, new: ResourceWallet<Self>) -> JsonResult {
+        let mut database = state.database_lock();
+        let wallets = Self::wallets_from_database(&mut database);
+
+        check_resource_operation(wallets.insert(new.0))
     }
 
-    fn update(state: &ServerState, id: u64, new: JsonApiRecord<Self>) -> JsonResult {
+    fn update(
+        state: &ServerState,
+        id: u64,
+        new: ResourceWallet<Self>,
+    ) -> JsonResult {
         unimplemented!()
     }
 
@@ -78,4 +90,4 @@ pub trait WalletHandler: ResourceWallet {
     }
 }
 
-impl<R: ResourceWallet> WalletHandler for R {}
+impl<R: serde::Serialize + Wallet> WalletHandler for R {}

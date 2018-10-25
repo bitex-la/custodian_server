@@ -13,7 +13,7 @@ pub struct MultisigAddress {
     pub path: Vec<u64>,
     pub wallet: JsonApiRecord<MultisigWallet>,
 }
-from_data!(JsonApiRecord<MultisigAddress>);
+from_data!(MultisigAddress);
 
 impl fmt::Display for MultisigAddress {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {

@@ -23,11 +23,7 @@ pub struct MultisigWallet {
     pub signers: u64,
 }
 
-from_data!(JsonApiRecord<MultisigWallet>);
-
-impl JsonApiResource for JsonApiRecord<MultisigWallet> {
-    fn _in_type() -> &'static str { "multisig_wallet" }
-}
+from_data!(ResourceWallet<MultisigWallet>);
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MultisigUtxo {
@@ -107,10 +103,8 @@ impl Wallet for MultisigWallet {
             transaction: Transaction::new(received, address.to_string())
         }
     }
-}
 
-impl ResourceWallet for MultisigWallet {
-    type A = MultisigAddress;
+    fn _in_type() -> &'static str { "multisig_wallet" }
 
     fn default_fields() -> &'static str {
         "version,xpubs,signers"

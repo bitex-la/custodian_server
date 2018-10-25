@@ -6,6 +6,12 @@ use tiny_ram_db::Record;
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct JsonApiRecord<T>(pub Record<T>);
 
+impl<T> JsonApiRecord<T> {
+    pub fn id(&self) -> usize {
+        self.0.id
+    }
+}
+
 impl<T> JsonApiModel for JsonApiRecord<T>
 where
     for<'de> T: Deserialize<'de>,
@@ -16,7 +22,7 @@ where
         Self::_in_type()
     }
     fn jsonapi_id(&self) -> Option<String> {
-        Some(self.0.id.unwrap_or(0).to_string())
+        Some(self.0.id.to_string())
     }
     fn relationship_fields() -> Option<&'static [&'static str]> {
         None
