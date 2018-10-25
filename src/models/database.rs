@@ -4,12 +4,16 @@ use models::hd_wallet::HdWallet;
 use models::multisig_wallet::MultisigWallet;
 use models::plain_wallet::PlainWallet;
 use models::address::{ Address, AddressIndex };
+use models::hd_address::{ HdAddress, HdAddressIndex };
+use models::multisig_address::{ MultisigAddress, MultisigAddressIndex };
 
 pub struct Database {
     pub plain_wallets: PlainTable<PlainWallet>,
     pub hd_wallets: PlainTable<HdWallet>,
     pub multisig_wallets: PlainTable<MultisigWallet>,
-    pub addresses: Table<Address, AddressIndex>
+    pub addresses: Table<Address, AddressIndex>,
+    pub hd_addresses: Table<HdAddress, HdAddressIndex>,
+    pub multisig_addresses: Table<MultisigAddress, MultisigAddressIndex>
 }
 
 impl Database {
@@ -18,7 +22,9 @@ impl Database {
             plain_wallets: PlainTable::new(),
             hd_wallets: PlainTable::new(),
             multisig_wallets: PlainTable::new(),
-            addresses: Table::new()
+            addresses: Table::new(),
+            hd_addresses: Table::new(),
+            multisig_addresses: Table::new()
         }
     }
 }

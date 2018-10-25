@@ -1,8 +1,8 @@
 use handlers::addresses::base::AddressHandler;
 use handlers::handler::GetTransactionParams;
 use handlers::handler::JsonResult;
-use models::multisig_wallet::MultisigAddress;
 use models::multisig_wallet::MultisigWallet;
+use models::multisig_address::MultisigAddress;
 use models::jsonapi_record::JsonApiRecord;
 use server_state::ServerState;
 

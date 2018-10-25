@@ -1,8 +1,8 @@
 use handlers::addresses::base::AddressHandler;
 use handlers::handler::GetTransactionParams;
 use handlers::handler::JsonResult;
-use models::hd_wallet::HdAddress;
 use models::hd_wallet::HdWallet;
+use models::hd_address::HdAddress;
 use models::jsonapi_record::JsonApiRecord;
 use server_state::ServerState;
 

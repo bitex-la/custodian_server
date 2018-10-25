@@ -9,7 +9,7 @@ use bitprim::explorer::Received;
 use jsonapi::model::*;
 
 use models::resource_wallet::ResourceWallet;
-use models::resource_address::ResourceAddress;
+use models::multisig_address::MultisigAddress;
 use models::wallet::Wallet;
 use models::database::Database;
 use models::transaction::Transaction;
@@ -27,26 +27,6 @@ from_data!(JsonApiRecord<MultisigWallet>);
 
 impl JsonApiResource for JsonApiRecord<MultisigWallet> {
     fn _in_type() -> &'static str { "multisig_wallet" }
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct MultisigAddress {
-    pub public_address: Option<String>,
-    pub path: Vec<u64>,
-    pub wallet: JsonApiRecord<MultisigWallet>,
-}
-from_data!(JsonApiRecord<MultisigAddress>);
-
-impl fmt::Display for MultisigAddress {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        write!(fmt, "{}", self.public_address.as_ref().map_or("", |id| id))
-    }
-}
-
-impl ResourceAddress for MultisigAddress {}
-
-impl JsonApiResource for JsonApiRecord<MultisigAddress> {
-    fn _in_type() -> &'static str { "multisig_address" }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

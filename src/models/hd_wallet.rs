@@ -1,13 +1,12 @@
-use std::fmt;
 use std::io::Read;
 
 use bitprim::explorer::Received;
 use jsonapi::model::*;
 use tiny_ram_db::PlainTable;
 
-use models::resource_address::ResourceAddress;
 use models::resource_wallet::ResourceWallet;
 use models::wallet::Wallet;
+use models::hd_address::HdAddress;
 use models::database::Database;
 use models::transaction::Transaction;
 use models::jsonapi_record::{ JsonApiRecord, JsonApiResource };
@@ -29,24 +28,6 @@ impl JsonApiResource for JsonApiRecord<HdWallet> {
 pub struct HdUtxo {
     pub address: HdAddress,
     pub transaction: Transaction
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct HdAddress {
-    pub public_address: Option<String>,
-    pub path: Vec<u64>,
-    pub wallet: JsonApiRecord<HdWallet>,
-}
-from_data!(JsonApiRecord<HdAddress>);
-
-impl fmt::Display for HdAddress {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        write!(fmt, "{}", self.public_address.as_ref().map_or("", |id| id))
-    }
-}
-
-impl JsonApiResource for JsonApiRecord<HdAddress> {
-    fn _in_type() -> &'static str { "hd_address" }
 }
 
 impl Wallet for HdWallet {
@@ -72,5 +53,3 @@ impl ResourceWallet for HdWallet {
         &mut database.hd_wallets
     }
 }
-
-impl ResourceAddress for HdAddress {}
