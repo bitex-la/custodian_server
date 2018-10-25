@@ -73,7 +73,7 @@ where
         let mut database = state.database_lock();
         let wallets = Self::wallets_from_database(&mut database);
 
-        check_resource_operation(wallets.insert(new.data))
+        check_resource_operation(wallets.insert(new.wallet))
     }
 
     fn update(

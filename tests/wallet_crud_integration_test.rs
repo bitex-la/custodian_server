@@ -178,9 +178,9 @@ mod wallet_test {
             r#"{ 
                 "data": {
                     "attributes": { 
-                        "data": {
+                        "wallet": {
                             "version": "90",
-                            "label": "plain_wallet"
+                            "label": "my plain wallet"
                         }
                     },
                     "type": "plain_wallet"
@@ -191,23 +191,36 @@ mod wallet_test {
         post(
             &client,
             "/hd_wallets",
-            r#"{ "data": {
-            "attributes": { "version": "90", "xpub": "xpub2323323232" },
-            "type": "hd_wallet"
-        }}"#,
+            r#"{ 
+                "data": {
+                    "attributes": { 
+                        "wallet": {
+                            "version": "90",
+                            "label": "my hd wallet",
+                            "xpub": "xpub2323323232"
+                        }
+                    },
+                    "type": "hd_wallet"
+                }
+            }"#,
         );
 
         post(
             &client,
             "/multisig_wallets",
-            r#"{ "data": {
-            "type": "multisig_wallet",
-            "attributes": {
-                "version": "90",
-                "xpubs": ["xpub2323323232", "xpub12121212", "xpub12121221"],
-                "signers": 2
-            }
-        }}"#,
+            r#"{
+                "data": {
+                    "attributes": {
+                        "wallet": {
+                            "version": "90",
+                            "label": "my multisig wallet",
+                            "xpubs": ["xpub2323323232", "xpub12121212", "xpub12121221"],
+                            "signers": 2
+                        }
+                    },
+                    "type": "multisig_wallet"
+                }
+            }"#,
         );
 
         assert_eq!(
@@ -509,22 +522,20 @@ mod wallet_test {
 
     #[test]
     fn serialize_plain_wallet() {
-        use custodian_server::models::jsonapi_record::JsonApiRecord;
         use custodian_server::models::plain_wallet::PlainWallet;
         use jsonapi::model::JsonApiModel;
-        use std::sync::Arc;
-        use tiny_ram_db::Record;
+        use custodian_server::models::resource_wallet::ResourceWallet;
 
-        let plain_wallet: JsonApiRecord<PlainWallet> = JsonApiRecord(Record {
+        let plain_wallet: ResourceWallet<PlainWallet> = ResourceWallet {
             id: None,
-            data: Arc::new(PlainWallet {
+            wallet: PlainWallet {
                 version: "57".to_string(),
-                label: "default".to_string(),
-            }),
-        });
+                label: "default".to_string()
+            }
+        };
 
         assert_eq!(serde_json::to_string(&plain_wallet.to_jsonapi_document()).unwrap(),
-                   "{\"data\":{\"type\":\"plain_wallet\",\"id\":\"0\",\"attributes\":{\"data\":{\"label\":\"default\",\"version\":\"57\"}}}}");
+                   "{\"data\":{\"type\":\"plain_wallet\",\"id\":null,\"attributes\":{\"data\":{\"label\":\"default\",\"version\":\"57\"}}}}");
 
         assert_eq!(serde_json::to_string(&plain_wallet).unwrap(), "{\"id\":null,\"data\":{\"version\":\"57\",\"label\":\"default\"}}");
     }
