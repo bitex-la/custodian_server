@@ -7,7 +7,7 @@ use models::resource_wallet::ResourceWallet;
 use models::wallet::Wallet;
 use models::jsonapi_record::{ JsonApiRecord, JsonApiResource };
 use tiny_ram_db::{ PlainTable };
-use models::address::Address;
+use models::plain_address::PlainAddress;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct PlainWallet {
@@ -15,21 +15,22 @@ pub struct PlainWallet {
     pub label: String,
 }
 
+jsonapi_model!(ResourceWallet<PlainWallet>; "plain_wallet");
 from_data!(ResourceWallet<PlainWallet>);
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PlainUtxo {
     pub prev_hash: String,
     pub prev_index: u32,
-    pub address: Address,
+    pub address: PlainAddress,
     pub amount: u64,
 }
 
 impl Wallet for PlainWallet {
     type Utxo = PlainUtxo;
-    type RA = Address;
+    type RA = PlainAddress;
 
-    fn construct_utxo(&self, received: Received, address: &Address) -> Self::Utxo {
+    fn construct_utxo(&self, received: Received, address: &PlainAddress) -> Self::Utxo {
         PlainUtxo {
             prev_hash: received.transaction_hash.to_hex(),
             prev_index: received.position,
@@ -37,8 +38,6 @@ impl Wallet for PlainWallet {
             amount: received.satoshis,
         }
     }
-
-    fn _in_type() -> &'static str { "plain_wallet" }
 
     fn default_fields() -> &'static str {
         "version"

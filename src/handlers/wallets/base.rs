@@ -1,6 +1,5 @@
 use bitprim::executor::Executor;
 use handlers::handler::{ parse_to_value, JsonResult, check_resource_operation };
-use jsonapi::model::*;
 use models::wallet::Wallet;
 use models::hd_wallet::HdWallet;
 use models::jsonapi_record::JsonApiRecord;
@@ -74,7 +73,7 @@ where
         let mut database = state.database_lock();
         let wallets = Self::wallets_from_database(&mut database);
 
-        check_resource_operation(wallets.insert(new.0))
+        check_resource_operation(wallets.insert(new.data))
     }
 
     fn update(

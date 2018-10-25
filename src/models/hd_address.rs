@@ -2,9 +2,10 @@ use std::io::Read;
 use std::fmt;
 
 use tiny_ram_db::{ Index, Indexer, Record };
-use jsonapi::model::{ JsonApiModel, JsonApiDocument };
-use models::jsonapi_record::{ JsonApiRecord, JsonApiResource };
+use jsonapi::model::*;
+use models::jsonapi_record::*;
 use models::hd_wallet::HdWallet;
+use models::address::Address;
 use models::resource_address::ResourceAddress;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -13,18 +14,16 @@ pub struct HdAddress {
     pub path: Vec<u64>,
     pub wallet: JsonApiRecord<HdWallet>,
 }
-from_data!(HdAddress);
 
-impl ResourceAddress for HdAddress {}
+jsonapi_model!(ResourceAddress<HdAddress>; "hd_address");
+from_data!(ResourceAddress<HdAddress>);
+
+impl Address for HdAddress { }
 
 impl fmt::Display for HdAddress {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         write!(fmt, "{}", self.public_address.as_ref().map_or("", |id| id))
     }
-}
-
-impl JsonApiResource for JsonApiRecord<HdAddress> {
-    fn _in_type() -> &'static str { "hd_address" }
 }
 
 #[derive(Default)]

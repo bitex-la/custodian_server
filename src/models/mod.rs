@@ -3,6 +3,7 @@ pub mod hd_wallet;
 pub mod multisig_wallet;
 pub mod plain_wallet;
 pub mod address;
+pub mod plain_address;
 pub mod hd_address;
 pub mod multisig_address;
 pub mod resource_address;

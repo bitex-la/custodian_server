@@ -2,8 +2,9 @@ use std::io::Read;
 use std::fmt;
 
 use tiny_ram_db::{ Index, Indexer, Record };
-use jsonapi::model::{ JsonApiModel, JsonApiDocument };
-use models::jsonapi_record::{ JsonApiRecord, JsonApiResource };
+use jsonapi::model::*;
+use models::jsonapi_record::*;
+use models::address::Address;
 use models::multisig_wallet::MultisigWallet;
 use models::resource_address::ResourceAddress;
 
@@ -13,18 +14,15 @@ pub struct MultisigAddress {
     pub path: Vec<u64>,
     pub wallet: JsonApiRecord<MultisigWallet>,
 }
-from_data!(MultisigAddress);
+jsonapi_model!(ResourceAddress<MultisigAddress>; "multisig_address");
+from_data!(ResourceAddress<MultisigAddress>);
+
+impl Address for MultisigAddress { }
 
 impl fmt::Display for MultisigAddress {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         write!(fmt, "{}", self.public_address.as_ref().map_or("", |id| id))
     }
-}
-
-impl ResourceAddress for MultisigAddress {}
-
-impl JsonApiResource for JsonApiRecord<MultisigAddress> {
-    fn _in_type() -> &'static str { "multisig_address" }
 }
 
 #[derive(Default)]

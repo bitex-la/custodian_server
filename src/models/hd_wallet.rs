@@ -9,7 +9,7 @@ use models::wallet::Wallet;
 use models::hd_address::HdAddress;
 use models::database::Database;
 use models::transaction::Transaction;
-use models::jsonapi_record::{ JsonApiRecord, JsonApiResource };
+
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct HdWallet {
@@ -18,6 +18,7 @@ pub struct HdWallet {
     pub label: String,
 }
 
+jsonapi_model!(ResourceWallet<HdWallet>; "hd_wallet");
 from_data!(ResourceWallet<HdWallet>);
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -36,8 +37,6 @@ impl Wallet for HdWallet {
             transaction: Transaction::new(received, address.to_string())
         }
     }
-
-    fn _in_type() -> &'static str { "hd_wallet" }
 
     fn default_fields() -> &'static str {
         "version,xpub"

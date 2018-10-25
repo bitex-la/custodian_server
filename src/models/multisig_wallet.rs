@@ -23,6 +23,7 @@ pub struct MultisigWallet {
     pub signers: u64,
 }
 
+jsonapi_model!(ResourceWallet<MultisigWallet>; "multisig_wallet");
 from_data!(ResourceWallet<MultisigWallet>);
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -103,8 +104,6 @@ impl Wallet for MultisigWallet {
             transaction: Transaction::new(received, address.to_string())
         }
     }
-
-    fn _in_type() -> &'static str { "multisig_wallet" }
 
     fn default_fields() -> &'static str {
         "version,xpubs,signers"
