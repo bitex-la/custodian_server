@@ -22,7 +22,7 @@ pub fn get_incoming(state: &ServerState, id: u64, params: GetTransactionParams) 
 }
 
 #[get("/multisig_wallets/<id>")]
-pub fn show(state: &ServerState, id: u64) -> JsonResult {
+pub fn show(state: &ServerState, id: usize) -> JsonResult {
     MultisigWallet::show(state, id)
 }
 

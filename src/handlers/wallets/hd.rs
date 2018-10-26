@@ -22,7 +22,7 @@ pub fn get_incoming(state: &ServerState, id: u64, params: GetTransactionParams) 
 }
 
 #[get("/hd_wallets/<id>")]
-pub fn show(state: &ServerState, id: u64) -> JsonResult {
+pub fn show(state: &ServerState, id: usize) -> JsonResult {
     HdWallet::show(state, id)
 }
 

@@ -224,8 +224,8 @@ mod wallet_test {
         );
 
         assert_eq!(
-            get(&client, "/plain_wallets/1").body_string().unwrap(),
-            r#"{"data":{"attributes":{"version":"90"},"id":"1","type":"plain_wallet"}}"#
+            get(&client, "/plain_wallets/0").body_string().unwrap(),
+            r#"{"data":{"attributes":{"wallet":{"version":"90","label":"my plain wallet"}},"type":"plain_wallet","id":0}}"#,
         );
 
         post(

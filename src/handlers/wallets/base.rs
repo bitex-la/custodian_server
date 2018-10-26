@@ -1,8 +1,6 @@
 use bitprim::executor::Executor;
-use handlers::handler::{ parse_to_value, JsonResult, check_resource_operation };
+use handlers::handler::{ parse_to_value, JsonResult, check_resource_operation, from_record_to_resource_wallet };
 use models::wallet::Wallet;
-use models::hd_wallet::HdWallet;
-use models::jsonapi_record::JsonApiRecord;
 use models::resource_wallet::ResourceWallet;
 use rocket::http::Status;
 use rocket::response::status;
@@ -65,8 +63,11 @@ where
         unimplemented!()
     }
 
-    fn show(state: &ServerState, id: u64) -> JsonResult {
-        unimplemented!()
+    fn show(state: &ServerState, id: usize) -> JsonResult {
+        let mut database = state.database_lock();
+        let wallets = Self::wallets_from_database(&mut database);
+
+        from_record_to_resource_wallet(wallets.find(id))
     }
 
     fn create(state: &ServerState, new: ResourceWallet<Self>) -> JsonResult {

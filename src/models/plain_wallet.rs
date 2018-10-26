@@ -15,7 +15,7 @@ pub struct PlainWallet {
     pub label: String,
 }
 
-jsonapi_model!(ResourceWallet<PlainWallet>; "plain_wallet");
+// jsonapi_model!(ResourceWallet<PlainWallet>; "plain_wallet");
 from_data!(ResourceWallet<PlainWallet>);
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

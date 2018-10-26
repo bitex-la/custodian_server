@@ -18,7 +18,7 @@ pub struct HdWallet {
     pub label: String,
 }
 
-jsonapi_model!(ResourceWallet<HdWallet>; "hd_wallet");
+// jsonapi_model!(ResourceWallet<HdWallet>; "hd_wallet");
 from_data!(ResourceWallet<HdWallet>);
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
