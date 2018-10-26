@@ -2,6 +2,7 @@
 #![feature(plugin)]
 #![plugin(rocket_codegen)]
 #![feature(custom_derive)]
+#![feature(trivial_bounds)] 
 
 extern crate bitprim;
 extern crate ctrlc;

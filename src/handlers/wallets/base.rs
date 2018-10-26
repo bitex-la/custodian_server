@@ -1,6 +1,7 @@
+use std::sync::Arc;
 use jsonapi::model::JsonApiModel;
 use bitprim::executor::Executor;
-use handlers::handler::{ parse_to_value, JsonResult, check_resource_operation, from_record_to_resource_wallet };
+use handlers::handler::{ plain_table_to_jsonapi, JsonResult, check_resource_operation, from_record_to_resource_wallet };
 use models::wallet::Wallet;
 use models::resource_wallet::ResourceWallet;
 use rocket::http::Status;
@@ -12,10 +13,11 @@ where
     Self: serde::Serialize + Wallet,
     for<'de> Self: serde::Deserialize<'de>
 {
-    fn index(state: &ServerState) -> JsonResult {
+    fn index(state: &ServerState) -> JsonResult 
+    {
         let mut database = state.database_lock();
         let wallets = Self::wallets_from_database(&mut database);
-        parse_to_value(wallets)
+        plain_table_to_jsonapi(wallets)
     }
 
     fn get_utxos(

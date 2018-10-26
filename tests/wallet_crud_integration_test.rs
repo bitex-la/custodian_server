@@ -246,7 +246,7 @@ mod wallet_test {
 
         assert_eq!(
             get(&client, "/plain_wallets").body_string().unwrap(),
-            r#"{"data":[{"attributes":{"version":"90"},"id":"1","type":"plain_wallet"},{"attributes":{"version":"54"},"id":"2","type":"plain_wallet"}]}"#
+            r#"{"data":[{"attributes":{"wallet":{"label":"my plain wallet","version":"90"}},"id":"0","type":"plain_wallet"},{"attributes":{"wallet":{"label":"my second wallet","version":"54"}},"id":"1","type":"plain_wallet"}]}"#
         );
 
         put(

@@ -1,13 +1,16 @@
+use std::sync::Arc;
 use handlers::handler::GetTransactionParams;
 use handlers::handler::JsonResult;
 use handlers::wallets::base::WalletHandler;
 use models::plain_wallet::PlainWallet;
 use models::resource_wallet::ResourceWallet;
 use models::jsonapi_record::JsonApiRecord;
+use jsonapi::model::JsonApiModel;
 use server_state::ServerState;
 
 #[get("/plain_wallets")]
-pub fn index(state: &ServerState) -> JsonResult {
+pub fn index(state: &ServerState) -> JsonResult
+{
     PlainWallet::index(state)
 }
 
