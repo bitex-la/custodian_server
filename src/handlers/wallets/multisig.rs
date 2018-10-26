@@ -37,6 +37,6 @@ pub fn update(state: &ServerState, id: usize, wallet: ResourceWallet<MultisigWal
 }
 
 #[delete("/multisig_wallets/<id>")]
-pub fn destroy(state: &ServerState, id: u64) -> JsonResult {
+pub fn destroy(state: &ServerState, id: usize) -> JsonResult {
     MultisigWallet::destroy(state, id)
 }

@@ -40,6 +40,6 @@ pub fn update(state: &ServerState, id: usize, wallet: ResourceWallet<PlainWallet
 }
 
 #[delete("/plain_wallets/<id>")]
-pub fn destroy(state: &ServerState, id: u64) -> JsonResult {
+pub fn destroy(state: &ServerState, id: usize) -> JsonResult {
     PlainWallet::destroy(state, id)
 }

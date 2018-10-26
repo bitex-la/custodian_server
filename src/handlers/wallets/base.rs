@@ -98,8 +98,15 @@ where
         parse_to_value(true)
     }
 
-    fn destroy(state: &ServerState, id: u64) -> JsonResult {
-        unimplemented!()
+    //TODO: Naive version
+    fn destroy(state: &ServerState, id: usize) -> JsonResult {
+        let mut database = state.database_lock();
+        let wallets = Self::wallets_from_database(&mut database);
+
+        let mut vec_records = wallets.data.write().unwrap();
+        vec_records.remove(id);
+
+        parse_to_value(true)
     }
 }
 
