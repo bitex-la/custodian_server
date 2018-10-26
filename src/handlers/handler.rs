@@ -1,4 +1,5 @@
 use std::ops::Deref;
+use jsonapi::model::JsonApiModel;
 use tiny_ram_db;
 use tiny_ram_db::Record;
 use rocket::http::Status;
@@ -31,11 +32,14 @@ pub fn check_resource_operation<T: Serialize>(result_value: Result<T, tiny_ram_d
     }
 }
 
-pub fn from_record_to_resource_wallet<T: Serialize + Wallet>(result_value: Result<Record<T>, tiny_ram_db::errors::Error>) -> JsonResult {
+pub fn from_record_to_resource_wallet<T: Serialize + Wallet>(result_value: Result<Record<T>, tiny_ram_db::errors::Error>) -> JsonResult 
+where ResourceWallet<T> : JsonApiModel
+{
     match result_value {
         Ok(wallet) => {
             let resource = wallet.data.deref();
-            parse_to_value(ResourceWallet { id: Some(wallet.id), wallet: resource.clone() })
+            let resource_wallet = ResourceWallet { id: Some(wallet.id), wallet: resource.clone() };
+            parse_to_value(resource_wallet.to_jsonapi_document_with_query(&T::default_query()))
         },
         Err(err) => Err(status::Custom(Status::InternalServerError, err.to_string()))
     }

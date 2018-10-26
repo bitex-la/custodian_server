@@ -16,10 +16,10 @@ where
     W: Wallet
 {
     fn jsonapi_type() -> &'static str {
-        "resource_wallet"
+        W::jsonapi_type()
     }
     fn jsonapi_id(&self) -> Option<String> {
-        None
+        self.id.map(|_id| _id.to_string())
     }
     fn relationship_fields() -> Option<&'static [&'static str]> {
         None

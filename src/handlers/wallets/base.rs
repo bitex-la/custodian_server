@@ -1,3 +1,4 @@
+use jsonapi::model::JsonApiModel;
 use bitprim::executor::Executor;
 use handlers::handler::{ parse_to_value, JsonResult, check_resource_operation, from_record_to_resource_wallet };
 use models::wallet::Wallet;
@@ -9,6 +10,7 @@ use server_state::ServerState;
 pub trait WalletHandler
 where
     Self: serde::Serialize + Wallet,
+    for<'de> Self: serde::Deserialize<'de>
 {
     fn index(state: &ServerState) -> JsonResult {
         let mut database = state.database_lock();
@@ -63,7 +65,9 @@ where
         unimplemented!()
     }
 
-    fn show(state: &ServerState, id: usize) -> JsonResult {
+    fn show(state: &ServerState, id: usize) -> JsonResult 
+    where ResourceWallet<Self>: JsonApiModel
+    {
         let mut database = state.database_lock();
         let wallets = Self::wallets_from_database(&mut database);
 
@@ -90,4 +94,8 @@ where
     }
 }
 
-impl<R: serde::Serialize + Wallet> WalletHandler for R {}
+impl<R> WalletHandler for R 
+where
+    R: serde::Serialize + Wallet,
+    for<'de> R: serde::Deserialize<'de>
+{}

@@ -6,6 +6,7 @@ use bitprim::executor::Executor;
 use bitprim::explorer::Received;
 use bitprim::payment_address::PaymentAddress;
 use tiny_ram_db::PlainTable;
+use jsonapi::model::Query;
 
 use models::address::Address;
 use models::transaction::Transaction;
@@ -101,7 +102,15 @@ pub trait Wallet: std::marker::Sized + Clone + std::fmt::Debug {
         vec![]
     }
 
-    fn default_fields() -> &'static str; 
+    fn default_query() -> Query {
+        Query::from_params(&format!(
+            "include=[]&fields[{}]={}",
+            Self::jsonapi_type(),
+            "wallet"
+        ))
+    }
+
+    fn jsonapi_type() -> &'static str;
 
     fn wallets_from_database<'a>(database: &'a mut Database) -> &'a mut PlainTable<Self>;
 }

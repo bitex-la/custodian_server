@@ -18,7 +18,6 @@ pub struct HdWallet {
     pub label: String,
 }
 
-// jsonapi_model!(ResourceWallet<HdWallet>; "hd_wallet");
 from_data!(ResourceWallet<HdWallet>);
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -38,8 +37,8 @@ impl Wallet for HdWallet {
         }
     }
 
-    fn default_fields() -> &'static str {
-        "version,xpub"
+    fn jsonapi_type() -> &'static str {
+        "hd_wallet"
     }
 
     fn wallets_from_database<'a>(database: &'a mut Database) -> &'a mut PlainTable<Self> {

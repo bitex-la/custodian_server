@@ -225,17 +225,23 @@ mod wallet_test {
 
         assert_eq!(
             get(&client, "/plain_wallets/0").body_string().unwrap(),
-            r#"{"data":{"attributes":{"wallet":{"version":"90","label":"my plain wallet"}},"type":"plain_wallet","id":0}}"#,
+            r#"{"data":{"attributes":{"wallet":{"label":"my plain wallet","version":"90"}},"id":"0","type":"plain_wallet"}}"#,
         );
 
         post(
             &client,
             "/plain_wallets",
-            r#"{ "data": {
-            "attributes": { "version": "54" },
-            "type": "plain_wallet"
-          }
-        }"#,
+            r#"{
+                "data": {
+                    "attributes": { 
+                        "wallet": {
+                            "version": "54",
+                            "label": "my second wallet"
+                        }
+                    },
+                    "type": "plain_wallet"
+                }
+            }"#,
         );
 
         assert_eq!(

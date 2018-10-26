@@ -15,7 +15,6 @@ pub struct PlainWallet {
     pub label: String,
 }
 
-// jsonapi_model!(ResourceWallet<PlainWallet>; "plain_wallet");
 from_data!(ResourceWallet<PlainWallet>);
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -39,8 +38,8 @@ impl Wallet for PlainWallet {
         }
     }
 
-    fn default_fields() -> &'static str {
-        "version"
+    fn jsonapi_type() -> &'static str {
+        "plain_wallet"
     }
 
     fn wallets_from_database<'a>(database: &'a mut Database) -> &'a mut PlainTable<Self> {

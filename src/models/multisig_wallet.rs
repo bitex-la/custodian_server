@@ -23,7 +23,6 @@ pub struct MultisigWallet {
     pub signers: u64,
 }
 
-// jsonapi_model!(ResourceWallet<MultisigWallet>; "multisig_wallet");
 from_data!(ResourceWallet<MultisigWallet>);
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -105,8 +104,8 @@ impl Wallet for MultisigWallet {
         }
     }
 
-    fn default_fields() -> &'static str {
-        "version,xpubs,signers"
+    fn jsonapi_type() -> &'static str {
+        "multisig_wallet"
     }
 
     fn wallets_from_database<'a>(database: &'a mut Database) -> &'a mut PlainTable<Self> {
