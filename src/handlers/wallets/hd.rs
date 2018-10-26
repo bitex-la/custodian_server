@@ -32,7 +32,7 @@ pub fn create(state: &ServerState, wallet: ResourceWallet<HdWallet>) -> JsonResu
 }
 
 #[put("/hd_wallets/<id>", data = "<wallet>")]
-pub fn update(state: &ServerState, id: u64, wallet: ResourceWallet<HdWallet>) -> JsonResult {
+pub fn update(state: &ServerState, id: usize, wallet: ResourceWallet<HdWallet>) -> JsonResult {
     HdWallet::update(state, id, wallet)
 }
 

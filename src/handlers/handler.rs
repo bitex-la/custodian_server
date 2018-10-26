@@ -6,8 +6,6 @@ use rocket::response::status;
 use rocket_contrib::{Json, Value};
 use serde::ser::Serialize;
 use serde_json::to_value;
-use std::ops::Deref;
-use std::sync::Arc;
 use tiny_ram_db;
 use tiny_ram_db::{PlainTable, Record};
 

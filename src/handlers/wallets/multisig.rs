@@ -32,7 +32,7 @@ pub fn create(state: &ServerState, wallet: ResourceWallet<MultisigWallet>) -> Js
 }
 
 #[put("/multisig_wallets/<id>", data = "<wallet>")]
-pub fn update(state: &ServerState, id: u64, wallet: ResourceWallet<MultisigWallet>) -> JsonResult {
+pub fn update(state: &ServerState, id: usize, wallet: ResourceWallet<MultisigWallet>) -> JsonResult {
     MultisigWallet::update(state, id, wallet)
 }
 

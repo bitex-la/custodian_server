@@ -3,7 +3,7 @@
 #![plugin(rocket_codegen)]
 #![feature(associated_type_defaults)]
 #![feature(custom_derive)]
-#![feature(trivial_bounds)] 
+#![feature(toowned_clone_into)]
 
 extern crate bitprim;
 extern crate ctrlc;

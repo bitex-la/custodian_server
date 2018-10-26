@@ -1,11 +1,10 @@
 use std::sync::Arc;
 use jsonapi::model::JsonApiModel;
+use tiny_ram_db::Record;
 use bitprim::executor::Executor;
-use handlers::handler::{ plain_table_to_jsonapi, JsonResult, check_resource_operation, from_record_to_resource_wallet };
+use handlers::handler::{ parse_to_value, plain_table_to_jsonapi, JsonResult, check_resource_operation, from_record_to_resource_wallet };
 use models::wallet::Wallet;
 use models::resource_wallet::ResourceWallet;
-use rocket::http::Status;
-use rocket::response::status;
 use server_state::ServerState;
 
 pub trait WalletHandler
@@ -85,10 +84,18 @@ where
 
     fn update(
         state: &ServerState,
-        id: u64,
-        new: ResourceWallet<Self>,
+        id: usize,
+        resource_wallet: ResourceWallet<Self>,
     ) -> JsonResult {
-        unimplemented!()
+        let mut database = state.database_lock();
+        let wallets = Self::wallets_from_database(&mut database);
+
+        let mut vec_records = wallets.data.write().unwrap();
+        vec_records.remove(id);
+        let new_record = Record { id: id, data: Arc::new(resource_wallet.wallet)};
+        vec_records.insert(id, new_record);
+
+        parse_to_value(true)
     }
 
     fn destroy(state: &ServerState, id: u64) -> JsonResult {
