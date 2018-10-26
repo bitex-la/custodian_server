@@ -1,12 +1,13 @@
 use std::io::Read;
 use std::fmt;
 
-use tiny_ram_db::{ Index, Indexer, Record };
+use tiny_ram_db::{ Index, Indexer, Record, Table };
 use jsonapi::model::*;
 use models::jsonapi_record::*;
 use models::hd_wallet::HdWallet;
 use models::address::Address;
 use models::resource_address::ResourceAddress;
+use models::database::Database;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct HdAddress {
@@ -18,7 +19,13 @@ pub struct HdAddress {
 jsonapi_model!(ResourceAddress<HdAddress>; "hd_address");
 from_data!(ResourceAddress<HdAddress>);
 
-impl Address for HdAddress { }
+impl Address for HdAddress {
+    type Index = HdAddressIndex;
+
+    fn addresses_from_database<'a>(database: &'a mut Database) -> &'a mut Table<Self, Self::Index> {
+        &mut database.hd_addresses
+    }
+}
 
 impl fmt::Display for HdAddress {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {

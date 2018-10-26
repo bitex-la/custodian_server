@@ -1,12 +1,13 @@
 use std::io::Read;
 use std::fmt;
 
-use tiny_ram_db::{ Index, Indexer, Record };
+use tiny_ram_db::{ Index, Indexer, Record, Table };
 use jsonapi::model::*;
 use models::jsonapi_record::*;
 use models::address::Address;
 use models::multisig_wallet::MultisigWallet;
 use models::resource_address::ResourceAddress;
+use models::database::Database;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct MultisigAddress {
@@ -17,7 +18,13 @@ pub struct MultisigAddress {
 jsonapi_model!(ResourceAddress<MultisigAddress>; "multisig_address");
 from_data!(ResourceAddress<MultisigAddress>);
 
-impl Address for MultisigAddress { }
+impl Address for MultisigAddress {
+    type Index = MultisigAddressIndex;
+
+    fn addresses_from_database<'a>(database: &'a mut Database) -> &'a mut Table<Self, Self::Index> {
+        &mut database.multisig_addresses
+    }
+}
 
 impl fmt::Display for MultisigAddress {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {

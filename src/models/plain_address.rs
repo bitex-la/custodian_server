@@ -1,11 +1,12 @@
 use std::io::Read;
 use std::fmt;
-use tiny_ram_db::{ Index, Indexer, Record };
+use tiny_ram_db::{ Index, Indexer, Record, Table };
 use jsonapi::model::*;
 use models::jsonapi_record::{ JsonApiRecord };
 use models::resource_address::ResourceAddress;
 use models::plain_wallet::PlainWallet;
 use models::address::Address;
+use models::database::Database;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct PlainAddress {
@@ -16,7 +17,13 @@ pub struct PlainAddress {
 jsonapi_model!(ResourceAddress<PlainAddress>; "address");
 from_data!(ResourceAddress<PlainAddress>);
 
-impl Address for PlainAddress { }
+impl Address for PlainAddress {
+    type Index = AddressIndex;
+
+    fn addresses_from_database<'a>(database: &'a mut Database) -> &'a mut Table<Self, Self::Index> {
+        &mut database.plain_addresses
+    }
+}
 
 impl fmt::Display for PlainAddress {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {

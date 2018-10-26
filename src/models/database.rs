@@ -11,7 +11,7 @@ pub struct Database {
     pub plain_wallets: PlainTable<PlainWallet>,
     pub hd_wallets: PlainTable<HdWallet>,
     pub multisig_wallets: PlainTable<MultisigWallet>,
-    pub addresses: Table<PlainAddress, AddressIndex>,
+    pub plain_addresses: Table<PlainAddress, AddressIndex>,
     pub hd_addresses: Table<HdAddress, HdAddressIndex>,
     pub multisig_addresses: Table<MultisigAddress, MultisigAddressIndex>
 }
@@ -22,7 +22,7 @@ impl Database {
             plain_wallets: PlainTable::new(),
             hd_wallets: PlainTable::new(),
             multisig_wallets: PlainTable::new(),
-            addresses: Table::new(),
+            plain_addresses: Table::new(),
             hd_addresses: Table::new(),
             multisig_addresses: Table::new()
         }
