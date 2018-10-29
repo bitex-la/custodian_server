@@ -5,23 +5,40 @@ use bitprim::payment_address::PaymentAddress;
 use handlers::handler::{parse_to_value, table_to_jsonapi, JsonResult};
 use jsonapi::model::*;
 use models::address::Address;
-use models::jsonapi_record::JsonApiRecord;
 use models::resource_address::ResourceAddress;
-use models::resource_wallet::ResourceWallet;
 use models::transaction::Transaction;
 use rocket::http::Status;
 use rocket::response::status;
 use server_state::ServerState;
+
+#[derive(FromForm, Debug)]
+pub struct AddressFilters {
+    pub wallet_id: Option<usize>
+}
 
 pub trait AddressHandler
 where
     Self: serde::Serialize + Address,
     ResourceAddress<Self>: JsonApiModel,
 {
-    fn address_index(state: &ServerState, id: u64) -> JsonResult {
+    fn index(state: &ServerState, filters: AddressFilters) -> JsonResult {
         let mut database = state.database_lock();
-        let addresses = Self::addresses_from_database(&mut database);
-        table_to_jsonapi(addresses)
+        match filters.wallet_id {
+            Some(wallet_id) => {
+                if let Ok(addresses) = Self::filter_by_wallet(wallet_id, &mut database) {
+                    parse_to_value(addresses)
+                } else {
+                    Err(status::Custom(
+                        Status::NotFound,
+                        "Wallet not found".to_string(),
+                    ))
+                }
+            },
+            None =>{
+                let addresses = Self::addresses_from_database(&mut database);
+                table_to_jsonapi(addresses)
+            } 
+        }
     }
 
     fn address_create<A>(state: &ServerState, id: u64, address: A) -> JsonResult {

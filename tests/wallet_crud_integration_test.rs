@@ -270,15 +270,15 @@ mod wallet_test {
             r#"{"data":{"attributes":{"wallet":{"label":"my plain wallet updated","version":"91"}},"id":"0","type":"plain_wallet"}}"#,
         );
 
-        // post(
-        //     &client,
-        //     "/plain_wallets/1/relationships/addresses",
-        //     r#"{ "data": {
-        //     "attributes": { },
-        //     "id": "lk1jh314",
-        //     "type": "address"
-        //   }}"#,
-        // );
+        post(
+            &client,
+            "/plain_addresses",
+            r#"{ "data": {
+            "attributes": { },
+            "id": "lk1jh314",
+            "type": "address"
+          }}"#,
+        );
 
         // assert_eq!(
         //     get(&client, "/plain_wallets/1/relationships/addresses")

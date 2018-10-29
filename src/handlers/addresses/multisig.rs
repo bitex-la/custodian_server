@@ -4,10 +4,11 @@ use handlers::handler::JsonResult;
 use models::multisig_address::MultisigAddress;
 use models::resource_address::ResourceAddress;
 use server_state::ServerState;
+use handlers::addresses::base::AddressFilters;
 
-#[get("/multisig_wallets/<id>/relationships/addresses")]
-pub fn index(state: &ServerState, id: u64) -> JsonResult {
-    MultisigAddress::address_index(state, id)
+#[get("/multisig_addresses?<filters>")]
+pub fn index(state: &ServerState, filters: AddressFilters) -> JsonResult {
+    MultisigAddress::index(state, filters)
 }
 
 #[post(

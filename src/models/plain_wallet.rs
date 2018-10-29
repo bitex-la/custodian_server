@@ -1,4 +1,6 @@
 use std::io::Read;
+use rocket::http::RawStr;
+use rocket::request::FromFormValue;
 
 use bitprim::explorer::Received;
 use jsonapi::model::*;
@@ -10,7 +12,7 @@ use tiny_ram_db::{ PlainTable };
 use models::plain_address::PlainAddress;
 use models::resource_transaction::JsonApiModelTransaction;
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, FromForm)]
 pub struct PlainWallet {
     pub version: String,
     pub label: String,

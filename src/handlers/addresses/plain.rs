@@ -4,10 +4,11 @@ use handlers::handler::JsonResult;
 use models::plain_address::PlainAddress;
 use models::resource_address::ResourceAddress;
 use server_state::ServerState;
+use handlers::addresses::base::AddressFilters;
 
-#[get("/plain_wallets/<id>/relationships/addresses")]
-pub fn index(state: &ServerState, id: u64) -> JsonResult {
-    PlainAddress::address_index(state, id)
+#[get("/plain_addresses?<filters>")]
+pub fn index(state: &ServerState, filters: AddressFilters) -> JsonResult {
+    PlainAddress::index(state, filters)
 }
 
 #[post(

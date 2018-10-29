@@ -4,10 +4,11 @@ use handlers::handler::JsonResult;
 use models::hd_address::HdAddress;
 use models::resource_address::ResourceAddress;
 use server_state::ServerState;
+use handlers::addresses::base::AddressFilters;
 
-#[get("/hd_wallets/<id>/relationships/addresses")]
-pub fn index(state: &ServerState, id: u64) -> JsonResult {
-    HdAddress::address_index(state, id)
+#[get("/hd_addresses?<filters>")]
+pub fn index(state: &ServerState, filters: AddressFilters) -> JsonResult {
+    HdAddress::index(state, filters)
 }
 
 #[post("/hd_wallets/<id>/relationships/addresses", data = "<address>")]

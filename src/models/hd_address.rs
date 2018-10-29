@@ -1,5 +1,6 @@
 use std::io::Read;
 use std::fmt;
+use std::collections::HashSet;
 
 use tiny_ram_db::{ Index, Indexer, Record, Table };
 use jsonapi::model::*;
@@ -24,6 +25,19 @@ impl Address for HdAddress {
 
     fn addresses_from_database<'a>(database: &'a mut Database) -> &'a mut Table<Self, Self::Index> {
         &mut database.hd_addresses
+    }
+
+    fn filter_by_wallet<'a>(
+        wallet_id: usize,
+        database: &'a mut Database,
+    ) -> Result<HashSet<Record<Self>>, tiny_ram_db::errors::Error> {
+        let wallet = database.hd_wallets.find(wallet_id)?;
+        database
+            .hd_addresses
+            .indexes
+            .read()?
+            .by_wallet
+            .get(&wallet, |items| items.clone())
     }
 }
 
