@@ -31,3 +31,12 @@ where
         None
     }
 }
+
+impl<W: Wallet> ResourceWallet<W> {
+    fn empty() -> ResourceWallet<W> {
+        ResourceWallet {
+            id: None,
+            wallet: W::empty()
+        }
+    }
+}

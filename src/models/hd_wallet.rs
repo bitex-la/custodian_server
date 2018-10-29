@@ -44,4 +44,12 @@ impl Wallet for HdWallet {
     fn wallets_from_database<'a>(database: &'a mut Database) -> &'a mut PlainTable<Self> {
         &mut database.hd_wallets
     }
+
+    fn empty() -> Self {
+        HdWallet {
+            version: "".to_string(),
+            xpub: "".to_string(),
+            label: "".to_string()
+        }
+    }
 }

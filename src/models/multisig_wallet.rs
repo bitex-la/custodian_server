@@ -111,4 +111,14 @@ impl Wallet for MultisigWallet {
     fn wallets_from_database<'a>(database: &'a mut Database) -> &'a mut PlainTable<Self> {
         &mut database.multisig_wallets
     }
+
+    fn empty() -> Self {
+        MultisigWallet {
+            label: "".to_string(),
+            version: "".to_string(),
+            xpubs: vec![],
+            signers: 0
+        }
+    }
+
 }

@@ -45,4 +45,11 @@ impl Wallet for PlainWallet {
     fn wallets_from_database<'a>(database: &'a mut Database) -> &'a mut PlainTable<Self> {
         &mut database.plain_wallets
     }
+
+    fn empty() -> Self {
+        PlainWallet {
+            version: "".to_string(),
+            label: "".to_string()
+        }
+    }
 }
