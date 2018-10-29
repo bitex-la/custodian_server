@@ -12,12 +12,12 @@ pub fn index(state: &ServerState) -> JsonResult {
 }
 
 #[get("/hd_wallets/<id>/get_utxos?<params>")]
-pub fn get_utxos(state: &ServerState, id: u64, params: GetTransactionParams) -> JsonResult {
+pub fn get_utxos(state: &ServerState, id: usize, params: GetTransactionParams) -> JsonResult {
     HdWallet::get_utxos(state, id, params.limit, params.since)
 }
 
 #[get("/hd_wallets/<id>/get_incoming?<params>")]
-pub fn get_incoming(state: &ServerState, id: u64, params: GetTransactionParams) -> JsonResult {
+pub fn get_incoming(state: &ServerState, id: usize, params: GetTransactionParams) -> JsonResult {
     HdWallet::get_incoming(state, id, params.limit, params.since)
 }
 

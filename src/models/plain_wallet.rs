@@ -8,6 +8,7 @@ use models::wallet::Wallet;
 use models::jsonapi_record::{ JsonApiRecord, JsonApiResource };
 use tiny_ram_db::{ PlainTable };
 use models::plain_address::PlainAddress;
+use models::resource_transaction::JsonApiModelTransaction;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct PlainWallet {
@@ -23,6 +24,12 @@ pub struct PlainUtxo {
     pub prev_index: u32,
     pub address: PlainAddress,
     pub amount: u64,
+}
+
+impl JsonApiModelTransaction  for PlainUtxo {
+    fn jsonapi_type() -> &'static str {
+        "plain_utxo"
+    }
 }
 
 impl Wallet for PlainWallet {

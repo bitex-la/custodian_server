@@ -8,6 +8,7 @@ pub mod hd_address;
 pub mod multisig_address;
 pub mod resource_address;
 pub mod resource_wallet;
+pub mod resource_transaction;
 pub mod transaction;
 pub mod wallet;
 pub mod wallets;

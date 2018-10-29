@@ -11,9 +11,10 @@ use jsonapi::model::Query;
 use models::address::Address;
 use models::transaction::Transaction;
 use models::database::Database;
+use models::resource_transaction::{ JsonApiModelTransaction, ResourceTransaction };
 
 pub trait Wallet: std::marker::Sized + Clone + std::fmt::Debug {
-    type Utxo;
+    type Utxo: JsonApiModelTransaction;
     type RA: Address;
 
     fn get_utxos(
@@ -21,7 +22,7 @@ pub trait Wallet: std::marker::Sized + Clone + std::fmt::Debug {
         exec: &Executor,
         limit: Option<u64>,
         maybe_since: Option<u64>,
-    ) -> Vec<Self::Utxo> {
+    ) -> Vec<ResourceTransaction<Self::Utxo>> {
         let explorer = exec.explorer();
 
         let since = self.get_since(exec, maybe_since);
@@ -39,7 +40,7 @@ pub trait Wallet: std::marker::Sized + Clone + std::fmt::Debug {
         exec: &Executor,
         limit: Option<u64>,
         maybe_since: Option<u64>,
-    ) -> Vec<Transaction> {
+    ) -> Vec<ResourceTransaction<Transaction>> {
         let explorer = exec.explorer();
 
         let since = self.get_since(exec, maybe_since);
@@ -78,19 +79,20 @@ pub trait Wallet: std::marker::Sized + Clone + std::fmt::Debug {
         since: u64,
         explorer_fn: E,
         tx: F,
-    ) -> Vec<T>
+    ) -> Vec<ResourceTransaction<T>>
     where
+        T: JsonApiModelTransaction,
         E: Fn(PaymentAddress, u64, u64) -> Result<Vec<Received>, Error>,
         F: Fn(Received, &Self::RA) -> T,
     {
-        let mut result: Vec<T> = vec![];
+        let mut result: Vec<ResourceTransaction<T>> = vec![];
         for address in self.get_addresses() {
             if let Ok(valid_address) = PaymentAddress::from_str(&address.to_string()) {
                 let vec_received = explorer_fn(valid_address, limit, since)
                     .expect("Not expecting failure on explore transaction!");
 
-                for received in vec_received {
-                    result.push(tx(received, address))
+                for (index, received) in vec_received.into_iter().enumerate() {
+                    result.push(ResourceTransaction { id: Some(index), transaction: tx(received, address)})
                 }
             }
         }

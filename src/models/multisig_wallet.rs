@@ -14,6 +14,7 @@ use models::wallet::Wallet;
 use models::database::Database;
 use models::transaction::Transaction;
 use models::jsonapi_record::{ JsonApiRecord, JsonApiResource };
+use models::resource_transaction::JsonApiModelTransaction;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct MultisigWallet {
@@ -31,6 +32,12 @@ pub struct MultisigUtxo {
     pub script_type: String,
     pub multisig: MultisigDefinition,
     pub transaction: Transaction
+}
+
+impl JsonApiModelTransaction  for MultisigUtxo {
+    fn jsonapi_type() -> &'static str {
+        "multisig_utxo"
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

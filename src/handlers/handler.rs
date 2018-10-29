@@ -47,7 +47,7 @@ where
             };
             parse_to_value(resource_wallet.to_jsonapi_document_with_query(&T::default_query()))
         }
-        Err(err) => Err(status::Custom(Status::InternalServerError, err.to_string())),
+        Err(err) => Err(status::Custom(Status::NotFound, err.to_string())),
     }
 }
 

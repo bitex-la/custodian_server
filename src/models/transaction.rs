@@ -1,11 +1,10 @@
 use bitprim::explorer::Received;
 use bitprim::explorer::InputDetail;
 use bitprim::explorer::OutputDetail;
-use jsonapi::model::*;
+use models::resource_transaction::JsonApiModelTransaction;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Transaction {
-    pub id: Option<String>,
     pub satoshis: u64,
     pub transaction_hash: String,
     pub position: u32,
@@ -18,13 +17,16 @@ pub struct Transaction {
     pub outputs: Vec<OutputDetail>
 }
 
-jsonapi_model!(Transaction; "transaction");
+impl JsonApiModelTransaction  for Transaction {
+    fn jsonapi_type() -> &'static str {
+        "transaction"
+    }
+}
 
 impl Transaction {
     pub fn new(tx: Received, address: String) -> Self {
         let hex_value = tx.transaction_hash.to_hex();
         Transaction {
-            id: Some(format!("{}-{}", hex_value, tx.position)),
             satoshis: tx.satoshis,
             transaction_hash: hex_value,
             position: tx.position,
