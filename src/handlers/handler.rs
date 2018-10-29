@@ -54,6 +54,24 @@ where
     }
 }
 
+pub fn from_record_to_resource_address<T: Serialize + Address>(
+    result_value: Result<Record<T>, tiny_ram_db::errors::Error>,
+) -> JsonResult
+where
+    ResourceAddress<T>: JsonApiModel,
+{
+    match result_value {
+        Ok(record) => {
+            let resource_address = ResourceAddress {
+                id: Some(record.id),
+                address: (*record.data).clone(),
+            };
+            parse_to_value(resource_address.to_jsonapi_document_with_query(&T::default_query()))
+        }
+        Err(err) => Err(status::Custom(Status::NotFound, err.to_string())),
+    }
+}
+
 pub fn plain_table_to_jsonapi<T>(plain_table: &mut PlainTable<T>) -> JsonResult
 where
     T: Wallet,

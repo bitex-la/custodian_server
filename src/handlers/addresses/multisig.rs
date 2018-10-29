@@ -11,13 +11,14 @@ pub fn index(state: &ServerState, filters: AddressFilters) -> JsonResult {
     MultisigAddress::index(state, filters)
 }
 
-#[post(
-    "/multisig_wallets/<id>/relationships/addresses",
-    format = "application/json",
-    data = "<address>"
-)]
-pub fn create(state: &ServerState, id: u64, address: ResourceAddress<MultisigAddress>) -> JsonResult {
-    MultisigAddress::address_create(state, id, address)
+#[post( "/multisig_addresses", data = "<address>")]
+pub fn create(state: &ServerState, address: ResourceAddress<MultisigAddress>) -> JsonResult {
+    MultisigAddress::create(state, address)
+}
+
+#[get("/multisig_addresses/<id>")]
+pub fn show(state: &ServerState, id: usize) -> JsonResult {
+    MultisigAddress::show(state, id)
 }
 
 #[delete(

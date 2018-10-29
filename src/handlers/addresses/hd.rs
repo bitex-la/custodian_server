@@ -11,9 +11,14 @@ pub fn index(state: &ServerState, filters: AddressFilters) -> JsonResult {
     HdAddress::index(state, filters)
 }
 
-#[post("/hd_wallets/<id>/relationships/addresses", data = "<address>")]
-pub fn create(state: &ServerState, id: u64, address: ResourceAddress<HdAddress>) -> JsonResult {
-    HdAddress::address_create(state, id, address)
+#[post("/hd_addresses", data = "<address>")]
+pub fn create(state: &ServerState, address: ResourceAddress<HdAddress>) -> JsonResult {
+    HdAddress::create(state, address)
+}
+
+#[get("/hd_addresses/<id>")]
+pub fn show(state: &ServerState, id: usize) -> JsonResult {
+    HdAddress::show(state, id)
 }
 
 #[delete(

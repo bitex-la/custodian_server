@@ -74,14 +74,17 @@ mod wallet_test {
                 wallets::multisig::get_incoming,
                 addresses::plain::index,
                 addresses::plain::create,
+                addresses::plain::show,
                 addresses::plain::destroy,
                 addresses::plain::balance,
                 addresses::hd::index,
                 addresses::hd::create,
+                addresses::hd::show,
                 addresses::hd::destroy,
                 addresses::hd::balance,
                 addresses::multisig::index,
                 addresses::multisig::create,
+                addresses::multisig::show,
                 addresses::multisig::destroy,
                 addresses::multisig::balance,
                 blocks::base::last,
@@ -273,29 +276,38 @@ mod wallet_test {
         post(
             &client,
             "/plain_addresses",
+            r#"{
+                "data": {
+                    "attributes": {
+                        "address": {
+                            "public_address": "mru76ADdwx3EFjuknsZZVRXKUrnWxedwH7",
+                            "wallet": {
+                                "id": 0,
+                                "data": {"label":"my plain wallet updated","version":"91"}
+                            }
+                        }
+                     },
+                     "type": "plain_address"
+                }
+            }"#,
+        );
+
+        assert_eq!(
+            get(&client, "/plain_addresses/0")
+                .body_string()
+                .unwrap(),
+            r#"{"data":{"attributes":{"address":{"public_address":"mru76ADdwx3EFjuknsZZVRXKUrnWxedwH7","wallet":{"data":{"label":"my plain wallet updated","version":"91"},"id":0}}},"id":"0","type":"address"}}"#,
+        );
+
+        delete(
+            &client,
+            "/plain_addresses/0",
             r#"{ "data": {
             "attributes": { },
             "id": "lk1jh314",
             "type": "address"
           }}"#,
         );
-
-        // assert_eq!(
-        //     get(&client, "/plain_wallets/1/relationships/addresses")
-        //         .body_string()
-        //         .unwrap(),
-        //     r#"{"data":[{"attributes":{},"id":"lk1jh314","type":"address"}]}"#
-        // );
-
-        // delete(
-        //     &client,
-        //     "/plain_wallets/1/relationships/addresses",
-        //     r#"{ "data": {
-        //     "attributes": { },
-        //     "id": "lk1jh314",
-        //     "type": "address"
-        //   }}"#,
-        // );
 
         // assert_eq!(
         //     get(&client, "/plain_wallets/1/relationships/addresses")

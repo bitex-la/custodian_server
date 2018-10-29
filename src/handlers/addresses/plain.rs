@@ -11,11 +11,14 @@ pub fn index(state: &ServerState, filters: AddressFilters) -> JsonResult {
     PlainAddress::index(state, filters)
 }
 
-#[post(
-    "/plain_wallets/<id>/relationships/addresses", data = "<address>"
-)]
-pub fn create(state: &ServerState, id: u64, address: ResourceAddress<PlainAddress>) -> JsonResult {
-    PlainAddress::address_create(state, id, address)
+#[post("/plain_addresses", data = "<address>")]
+pub fn create(state: &ServerState, address: ResourceAddress<PlainAddress>) -> JsonResult {
+    PlainAddress::create(state, address)
+}
+
+#[get("/plain_addresses/<id>")]
+pub fn show(state: &ServerState, id: usize) -> JsonResult {
+    PlainAddress::show(state, id)
 }
 
 #[delete(

@@ -2,7 +2,8 @@ use std::str::FromStr;
 
 use bitprim::executor::Executor;
 use bitprim::payment_address::PaymentAddress;
-use handlers::handler::{parse_to_value, table_to_jsonapi, JsonResult};
+use tiny_ram_db;
+use handlers::handler::{parse_to_value, table_to_jsonapi, check_resource_operation, from_record_to_resource_address, JsonResult};
 use jsonapi::model::*;
 use models::address::Address;
 use models::resource_address::ResourceAddress;
@@ -20,6 +21,7 @@ pub trait AddressHandler
 where
     Self: serde::Serialize + Address,
     ResourceAddress<Self>: JsonApiModel,
+    <Self as Address>::Index: tiny_ram_db::Indexer<Item = Self>
 {
     fn index(state: &ServerState, filters: AddressFilters) -> JsonResult {
         let mut database = state.database_lock();
@@ -41,8 +43,21 @@ where
         }
     }
 
-    fn address_create<A>(state: &ServerState, id: u64, address: A) -> JsonResult {
-        unimplemented!()
+    fn create(state: &ServerState, new: ResourceAddress<Self>) -> JsonResult {
+        let mut database = state.database_lock();
+        let addresses = Self::addresses_from_database(&mut database);
+
+        check_resource_operation(addresses.insert(new.address))
+    }
+
+    fn show(state: &ServerState, id: usize) -> JsonResult
+    where
+        ResourceAddress<Self>: JsonApiModel,
+    {
+        let mut database = state.database_lock();
+        let addresses = Self::addresses_from_database(&mut database);
+
+        from_record_to_resource_address(addresses.find(id))
     }
 
     fn address_destroy<A>(state: &ServerState, id: u64, address: A) -> JsonResult {
@@ -121,5 +136,6 @@ impl<R> AddressHandler for R
 where
     R: serde::Serialize + Address,
     ResourceAddress<R>: JsonApiModel,
+    <R as Address>::Index: tiny_ram_db::Indexer<Item = Self>
 {
 }

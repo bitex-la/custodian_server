@@ -26,6 +26,10 @@ impl Address for MultisigAddress {
         &mut database.multisig_addresses
     }
 
+    fn jsonapi_type() -> &'static str {
+        "multisig_address"
+    }
+
     fn filter_by_wallet<'a>(
         wallet_id: usize,
         database: &'a mut Database,

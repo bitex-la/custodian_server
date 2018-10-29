@@ -27,6 +27,10 @@ impl Address for HdAddress {
         &mut database.hd_addresses
     }
 
+    fn jsonapi_type() -> &'static str {
+        "hd_address"
+    }
+
     fn filter_by_wallet<'a>(
         wallet_id: usize,
         database: &'a mut Database,

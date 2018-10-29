@@ -26,6 +26,10 @@ impl Address for PlainAddress {
         &mut database.plain_addresses
     }
 
+    fn jsonapi_type() -> &'static str {
+        "plain_address"
+    }
+
     fn filter_by_wallet<'a>(
         wallet_id: usize,
         database: &'a mut Database,
