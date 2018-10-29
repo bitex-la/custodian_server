@@ -1,13 +1,16 @@
 use jsonapi::model::{vec_to_jsonapi_document, JsonApiModel};
-use models::resource_wallet::ResourceWallet;
-use models::wallet::Wallet;
 use rocket::http::Status;
 use rocket::response::status;
 use rocket_contrib::{Json, Value};
 use serde::ser::Serialize;
 use serde_json::to_value;
 use tiny_ram_db;
-use tiny_ram_db::{PlainTable, Record};
+use tiny_ram_db::{PlainTable, Table, Record};
+
+use models::resource_wallet::ResourceWallet;
+use models::resource_address::ResourceAddress;
+use models::wallet::Wallet;
+use models::address::Address;
 
 pub type JsonResult = Result<Json<Value>, status::Custom<String>>;
 
@@ -66,6 +69,30 @@ where
                     wallet: (*record.data).clone(),
                 })
                 .collect::<Vec<ResourceWallet<T>>>();
+            parse_to_value(vec_to_jsonapi_document(records))
+        }
+        Err(_) => Err(status::Custom(
+            Status::InternalServerError,
+            "Error Accesing Database".to_string(),
+        )),
+    }
+}
+
+pub fn table_to_jsonapi<A, I>(table: &mut Table<A, I>) -> JsonResult
+where
+    A: Address,
+    ResourceAddress<A>: JsonApiModel,
+{
+    let result_records = table.data.read();
+    match result_records {
+        Ok(_records) => {
+            let records = _records
+                .iter()
+                .map(|record| ResourceAddress {
+                    id: Some(record.id),
+                    address: (*record.data).clone(),
+                })
+                .collect::<Vec<ResourceAddress<A>>>();
             parse_to_value(vec_to_jsonapi_document(records))
         }
         Err(_) => Err(status::Custom(
