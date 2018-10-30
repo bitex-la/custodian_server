@@ -32,7 +32,7 @@ impl Transaction {
             position: tx.position,
             is_spent: tx.is_spent,
             block_height: tx.block_height,
-            address: address,
+            address,
             version: tx.version,
             locktime: tx.locktime,
             inputs: tx.input_details,

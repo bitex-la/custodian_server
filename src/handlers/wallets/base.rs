@@ -114,7 +114,7 @@ where
         let mut vec_records = wallets.data.write().unwrap();
         vec_records.remove(id);
         let new_record = Record {
-            id: id,
+            id,
             data: Arc::new(resource_wallet.wallet),
         };
         vec_records.insert(id, new_record);

@@ -88,7 +88,7 @@ impl Wallet for MultisigWallet {
                 PubkeyDefinition {
                     address_n: address.path.clone(),
                     node: NodeDefinition {
-                        chain_code: chain_code,
+                        chain_code,
                         depth: 0,
                         child_num: 0,
                         fingerprint: 0,

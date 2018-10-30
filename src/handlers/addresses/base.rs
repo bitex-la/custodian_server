@@ -89,7 +89,6 @@ where
                     vec_received
                         .iter()
                         .map(|r| r.satoshis)
-                        .into_iter()
                         .sum::<u64>(),
                 ),
                 Err(error) => Err(status::Custom(
