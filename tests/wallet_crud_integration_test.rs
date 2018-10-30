@@ -200,7 +200,7 @@ mod wallet_test {
                         "wallet": {
                             "version": "90",
                             "label": "my hd wallet",
-                            "xpub": "xpub2323323232"
+                            "xpub": "xpub661MyMwAqRbcGCmcnz4JtnieVyuvgQFGqZqw3KS1g9khndpF3segkAYbYCKKaQ9Di2ZuWLaZU4Axt7TrKq41aVYx8XTbDbQFzhhDMntKLU5"
                         }
                     },
                     "type": "hd_wallet"
@@ -352,28 +352,48 @@ mod wallet_test {
         post(
             &client,
             "/multisig_wallets",
-            r#"{ "data": {
-            "type": "multisig_wallet",
-            "attributes": {
-                "version": "90",
-                "xpubs": ["xpub661MyMwAqRbcGCmcnz4JtnieVyuvgQFGqZqw3KS1g9khndpF3segkAYbYCKKaQ9Di2ZuWLaZU4Axt7TrKq41aVYx8XTbDbQFzhhDMntKLU5",
-                          "xpub661MyMwAqRbcFwc3Nmz8WmMU9okGmeVSmuprwNHCVsfhy6vMyg6g79octqwNftK4g62TMWmb7UtVpnAWnANzqwtKrCDFe2UaDCv1HoErssE",
-                          "xpub661MyMwAqRbcGkqPSKVkwTMtFZzEpbWXjM4t1Dv1XQbfMxtyLRGupWkp3fcSCDtp6nd1AUrRtq8tnFGTYgkY1pB9muwzaBDnJSMo2rVENhz"],
-                "signers": 2
-            }
-        }}"#,
+            r#"{
+                "data": {
+                    "attributes": { 
+                        "wallet": {
+                            "version": "54",
+                            "label": "my_second_wallet",
+                            "xpubs": ["xpub661MyMwAqRbcGCmcnz4JtnieVyuvgQFGqZqw3KS1g9khndpF3segkAYbYCKKaQ9Di2ZuWLaZU4Axt7TrKq41aVYx8XTbDbQFzhhDMntKLU5",
+                                    "xpub661MyMwAqRbcFwc3Nmz8WmMU9okGmeVSmuprwNHCVsfhy6vMyg6g79octqwNftK4g62TMWmb7UtVpnAWnANzqwtKrCDFe2UaDCv1HoErssE",
+                                    "xpub661MyMwAqRbcGkqPSKVkwTMtFZzEpbWXjM4t1Dv1XQbfMxtyLRGupWkp3fcSCDtp6nd1AUrRtq8tnFGTYgkY1pB9muwzaBDnJSMo2rVENhz"],
+                            "signers": 2
+                        }
+                    },
+                    "type": "multisig_wallet"
+                }
+            }"#,
         );
 
         post(
             &client,
-            "/hd_wallets/1/relationships/addresses",
-            r#"{ "data": {
-            "attributes": { "address": "2NAHscN6XVqUPzBSJHC3fhkeF5SQVxiR9p9", "path": []},
-            "type": "hd_address"
-          }}"#,
+            "/hd_addresses",
+            r#"{
+                "data": {
+                    "attributes": {
+                        "address": {
+                            "public_address": "2NAHscN6XVqUPzBSJHC3fhkeF5SQVxiR9p9",
+                            "path": [],
+                            "wallet": {
+                                "id": 1,
+                                "data": {
+                                    "label":"my hd wallet",
+                                    "version":"90",
+                                    "xpub": "xpub661MyMwAqRbcGCmcnz4JtnieVyuvgQFGqZqw3KS1g9khndpF3segkAYbYCKKaQ9Di2ZuWLaZU4Axt7TrKq41aVYx8XTbDbQFzhhDMntKLU5"
+                                }
+                            }
+                        }
+                     },
+                     "type": "hd_address"
+                }
+            }"#,
         );
 
-        get(&client, "/hd_wallets/1/get_utxos?since=0&limit=600");
+        get(&client, "/hd_wallets/0/get_utxos?since=0&limit=600");
 
         assert_eq!(
             get(&client, "/hd_wallets/relationships/addresses/2NAHscN6XVqUPzBSJHC3fhkeF5SQVxiR9p9/balance?since=0&limit=600")
@@ -384,22 +404,40 @@ mod wallet_test {
 
         post(
             &client,
-            "/multisig_wallets/2/relationships/addresses",
-            r#"{ "data": {
-            "attributes": { "address": "2NAHscN6XVqUPzBSJHC3fhkeF5SQVxiR9p9", "path": [42, 1, 1]},
-            "type": "hd_address"
-          }}"#,
+            "/multisig_addresses",
+            r#"{
+                "data": {
+                    "attributes": {
+                        "address": {
+                            "public_address": "2NAHscN6XVqUPzBSJHC3fhkeF5SQVxiR9p9",
+                            "path": [42, 1, 1],
+                            "wallet": {
+                                "id": 1,
+                                "data": {
+                                    "version": "54",
+                                    "label": "my_second_wallet",
+                                    "xpubs": ["xpub661MyMwAqRbcGCmcnz4JtnieVyuvgQFGqZqw3KS1g9khndpF3segkAYbYCKKaQ9Di2ZuWLaZU4Axt7TrKq41aVYx8XTbDbQFzhhDMntKLU5",
+                                            "xpub661MyMwAqRbcFwc3Nmz8WmMU9okGmeVSmuprwNHCVsfhy6vMyg6g79octqwNftK4g62TMWmb7UtVpnAWnANzqwtKrCDFe2UaDCv1HoErssE",
+                                            "xpub661MyMwAqRbcGkqPSKVkwTMtFZzEpbWXjM4t1Dv1XQbfMxtyLRGupWkp3fcSCDtp6nd1AUrRtq8tnFGTYgkY1pB9muwzaBDnJSMo2rVENhz"],
+                                    "signers": 2
+                                }
+                            }
+                        }
+                     },
+                     "type": "multisig_address"
+                }
+            }"#,
         );
 
         assert_eq!(
-            get(&client, "/multisig_wallets/2/get_utxos?since=0&limit=400")
+            get(&client, "/multisig_wallets/1/get_utxos?since=0&limit=400")
                 .body_string()
                 .unwrap(),
             load_fixture_file("./tests/data/multisig_utxos.json")
         );
 
         assert_eq!(
-            get(&client, "/multisig_wallets/2/get_incoming?since=400")
+            get(&client, "/multisig_wallets/1/get_incoming?since=400")
                 .body_string()
                 .unwrap(),
             load_fixture_file("./tests/data/multisig_incoming_transactions.json")
