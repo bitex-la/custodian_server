@@ -1,16 +1,13 @@
 use std::io::Read;
-use rocket::http::RawStr;
-use rocket::request::FromFormValue;
 
 use bitprim::explorer::Received;
 use jsonapi::model::*;
 use models::database::Database;
-use models::resource_wallet::ResourceWallet;
-use models::wallet::Wallet;
-use models::jsonapi_record::{ JsonApiRecord, JsonApiResource };
-use tiny_ram_db::{ PlainTable };
 use models::plain_address::PlainAddress;
 use models::resource_transaction::JsonApiModelTransaction;
+use models::resource_wallet::ResourceWallet;
+use models::wallet::Wallet;
+use tiny_ram_db::PlainTable;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, FromForm)]
 pub struct PlainWallet {
@@ -28,7 +25,7 @@ pub struct PlainUtxo {
     pub amount: u64,
 }
 
-impl JsonApiModelTransaction  for PlainUtxo {
+impl JsonApiModelTransaction for PlainUtxo {
     fn jsonapi_type() -> &'static str {
         "plain_utxo"
     }
@@ -53,12 +50,5 @@ impl Wallet for PlainWallet {
 
     fn wallets_from_database<'a>(database: &'a mut Database) -> &'a mut PlainTable<Self> {
         &mut database.plain_wallets
-    }
-
-    fn empty() -> Self {
-        PlainWallet {
-            version: "".to_string(),
-            label: "".to_string()
-        }
     }
 }

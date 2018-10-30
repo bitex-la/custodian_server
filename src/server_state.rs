@@ -1,7 +1,6 @@
 use bitprim::errors::*;
 use bitprim::executor::executor_destruct;
 use bitprim::Executor;
-use models::wallets::Wallets;
 use models::database::Database;
 use rocket::http::Status;
 use rocket::outcome::Outcome;

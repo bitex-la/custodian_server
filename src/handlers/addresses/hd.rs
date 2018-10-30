@@ -26,14 +26,12 @@ pub fn destroy(state: &ServerState, id: usize) -> JsonResult {
     HdAddress::destroy(state, id)
 }
 
-#[get(
-    "/hd_wallets/relationships/addresses/<address>/balance?<params>"
-)]
+#[get("/hd_addresses/<address>/balance?<params>")]
 pub fn balance(state: &ServerState, address: String, params: GetTransactionParams) -> JsonResult {
     HdAddress::balance(&state.executor, address, params.limit, params.since)
 }
 
-#[get("/hd_wallets/relationships/addresses/<address>/get_utxos?<params>")]
+#[get("/hd_addresses/<address>/get_utxos?<params>")]
 pub fn get_utxos(state: &ServerState, address: String, params: GetTransactionParams) -> JsonResult {
     HdAddress::get_utxos(&state.executor, address, params.limit, params.since)
 }

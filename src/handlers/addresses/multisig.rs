@@ -26,14 +26,12 @@ pub fn destroy(state: &ServerState, id: usize) -> JsonResult {
     MultisigAddress::destroy(state, id)
 }
 
-#[get(
-    "/multisig_wallets/relationships/addresses/<address>/balance?<params>"
-)]
+#[get("/multisig_addresses/<address>/balance?<params>")]
 pub fn balance(state: &ServerState, address: String, params: GetTransactionParams) -> JsonResult {
     MultisigAddress::balance(&state.executor, address, params.limit, params.since)
 }
 
-#[get("/multisig_wallets/relationships/addresses/<address>/get_utxos?<params>")]
+#[get("/multisig_addresses/<address>/get_utxos?<params>")]
 pub fn get_utxos(state: &ServerState, address: String, params: GetTransactionParams) -> JsonResult {
     MultisigAddress::get_utxos(&state.executor, address, params.limit, params.since)
 }

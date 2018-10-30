@@ -14,7 +14,7 @@ use serde::de::Deserialize;
 use serde::ser::Serialize;
 use server_state::ServerState;
 use std::sync::Arc;
-use tiny_ram_db::{PlainTable, Record};
+use tiny_ram_db::{Record};
 
 pub trait WalletHandler
 where

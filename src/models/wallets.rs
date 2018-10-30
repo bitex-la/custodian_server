@@ -1,6 +1,3 @@
-use std::clone::Clone;
-
-use jsonapi::model::*;
 use models::hd_wallet::HdWallet;
 use models::multisig_wallet::MultisigWallet;
 use models::plain_wallet::PlainWallet;

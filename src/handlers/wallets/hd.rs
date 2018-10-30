@@ -3,7 +3,6 @@ use handlers::handler::JsonResult;
 use handlers::wallets::base::WalletHandler;
 use models::hd_wallet::HdWallet;
 use models::resource_wallet::ResourceWallet;
-use models::jsonapi_record::JsonApiRecord;
 use server_state::ServerState;
 
 #[get("/hd_wallets")]

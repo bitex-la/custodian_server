@@ -1,20 +1,18 @@
-use std::fmt;
 use std::io::Read;
 use std::str;
 use std::str::FromStr;
 
-use tiny_ram_db::PlainTable;
 use bitcoin::util::bip32::ExtendedPubKey;
 use bitprim::explorer::Received;
 use jsonapi::model::*;
+use tiny_ram_db::PlainTable;
 
-use models::resource_wallet::ResourceWallet;
-use models::multisig_address::MultisigAddress;
-use models::wallet::Wallet;
 use models::database::Database;
-use models::transaction::Transaction;
-use models::jsonapi_record::{ JsonApiRecord, JsonApiResource };
+use models::multisig_address::MultisigAddress;
 use models::resource_transaction::JsonApiModelTransaction;
+use models::resource_wallet::ResourceWallet;
+use models::transaction::Transaction;
+use models::wallet::Wallet;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct MultisigWallet {
@@ -31,10 +29,10 @@ pub struct MultisigUtxo {
     pub address: MultisigAddress,
     pub script_type: String,
     pub multisig: MultisigDefinition,
-    pub transaction: Transaction
+    pub transaction: Transaction,
 }
 
-impl JsonApiModelTransaction  for MultisigUtxo {
+impl JsonApiModelTransaction for MultisigUtxo {
     fn jsonapi_type() -> &'static str {
         "multisig_utxo"
     }
@@ -107,7 +105,7 @@ impl Wallet for MultisigWallet {
                 m: self.xpubs.len(),
                 pubkeys,
             },
-            transaction: Transaction::new(received, address.to_string())
+            transaction: Transaction::new(received, address.to_string()),
         }
     }
 
@@ -118,14 +116,4 @@ impl Wallet for MultisigWallet {
     fn wallets_from_database<'a>(database: &'a mut Database) -> &'a mut PlainTable<Self> {
         &mut database.multisig_wallets
     }
-
-    fn empty() -> Self {
-        MultisigWallet {
-            label: "".to_string(),
-            version: "".to_string(),
-            xpubs: vec![],
-            signers: 0
-        }
-    }
-
 }

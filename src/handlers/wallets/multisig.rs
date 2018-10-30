@@ -2,7 +2,6 @@ use handlers::handler::GetTransactionParams;
 use handlers::handler::JsonResult;
 use handlers::wallets::base::WalletHandler;
 use models::multisig_wallet::MultisigWallet;
-use models::jsonapi_record::JsonApiRecord;
 use models::resource_wallet::ResourceWallet;
 use server_state::ServerState;
 
