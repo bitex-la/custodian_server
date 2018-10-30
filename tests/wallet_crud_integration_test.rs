@@ -239,7 +239,7 @@ mod wallet_test {
                     "attributes": { 
                         "wallet": {
                             "version": "54",
-                            "label": "my second wallet"
+                            "label": "my_second_wallet"
                         }
                     },
                     "type": "plain_wallet"
@@ -249,7 +249,7 @@ mod wallet_test {
 
         assert_eq!(
             get(&client, "/plain_wallets").body_string().unwrap(),
-            r#"{"data":[{"attributes":{"wallet":{"label":"my plain wallet","version":"90"}},"id":"0","type":"plain_wallet"},{"attributes":{"wallet":{"label":"my second wallet","version":"54"}},"id":"1","type":"plain_wallet"}]}"#
+            r#"{"data":[{"attributes":{"wallet":{"label":"my plain wallet","version":"90"}},"id":"0","type":"plain_wallet"},{"attributes":{"wallet":{"label":"my_second_wallet","version":"54"}},"id":"1","type":"plain_wallet"}]}"#
         );
 
         put(
@@ -313,19 +313,6 @@ mod wallet_test {
         //     r#"{"data":{"attributes":{"version":"91"},"id":"1","type":"plain_wallet"}}"#
         // );
 
-        delete(&client, "/plain_wallets/0", "");
-
-        // let response = client
-        //     .get("/plain_wallets/0")
-        //     .header(ContentType::JSON)
-        //     .dispatch();
-        // assert_eq!(response.status(), Status::NotFound);
-
-        assert_eq!(
-            get(&client, "/plain_wallets").body_string().unwrap(),
-            r#"{"data":[{"attributes":{"wallet":{"label":"my second wallet","version":"54"}},"id":"1","type":"plain_wallet"}]}"#
-        );
-
         // post(
         //     &client,
         //     "/plain_wallets/2/relationships/addresses",
@@ -336,8 +323,27 @@ mod wallet_test {
         //   }}"#,
         // );
 
+        post(
+            &client,
+            "/plain_addresses",
+            r#"{
+                "data": {
+                    "attributes": {
+                        "address": {
+                            "public_address": "mhjp3ZgbGxx5qc9Y8dvk1F71QeQcE9swLE",
+                            "wallet": {
+                                "id": 1,
+                                "data": {"label":"my_second_wallet","version":"54"}
+                            }
+                        }
+                     },
+                     "type": "plain_address"
+                }
+            }"#,
+        );
+
         assert_eq!(
-            get(&client, "/plain_wallets/2/get_utxos?since=0&limit=400")
+            get(&client, "/plain_wallets/1/get_utxos?since=0&limit=400")
                 .body_string()
                 .unwrap(),
             load_fixture_file("./tests/data/plain_utxos.json")
@@ -404,6 +410,19 @@ mod wallet_test {
         assert_eq!(
             v["data"]["attributes"]["height"].as_u64().unwrap() > 400,
             true
+        );
+
+        delete(&client, "/plain_wallets/0", "");
+
+        // let response = client
+        //     .get("/plain_wallets/0")
+        //     .header(ContentType::JSON)
+        //     .dispatch();
+        // assert_eq!(response.status(), Status::NotFound);
+
+        assert_eq!(
+            get(&client, "/plain_wallets").body_string().unwrap(),
+            r#"{"data":[{"attributes":{"wallet":{"label":"my_second_wallet","version":"54"}},"id":"1","type":"plain_wallet"}]}"#
         );
 
         post(&client, "/transactions/broadcast", r#"01000000017b1eabe0209b1fe794124575ef807057c77ada2138ae4fa8d6c4de0398a14f3f00000000494830450221008949f0cb400094ad2b5eb399d59d01c14d73d8fe6e96df1a7150deb388ab8935022079656090d7f6bac4c9a94e0aad311a4268e082a725f8aeae0573fb12ff866a5f01ffffffff01f0ca052a010000001976a914cbc20a7664f2f69e5355aa427045bc15e7c6c77288ac00000000"#);

@@ -1,11 +1,12 @@
 use std;
 use std::str::FromStr;
+use std::collections::HashSet;
 
 use bitprim::errors::Error;
 use bitprim::executor::Executor;
 use bitprim::explorer::Received;
 use bitprim::payment_address::PaymentAddress;
-use tiny_ram_db::PlainTable;
+use tiny_ram_db::{PlainTable, Record};
 use jsonapi::model::Query;
 
 use models::address::Address;
@@ -20,6 +21,7 @@ pub trait Wallet: std::marker::Sized + Clone + std::fmt::Debug {
     fn get_utxos(
         &self,
         exec: &Executor,
+        addresses: HashSet<Record<Self::RA>>,
         limit: Option<u64>,
         maybe_since: Option<u64>,
     ) -> Vec<ResourceTransaction<Self::Utxo>> {
@@ -30,6 +32,7 @@ pub trait Wallet: std::marker::Sized + Clone + std::fmt::Debug {
         self.get_transactions_for_wallet(
             limit.unwrap_or(10_000),
             since,
+            addresses,
             |address, limit, since| explorer.address_unspents(address, limit, since),
             |received: Received, address| self.construct_utxo(received, address),
         )
@@ -38,6 +41,7 @@ pub trait Wallet: std::marker::Sized + Clone + std::fmt::Debug {
     fn get_incoming(
         &self,
         exec: &Executor,
+        addresses: HashSet<Record<Self::RA>>,
         limit: Option<u64>,
         maybe_since: Option<u64>,
     ) -> Vec<ResourceTransaction<Transaction>> {
@@ -48,6 +52,7 @@ pub trait Wallet: std::marker::Sized + Clone + std::fmt::Debug {
         self.get_transactions_for_wallet(
             limit.unwrap_or(10_000),
             since,
+            addresses,
             |address, limit, since| explorer.address_incoming(address, limit, since),
             |received: Received, address| self.construct_transaction(received, address),
         )
@@ -77,6 +82,7 @@ pub trait Wallet: std::marker::Sized + Clone + std::fmt::Debug {
         &self,
         limit: u64,
         since: u64,
+        addresses: HashSet<Record<Self::RA>>,
         explorer_fn: E,
         tx: F,
     ) -> Vec<ResourceTransaction<T>>
@@ -86,22 +92,17 @@ pub trait Wallet: std::marker::Sized + Clone + std::fmt::Debug {
         F: Fn(Received, &Self::RA) -> T,
     {
         let mut result: Vec<ResourceTransaction<T>> = vec![];
-        for address in self.get_addresses() {
-            if let Ok(valid_address) = PaymentAddress::from_str(&address.to_string()) {
+        for record in addresses {
+            if let Ok(valid_address) = PaymentAddress::from_str(&record.data.to_string()) {
                 let vec_received = explorer_fn(valid_address, limit, since)
                     .expect("Not expecting failure on explore transaction!");
 
                 for (index, received) in vec_received.into_iter().enumerate() {
-                    result.push(ResourceTransaction { id: Some(index), transaction: tx(received, address)})
+                    result.push(ResourceTransaction { id: Some(index), transaction: tx(received, &record.data)})
                 }
             }
         }
         result
-    }
-
-    //FIXME: In order to make it compile
-    fn get_addresses(&self) -> Vec<&Self::RA> {
-        vec![]
     }
 
     fn default_query() -> Query {

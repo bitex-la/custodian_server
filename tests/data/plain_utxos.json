@@ -2,27 +2,24 @@
     "data": [
         {
             "attributes": {
-                "amount": 450648,
-                "prev_hash": "58baf615ed9e95023acb05715d3885cc48700ab548072cb5a996056786931fe3",
-                "prev_index": 1
-            },
-            "id": "58baf615ed9e95023acb05715d3885cc48700ab548072cb5a996056786931fe3-1",
-            "relationships": {
-                "address": {
-                    "data": {
-                        "id": "mhjp3ZgbGxx5qc9Y8dvk1F71QeQcE9swLE",
-                        "type": "address"
-                    }
+                "transaction": {
+                    "address": {
+                        "public_address": "mhjp3ZgbGxx5qc9Y8dvk1F71QeQcE9swLE",
+                        "wallet": {
+                            "data": {
+                                "label": "my_second_wallet",
+                                "version": "54"
+                            },
+                            "id": 1
+                        }
+                    },
+                    "amount": 450648,
+                    "prev_hash": "58baf615ed9e95023acb05715d3885cc48700ab548072cb5a996056786931fe3",
+                    "prev_index": 1
                 }
             },
+            "id": "0",
             "type": "plain_utxo"
-        }
-    ],
-    "included": [
-        {
-            "attributes": {},
-            "id": "mhjp3ZgbGxx5qc9Y8dvk1F71QeQcE9swLE",
-            "type": "address"
         }
     ]
 }
