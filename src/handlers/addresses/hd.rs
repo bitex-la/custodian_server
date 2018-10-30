@@ -21,11 +21,9 @@ pub fn show(state: &ServerState, id: usize) -> JsonResult {
     HdAddress::show(state, id)
 }
 
-#[delete(
-    "/hd_wallets/<id>/relationships/addresses", data = "<address>"
-)]
-pub fn destroy(state: &ServerState, id: u64, address: ResourceAddress<HdAddress>) -> JsonResult {
-    HdAddress::address_destroy(state, id, address)
+#[delete( "/hd_addresses/<id>")]
+pub fn destroy(state: &ServerState, id: usize) -> JsonResult {
+    HdAddress::destroy(state, id)
 }
 
 #[get(

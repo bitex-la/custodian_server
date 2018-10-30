@@ -60,8 +60,15 @@ where
         from_record_to_resource_address(addresses.find(id))
     }
 
-    fn address_destroy<A>(state: &ServerState, id: u64, address: A) -> JsonResult {
-        unimplemented!()
+    //TODO: Naive version
+    fn destroy(state: &ServerState, id: usize) -> JsonResult {
+        let mut database = state.database_lock();
+        let addresses = Self::addresses_from_database(&mut database);
+
+        let mut vec_records = addresses.data.write().unwrap();
+        vec_records.remove(id);
+
+        parse_to_value(true)
     }
 
     fn balance(

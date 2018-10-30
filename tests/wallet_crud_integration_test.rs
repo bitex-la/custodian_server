@@ -299,15 +299,7 @@ mod wallet_test {
             r#"{"data":{"attributes":{"address":{"public_address":"mru76ADdwx3EFjuknsZZVRXKUrnWxedwH7","wallet":{"data":{"label":"my plain wallet updated","version":"91"},"id":0}}},"id":"0","type":"address"}}"#,
         );
 
-        delete(
-            &client,
-            "/plain_addresses/0",
-            r#"{ "data": {
-            "attributes": { },
-            "id": "lk1jh314",
-            "type": "address"
-          }}"#,
-        );
+        delete(&client, "/plain_addresses/0", "");
 
         // assert_eq!(
         //     get(&client, "/plain_wallets/1/relationships/addresses")

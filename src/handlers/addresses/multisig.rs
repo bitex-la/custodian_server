@@ -21,13 +21,9 @@ pub fn show(state: &ServerState, id: usize) -> JsonResult {
     MultisigAddress::show(state, id)
 }
 
-#[delete(
-    "/multisig_wallets/<id>/relationships/addresses",
-    format = "application/json",
-    data = "<address>"
-)]
-pub fn destroy(state: &ServerState, id: u64, address: ResourceAddress<MultisigAddress>) -> JsonResult {
-    MultisigAddress::address_destroy(state, id, address)
+#[delete("/multisig_addresses/<id>")]
+pub fn destroy(state: &ServerState, id: usize) -> JsonResult {
+    MultisigAddress::destroy(state, id)
 }
 
 #[get(
