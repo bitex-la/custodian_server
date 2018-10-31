@@ -4,7 +4,6 @@ use std::collections::HashSet;
 
 use tiny_ram_db::{ Index, Indexer, Record, Table };
 use jsonapi::model::*;
-use models::jsonapi_record::*;
 use models::address::Address;
 use models::multisig_wallet::MultisigWallet;
 use models::resource_address::ResourceAddress;
@@ -14,7 +13,7 @@ use models::database::Database;
 pub struct MultisigAddress {
     pub public_address: Option<String>,
     pub path: Vec<u64>,
-    pub wallet: JsonApiRecord<MultisigWallet>,
+    pub wallet: Record<MultisigWallet>,
 }
 jsonapi_model!(ResourceAddress<MultisigAddress>; "multisig_address");
 from_data!(ResourceAddress<MultisigAddress>);
@@ -60,7 +59,7 @@ impl Indexer for MultisigAddressIndex {
     type Item = MultisigAddress;
     fn index(&mut self, item: &Record<MultisigAddress>) -> Result<bool, tiny_ram_db::errors::Error> {
         self.by_public_address.insert(item.data.public_address.clone(), item.clone())?;
-        self.by_wallet.insert(item.data.wallet.0.clone(), item.clone())?;
+        self.by_wallet.insert(item.data.wallet.clone(), item.clone())?;
         Ok(true)
     }
 }

@@ -1,7 +1,6 @@
 use jsonapi::model::*;
 use models::address::Address;
 use models::database::Database;
-use models::jsonapi_record::JsonApiRecord;
 use models::plain_wallet::PlainWallet;
 use models::resource_address::ResourceAddress;
 use std::collections::HashSet;
@@ -13,7 +12,7 @@ use tiny_ram_db::{Index, Indexer, Record, Table};
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct PlainAddress {
     pub public_address: Option<String>,
-    pub wallet: JsonApiRecord<PlainWallet>,
+    pub wallet: Record<PlainWallet>,
 }
 
 jsonapi_model!(ResourceAddress<PlainAddress>; "address");
@@ -62,7 +61,7 @@ impl Indexer for AddressIndex {
         self.by_public_address
             .insert(item.data.public_address.clone(), item.clone())?;
         self.by_wallet
-            .insert(item.data.wallet.0.clone(), item.clone())?;
+            .insert(item.data.wallet.clone(), item.clone())?;
         Ok(true)
     }
 }
