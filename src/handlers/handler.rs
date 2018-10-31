@@ -54,19 +54,26 @@ where
     }
 }
 
-pub fn from_record_to_resource_address<T: Serialize + Address>(
-    result_value: Result<Record<T>, tiny_ram_db::errors::Error>,
+pub fn from_record_to_resource_address<A>(
+    result_value: Result<Record<A>, tiny_ram_db::errors::Error>,
 ) -> JsonResult
 where
-    ResourceAddress<T>: JsonApiModel,
+    ResourceAddress<A, <A as Address>::Wallet>: JsonApiModel,
+    A: Serialize + Address
 {
     match result_value {
         Ok(record) => {
+            let address = (*record.data).clone();
+            let wallet = address.get_record_wallet();
             let resource_address = ResourceAddress {
                 id: Some(record.id),
-                address: (*record.data).clone(),
+                address,
+                wallet: ResourceWallet {
+                    id: Some(wallet.id),
+                    wallet: (*wallet.data).clone()
+                }
             };
-            parse_to_value(resource_address.to_jsonapi_document_with_query(&T::default_query()))
+            parse_to_value(resource_address.to_jsonapi_document_with_query(&A::default_query()))
         }
         Err(err) => Err(status::Custom(Status::NotFound, err.to_string())),
     }
@@ -99,18 +106,25 @@ where
 pub fn table_to_jsonapi<A, I>(table: &mut Table<A, I>) -> JsonResult
 where
     A: Address,
-    ResourceAddress<A>: JsonApiModel,
+    ResourceAddress<A, <A as Address>::Wallet>: JsonApiModel,
 {
     let result_records = table.data.read();
     match result_records {
         Ok(_records) => {
             let records = _records
                 .iter()
-                .map(|record| ResourceAddress {
-                    id: Some(record.id),
-                    address: (*record.data).clone(),
+                .map(|record| {
+                    let wallet = record.data.get_record_wallet();
+                    ResourceAddress {
+                        id: Some(record.id),
+                        address: (*record.data).clone(),
+                        wallet: ResourceWallet {
+                            id: Some(wallet.id),
+                            wallet: (*wallet.data).clone()
+                        }
+                    }
                 })
-                .collect::<Vec<ResourceAddress<A>>>();
+                .collect::<Vec<ResourceAddress<A, <A as Address>::Wallet>>>();
             parse_to_value(vec_to_jsonapi_document(records))
         }
         Err(_) => Err(status::Custom(

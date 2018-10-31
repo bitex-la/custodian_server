@@ -2,6 +2,7 @@ use handlers::addresses::base::AddressHandler;
 use handlers::handler::GetTransactionParams;
 use handlers::handler::JsonResult;
 use models::plain_address::PlainAddress;
+use models::plain_wallet::PlainWallet;
 use models::resource_address::ResourceAddress;
 use server_state::ServerState;
 use handlers::addresses::base::AddressFilters;
@@ -12,7 +13,7 @@ pub fn index(state: &ServerState, filters: AddressFilters) -> JsonResult {
 }
 
 #[post("/plain_addresses", data = "<address>")]
-pub fn create(state: &ServerState, address: ResourceAddress<PlainAddress>) -> JsonResult {
+pub fn create(state: &ServerState, address: ResourceAddress<PlainAddress, PlainWallet>) -> JsonResult {
     PlainAddress::create(state, address)
 }
 

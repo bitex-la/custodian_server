@@ -2,8 +2,10 @@ use std::str::FromStr;
 
 use bitprim::executor::Executor;
 use bitprim::payment_address::PaymentAddress;
-use tiny_ram_db;
-use handlers::handler::{parse_to_value, table_to_jsonapi, check_resource_operation, from_record_to_resource_address, JsonResult};
+use handlers::handler::{
+    check_resource_operation, from_record_to_resource_address, parse_to_value, table_to_jsonapi,
+    JsonResult,
+};
 use jsonapi::model::*;
 use models::address::Address;
 use models::resource_address::ResourceAddress;
@@ -11,17 +13,18 @@ use models::transaction::Transaction;
 use rocket::http::Status;
 use rocket::response::status;
 use server_state::ServerState;
+use tiny_ram_db;
 
 #[derive(FromForm, Debug)]
 pub struct AddressFilters {
-    pub wallet_id: Option<usize>
+    pub wallet_id: Option<usize>,
 }
 
 pub trait AddressHandler
 where
     Self: serde::Serialize + Address,
-    ResourceAddress<Self>: JsonApiModel,
-    <Self as Address>::Index: tiny_ram_db::Indexer<Item = Self>
+    ResourceAddress<Self, <Self as Address>::Wallet>: JsonApiModel,
+    <Self as Address>::Index: tiny_ram_db::Indexer<Item = Self>,
 {
     fn index(state: &ServerState, filters: AddressFilters) -> JsonResult {
         let mut database = state.database_lock();
@@ -35,15 +38,18 @@ where
                         "Wallet not found".to_string(),
                     ))
                 }
-            },
-            None =>{
+            }
+            None => {
                 let addresses = Self::addresses_from_database(&mut database);
                 table_to_jsonapi(addresses)
-            } 
+            }
         }
     }
 
-    fn create(state: &ServerState, new: ResourceAddress<Self>) -> JsonResult {
+    fn create(
+        state: &ServerState,
+        new: ResourceAddress<Self, <Self as Address>::Wallet>,
+    ) -> JsonResult {
         let mut database = state.database_lock();
         let addresses = Self::addresses_from_database(&mut database);
 
@@ -52,7 +58,7 @@ where
 
     fn show(state: &ServerState, id: usize) -> JsonResult
     where
-        ResourceAddress<Self>: JsonApiModel,
+        ResourceAddress<Self, <Self as Address>::Wallet>: JsonApiModel,
     {
         let mut database = state.database_lock();
         let addresses = Self::addresses_from_database(&mut database);
@@ -85,12 +91,9 @@ where
                 limit.unwrap_or(10_000),
                 since.unwrap_or(0),
             ) {
-                Ok(vec_received) => parse_to_value(
-                    vec_received
-                        .iter()
-                        .map(|r| r.satoshis)
-                        .sum::<u64>(),
-                ),
+                Ok(vec_received) => {
+                    parse_to_value(vec_received.iter().map(|r| r.satoshis).sum::<u64>())
+                }
                 Err(error) => Err(status::Custom(
                     Status::InternalServerError,
                     error.to_string(),
@@ -141,7 +144,7 @@ where
 impl<R> AddressHandler for R
 where
     R: serde::Serialize + Address,
-    ResourceAddress<R>: JsonApiModel,
-    <R as Address>::Index: tiny_ram_db::Indexer<Item = Self>
+    ResourceAddress<R, <R as Address>::Wallet>: JsonApiModel,
+    <R as Address>::Index: tiny_ram_db::Indexer<Item = Self>,
 {
 }

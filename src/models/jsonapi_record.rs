@@ -6,12 +6,6 @@ use tiny_ram_db::Record;
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct JsonApiRecord<T>(pub Record<T>);
 
-impl<T> JsonApiRecord<T> {
-    pub fn id(&self) -> usize {
-        self.0.id
-    }
-}
-
 impl<T> JsonApiModel for JsonApiRecord<T>
 where
     for<'de> T: Deserialize<'de>,

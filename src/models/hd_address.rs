@@ -16,11 +16,12 @@ pub struct HdAddress {
     pub wallet: Record<HdWallet>,
 }
 
-jsonapi_model!(ResourceAddress<HdAddress>; "hd_address");
-from_data!(ResourceAddress<HdAddress>);
+jsonapi_model!(ResourceAddress<HdAddress, HdWallet>; "hd_address");
+from_data!(ResourceAddress<HdAddress, HdWallet>);
 
 impl Address for HdAddress {
     type Index = HdAddressIndex;
+    type Wallet = HdWallet;
 
     fn addresses_from_database<'a>(database: &'a mut Database) -> &'a mut Table<Self, Self::Index> {
         &mut database.hd_addresses
@@ -41,6 +42,10 @@ impl Address for HdAddress {
             .read()?
             .by_wallet
             .get(&wallet, |items| items.clone())
+    }
+
+    fn get_record_wallet(&self) -> Record<Self::Wallet> {
+        self.wallet.clone()
     }
 }
 

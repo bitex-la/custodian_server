@@ -15,11 +15,12 @@ pub struct MultisigAddress {
     pub path: Vec<u64>,
     pub wallet: Record<MultisigWallet>,
 }
-jsonapi_model!(ResourceAddress<MultisigAddress>; "multisig_address");
-from_data!(ResourceAddress<MultisigAddress>);
+jsonapi_model!(ResourceAddress<MultisigAddress, MultisigWallet>; "multisig_address");
+from_data!(ResourceAddress<MultisigAddress, MultisigWallet>);
 
 impl Address for MultisigAddress {
     type Index = MultisigAddressIndex;
+    type Wallet = MultisigWallet;
 
     fn addresses_from_database<'a>(database: &'a mut Database) -> &'a mut Table<Self, Self::Index> {
         &mut database.multisig_addresses
@@ -40,6 +41,10 @@ impl Address for MultisigAddress {
             .read()?
             .by_wallet
             .get(&wallet, |items| items.clone())
+    }
+
+    fn get_record_wallet(&self) -> Record<Self::Wallet> {
+        self.wallet.clone()
     }
 }
 

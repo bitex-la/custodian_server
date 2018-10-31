@@ -15,11 +15,12 @@ pub struct PlainAddress {
     pub wallet: Record<PlainWallet>,
 }
 
-jsonapi_model!(ResourceAddress<PlainAddress>; "address");
-from_data!(ResourceAddress<PlainAddress>);
+jsonapi_model!(ResourceAddress<PlainAddress, PlainWallet>; "address");
+from_data!(ResourceAddress<PlainAddress, PlainWallet>);
 
 impl Address for PlainAddress {
     type Index = AddressIndex;
+    type Wallet = PlainWallet;
 
     fn addresses_from_database<'a>(database: &'a mut Database) -> &'a mut Table<Self, Self::Index> {
         &mut database.plain_addresses
@@ -40,6 +41,10 @@ impl Address for PlainAddress {
             .read()?
             .by_wallet
             .get(&wallet, |items| items.clone())
+    }
+
+    fn get_record_wallet(&self) -> Record<Self::Wallet> {
+        self.wallet.clone()
     }
 }
 
