@@ -286,8 +286,16 @@ mod wallet_test {
                                 "data": {"label":"my plain wallet updated","version":"91"}
                             }
                         }
-                     },
-                     "type": "plain_address"
+                    },
+                    "relationships": {
+                        "wallet": {
+                            "data": {
+                                "type": "plain_wallet",
+                                "id": 0
+                            }
+                        }
+                    },
+                    "type": "plain_address"
                 }
             }"#,
         );

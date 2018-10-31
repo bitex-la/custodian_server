@@ -19,7 +19,7 @@ macro_rules! from_data {
                 let raw_json: JsonApiDocument = match ::serde_json::from_str(&string_data) {
                     Ok(value) => value,
                     Err(err) => {
-                        println!("Not a jsonapi document {:#?}", &string_data);
+                        println!("Not a jsonapi document {:#?} {:#?}", &string_data, &err);
                         return ::rocket::Outcome::Failure((
                             ::rocket::http::Status::BadRequest,
                             format!("Not a json_api document {:#?}", err),

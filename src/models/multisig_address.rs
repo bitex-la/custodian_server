@@ -15,7 +15,7 @@ pub struct MultisigAddress {
     pub path: Vec<u64>,
     pub wallet: Record<MultisigWallet>,
 }
-jsonapi_model!(ResourceAddress<MultisigAddress, MultisigWallet>; "multisig_address");
+jsonapi_model!(ResourceAddress<MultisigAddress, MultisigWallet>; "multisig_address"; has one wallet);
 from_data!(ResourceAddress<MultisigAddress, MultisigWallet>);
 
 impl Address for MultisigAddress {

@@ -15,7 +15,7 @@ pub struct PlainAddress {
     pub wallet: Record<PlainWallet>,
 }
 
-jsonapi_model!(ResourceAddress<PlainAddress, PlainWallet>; "address");
+jsonapi_model!(ResourceAddress<PlainAddress, PlainWallet>; "address"; has one wallet);
 from_data!(ResourceAddress<PlainAddress, PlainWallet>);
 
 impl Address for PlainAddress {

@@ -16,7 +16,7 @@ pub struct HdAddress {
     pub wallet: Record<HdWallet>,
 }
 
-jsonapi_model!(ResourceAddress<HdAddress, HdWallet>; "hd_address");
+jsonapi_model!(ResourceAddress<HdAddress, HdWallet>; "hd_address"; has one wallet);
 from_data!(ResourceAddress<HdAddress, HdWallet>);
 
 impl Address for HdAddress {
