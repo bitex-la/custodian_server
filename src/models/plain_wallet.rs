@@ -8,6 +8,7 @@ use models::resource_transaction::JsonApiModelTransaction;
 use models::resource_wallet::ResourceWallet;
 use models::wallet::Wallet;
 use tiny_ram_db::PlainTable;
+use data_guards::FromJsonApiDocument;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, FromForm)]
 pub struct PlainWallet {
@@ -15,7 +16,18 @@ pub struct PlainWallet {
     pub label: String,
 }
 
-from_data!(ResourceWallet<PlainWallet>);
+impl FromJsonApiDocument for PlainWallet {
+    fn from_json_api_document(doc: JsonApiDocument, db: Database) -> Result<Self> {
+        let data = doc.data;
+        if data.jsonapi_type() != "multisig_wallet" {
+            return Err("Type was wrong");
+        }
+
+        let version = data.attributes.version;
+        let label = data.attributes.label;
+        Ok(PlainWallet{version, label})
+    }
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PlainUtxo {

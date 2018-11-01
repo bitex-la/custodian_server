@@ -10,6 +10,7 @@ use models::hd_address::HdAddress;
 use models::database::Database;
 use models::transaction::Transaction;
 use models::resource_transaction::JsonApiModelTransaction;
+use data_guards::FromJsonApiDocument;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct HdWallet {
@@ -18,7 +19,19 @@ pub struct HdWallet {
     pub label: String,
 }
 
-from_data!(ResourceWallet<HdWallet>);
+impl FromJsonApiDocument for HdWallet {
+    fn from_json_api_document(doc: JsonApiDocument, db: Database) -> Result<Self> {
+        let data = doc.data;
+        if data.jsonapi_type() != "hd_wallet" {
+            return Err("Type was wrong");
+        }
+
+        let version = data.attributes.version;
+        let xpub = data.attributes.xpub;
+        let label = data.attributes.label;
+        Ok(HdWallet{version, xpub, label})
+    }
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HdUtxo {

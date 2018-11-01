@@ -7,6 +7,7 @@ use models::plain_address::{ PlainAddress, AddressIndex };
 use models::hd_address::{ HdAddress, HdAddressIndex };
 use models::multisig_address::{ MultisigAddress, MultisigAddressIndex };
 
+#[derive(Clone)]
 pub struct Database {
     pub plain_wallets: PlainTable<PlainWallet>,
     pub hd_wallets: PlainTable<HdWallet>,

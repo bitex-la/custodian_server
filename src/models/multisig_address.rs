@@ -8,6 +8,7 @@ use models::address::Address;
 use models::multisig_wallet::MultisigWallet;
 use models::resource_address::ResourceAddress;
 use models::database::Database;
+use data_guards::FromJsonApiDocument;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct MultisigAddress {
@@ -16,7 +17,20 @@ pub struct MultisigAddress {
     pub wallet: Record<MultisigWallet>,
 }
 jsonapi_model!(ResourceAddress<MultisigAddress, MultisigWallet>; "multisig_address"; has one wallet);
-from_data!(ResourceAddress<MultisigAddress, MultisigWallet>);
+
+impl FromJsonApiDocument for MultisigAddress {
+    fn from_json_api_document(doc: JsonApiDocument, db: Database) -> Result<Self> {
+        let data = doc.data;
+        if data.jsonapi_type() != "multisig_address" {
+            return Err("Type was wrong");
+        }
+
+        let public_address = data.attributes.public_address;
+        let path = data.attributes.path;
+        let wallet = db.hd_wallets.find(data.relationships.wallet.data.id);
+        Ok(MultisigAddress{public_address, path, wallet})
+    }
+}
 
 impl Address for MultisigAddress {
     type Index = MultisigAddressIndex;

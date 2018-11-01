@@ -8,6 +8,7 @@ use std::fmt;
 use std::io::Read;
 use tiny_ram_db;
 use tiny_ram_db::{Index, Indexer, Record, Table};
+use data_guards::FromJsonApiDocument;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct PlainAddress {
@@ -16,8 +17,19 @@ pub struct PlainAddress {
 }
 
 jsonapi_model!(ResourceAddress<PlainAddress, PlainWallet>; "address"; has one wallet);
-from_data!(ResourceAddress<PlainAddress, PlainWallet>);
 
+impl FromJsonApiDocument for PlainAddress {
+    fn from_json_api_document(doc: JsonApiDocument, db: Database) -> Result<Self> {
+        let data = doc.data;
+        if data.jsonapi_type() != "plain_address" {
+            return Err("Type was wrong");
+        }
+
+        let public_address = data.attributes.public_address;
+        let wallet = db.hd_wallets.find(data.relationships.wallet.data.id);
+        Ok(PlainAddress{public_address, wallet})
+    }
+}
 impl Address for PlainAddress {
     type Index = AddressIndex;
     type Wallet = PlainWallet;

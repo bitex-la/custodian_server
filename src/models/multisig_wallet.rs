@@ -13,6 +13,7 @@ use models::resource_transaction::JsonApiModelTransaction;
 use models::resource_wallet::ResourceWallet;
 use models::transaction::Transaction;
 use models::wallet::Wallet;
+use data_guards::FromJsonApiDocument;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct MultisigWallet {
@@ -22,7 +23,20 @@ pub struct MultisigWallet {
     pub signers: u64,
 }
 
-from_data!(ResourceWallet<MultisigWallet>);
+impl FromJsonApiDocument for MultisigWallet {
+    fn from_json_api_document(doc: JsonApiDocument, db: Database) -> Result<Self> {
+        let data = doc.data;
+        if data.jsonapi_type() != "multisig_wallet" {
+            return Err("Type was wrong");
+        }
+
+        let version = data.attributes.version;
+        let xpubs = data.attributes.xpubs;
+        let label = data.attributes.label;
+        let signers = data.attributes.signers;
+        Ok(MultisigWallet{version, xpubs, label, signers})
+    }
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MultisigUtxo {

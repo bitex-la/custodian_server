@@ -8,10 +8,11 @@ use models::hd_wallet::HdWallet;
 use models::address::Address;
 use models::resource_address::ResourceAddress;
 use models::database::Database;
+use data_guards::FromJsonApiDocument;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct HdAddress {
-    pub public_address: Option<String>,
+    pub public_address: String,
     pub path: Vec<u64>,
     pub wallet: Record<HdWallet>,
 }
@@ -19,16 +20,46 @@ pub struct HdAddress {
 jsonapi_model!(ResourceAddress<HdAddress, HdWallet>; "hd_address"; has one wallet);
 
 impl FromJsonApiDocument for HdAddress {
-    fn from_json_api_document(doc: JsonApiDocument, db: Database) -> Result<Self> {
-        let data = doc.data;
-        if data.type != "hd_addresses" {
-            bail!("Type was wrong");
-        }
+    fn from_json_api_document(doc: JsonApiDocument, db: Database) -> Result<Self, String> {
+        if let Some(PrimaryData::Single(resource)) = doc.data {
+            if resource._type != "hd_addresses" {
+                return Err("Type was wrong".into());
+            }
 
-        let public_address = data.attributes.public_address;
-        let path = data.attributes.path;
-        let wallet = db.hd_wallets.find(data.relationships.wallet.data.id);
-        Ok(HdAddress{public_address, path, wallet})
+            let public_address = if let Some(serde_json::Value::String(value)) = resource.attributes.get("public_address") {
+                value.clone()
+            } else  {
+                return Err("No public address".into())
+            };
+            let path: Vec<u64> = if let Some(value) = resource.attributes.get("path") {
+                match serde_json::from_value(*value) {
+                    Ok(path) => path,
+                    Err(error) => return Err("Error parsing Path".into())
+                }
+            } else {
+                return Err("No path".into())
+            };
+            let relationships = if let Some(relationship) = resource.relationships {
+                relationship
+            } else {
+                return Err("No wallet".into())
+            };
+            let wallet = if let Some(Relationship{ data: IdentifierData::Single(identifier), .. }) = relationships.get("wallet") {
+                match identifier.id.parse::<usize>() {
+                    Ok(value) => match db.hd_wallets.find(value) {
+                        Ok(wallet) => wallet,
+                        Err(error) => return Err("Wallet Not Found".into())
+                    },
+                    Err(error) => return Err("Invalid Wallet Id".into())
+                }
+            } else {
+                return Err("Failed getting wallet id".into())
+            };
+
+            Ok(HdAddress{public_address, path, wallet})
+        } else {
+            Err("Invalid document data".into())
+        }
     }
 }
 
