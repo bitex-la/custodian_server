@@ -17,7 +17,20 @@ pub struct HdAddress {
 }
 
 jsonapi_model!(ResourceAddress<HdAddress, HdWallet>; "hd_address"; has one wallet);
-from_data!(ResourceAddress<HdAddress, HdWallet>);
+
+impl FromJsonApiDocument for HdAddress {
+    fn from_json_api_document(doc: JsonApiDocument, db: Database) -> Result<Self> {
+        let data = doc.data;
+        if data.type != "hd_addresses" {
+            bail!("Type was wrong");
+        }
+
+        let public_address = data.attributes.public_address;
+        let path = data.attributes.path;
+        let wallet = db.hd_wallets.find(data.relationships.wallet.data.id);
+        Ok(HdAddress{public_address, path, wallet})
+    }
+}
 
 impl Address for HdAddress {
     type Index = HdAddressIndex;
