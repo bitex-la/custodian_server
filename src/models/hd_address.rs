@@ -1,14 +1,11 @@
-use std::io::Read;
-use std::fmt;
-use std::collections::HashSet;
+use std::collections::{HashSet, HashMap};
 
 use tiny_ram_db::{ Index, Indexer, Record, Table };
-use jsonapi::model::*;
 use models::hd_wallet::HdWallet;
 use models::address::Address;
-use models::resource_address::ResourceAddress;
 use models::database::Database;
 use data_guards::FromJsonApiDocument;
+use jsonapi::model::*;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct HdAddress {
@@ -17,69 +14,16 @@ pub struct HdAddress {
     pub wallet: Record<HdWallet>,
 }
 
-jsonapi_model!(ResourceAddress<HdAddress, HdWallet>; "hd_address"; has one wallet);
-
-impl FromJsonApiDocument for HdAddress {
-    fn from_json_api_document(doc: JsonApiDocument, db: Database) -> Result<Self, String> {
-        if let Some(PrimaryData::Single(resource)) = doc.data {
-            if resource._type != "hd_addresses" {
-                return Err("Type was wrong".into());
-            }
-
-            let public_address = match resource.attributes.get("public_address") {
-              Some(serde_json::Value::String(value)) => value.clone(),
-              _ => Err("No public address")
-            }?;
-
-            /*
-            let public_address = if let Some(serde_json::Value::String(value)) = resource.attributes.get("public_address") {
-                value.clone()
-            } else  {
-                return Err("No public address".into())
-            };
-            */
-            let path: Vec<u64> = if let Some(value) = resource.attributes.get("path") {
-                match serde_json::from_value(*value) {
-                    Ok(path) => path,
-                    Err(error) => return Err("Error parsing Path".into())
-                }
-            } else {
-                return Err("No path".into())
-            };
-            let relationships = if let Some(relationship) = resource.relationships {
-                relationship
-            } else {
-                return Err("No wallet".into())
-            };
-            let wallet = if let Some(Relationship{ data: IdentifierData::Single(identifier), .. }) = relationships.get("wallet") {
-                match identifier.id.parse::<usize>() {
-                    Ok(value) => match db.hd_wallets.find(value) {
-                        Ok(wallet) => wallet,
-                        Err(error) => return Err("Wallet Not Found".into())
-                    },
-                    Err(error) => return Err("Invalid Wallet Id".into())
-                }
-            } else {
-                return Err("Failed getting wallet id".into())
-            };
-
-            Ok(HdAddress{public_address, path, wallet})
-        } else {
-            Err("Invalid document data".into())
-        }
-    }
-}
-
 impl Address for HdAddress {
     type Index = HdAddressIndex;
     type Wallet = HdWallet;
 
-    fn addresses_from_database<'a>(database: &'a mut Database) -> &'a mut Table<Self, Self::Index> {
-        &mut database.hd_addresses
+    fn public(&self) -> String {
+        self.public_address.clone()
     }
 
-    fn jsonapi_type() -> &'static str {
-        "hd_address"
+    fn addresses_from_database<'a>(database: &'a mut Database) -> &'a mut Table<Self, Self::Index> {
+        &mut database.hd_addresses
     }
 
     fn filter_by_wallet<'a>(
@@ -100,15 +44,9 @@ impl Address for HdAddress {
     }
 }
 
-impl fmt::Display for HdAddress {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        write!(fmt, "{}", self.public_address.as_ref().map_or("", |id| id))
-    }
-}
-
 #[derive(Default)]
 pub struct HdAddressIndex {
-    by_public_address: Index<Option<String>, HdAddress>,
+    by_public_address: Index<String, HdAddress>,
     by_wallet: Index<Record<HdWallet>, HdAddress>
 }
 
@@ -118,5 +56,39 @@ impl Indexer for HdAddressIndex {
         self.by_public_address.insert(item.data.public_address.clone(), item.clone())?;
         self.by_wallet.insert(item.data.wallet.clone(), item.clone())?;
         Ok(true)
+    }
+}
+
+impl ToJsonApi for HdAddress {
+    const TYPE : &'static str = "hd_addresses";
+
+		fn relationships(&self, _fields: &QueryFields) -> Option<Relationships> {
+				Some(hashmap!{
+						"wallet" => Self::has_one("wallets", self.wallet.id),
+				})
+    }
+
+		fn attributes(&self, _fields: &QueryFields) -> ResourceAttributes {
+				hashmap!{
+						"public_address" => serde_json::to_value(self.public_address).unwrap()
+						"path" => serde_json::to_value(self.path).unwrap()
+				}
+		}
+
+		fn included(&self, _fields: &QueryFields) -> Option<Resources> {
+				Some(vec![self.wallet.data.to_jsonapi_resource(self.wallet.id)])
+		}
+}
+
+impl FromJsonApiDocument for HdAddress {
+    const TYPE : &'static str = "hd_addresses";
+
+    fn from_json_api_resource(resource: Resource, db: Database) -> Result<Self, String> {
+        let public_address = Self::attribute(&resource, "public_address")?;
+        let path = Self::attribute(&resource, "path")?;
+        let wallet_id = Self::has_one_id(&resource, "wallet")?;
+        let wallet = db.hd_wallets.find(wallet_id)
+            .map_err(|_| format!("Wallet not found"))?;
+        Ok(HdAddress{public_address, path, wallet})
     }
 }

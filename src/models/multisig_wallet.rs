@@ -12,6 +12,7 @@ use models::resource_transaction::JsonApiModelTransaction;
 use models::transaction::Transaction;
 use models::wallet::Wallet;
 use data_guards::FromJsonApiDocument;
+use models::address::Address;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct MultisigWallet {
@@ -19,21 +20,6 @@ pub struct MultisigWallet {
     pub version: String,
     pub xpubs: Vec<String>,
     pub signers: u64,
-}
-
-impl FromJsonApiDocument for MultisigWallet {
-    fn from_json_api_document(doc: JsonApiDocument, db: Database) -> Result<Self, String> {
-        let data = doc.data;
-        if data.jsonapi_type() != "multisig_wallet" {
-            return Err("Type was wrong");
-        }
-
-        let version = data.attributes.version;
-        let xpubs = data.attributes.xpubs;
-        let label = data.attributes.label;
-        let signers = data.attributes.signers;
-        Ok(MultisigWallet{version, xpubs, label, signers})
-    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -117,7 +103,7 @@ impl Wallet for MultisigWallet {
                 m: self.xpubs.len(),
                 pubkeys,
             },
-            transaction: Transaction::new(received, address.to_string()),
+            transaction: Transaction::new(received, address.public()),
         }
     }
 
@@ -129,3 +115,30 @@ impl Wallet for MultisigWallet {
         &mut database.multisig_wallets
     }
 }
+
+impl ToJsonApi for MultisigWallet {
+    const TYPE : &'static str = "multisig_wallets";
+
+		fn attributes(&self, _fields: &QueryFields) -> ResourceAttributes {
+				hashmap!{
+						"version" => serde_json::to_value(self.version).unwrap()
+						"xpubs" => serde_json::to_value(self.xpubs).unwrap()
+						"label" => serde_json::to_value(self.label).unwrap()
+						"signers" => serde_json::to_value(self.signers).unwrap()
+				}
+		}
+}
+
+impl FromJsonApiDocument for MultisigWallet {
+    const TYPE : &'static str = "multisig_wallets";
+
+    fn from_json_api_resource(resource: Resource, _db: Database) -> Result<Self, String> {
+        Ok(MultisigWallet{
+            version: Self::attribute(&resource, "version")?,
+            xpubs: Self::attribute(&resource, "xpubs")?,
+            label: Self::attribute(&resource, "label")?,
+            signers: Self::attribute(&resource, "signers")?,
+        })
+    }
+}
+

@@ -8,7 +8,6 @@ use handlers::handler::{
 };
 use jsonapi::model::*;
 use models::address::Address;
-use models::resource_address::ResourceAddress;
 use models::transaction::Transaction;
 use rocket::http::Status;
 use rocket::response::status;
@@ -23,7 +22,6 @@ pub struct AddressFilters {
 pub trait AddressHandler
 where
     Self: serde::Serialize + Address,
-    ResourceAddress<Self, <Self as Address>::Wallet>: JsonApiModel,
     <Self as Address>::Index: tiny_ram_db::Indexer<Item = Self>,
 {
     fn index(state: &ServerState, filters: AddressFilters) -> JsonResult {
@@ -56,10 +54,7 @@ where
         check_resource_operation(addresses.insert(new))
     }
 
-    fn show(state: &ServerState, id: usize) -> JsonResult
-    where
-        ResourceAddress<Self, <Self as Address>::Wallet>: JsonApiModel,
-    {
+    fn show(state: &ServerState, id: usize) -> JsonResult {
         let mut database = state.database_lock();
         let addresses = Self::addresses_from_database(&mut database);
 
@@ -144,7 +139,6 @@ where
 impl<R> AddressHandler for R
 where
     R: serde::Serialize + Address,
-    ResourceAddress<R, <R as Address>::Wallet>: JsonApiModel,
     <R as Address>::Index: tiny_ram_db::Indexer<Item = Self>,
 {
 }

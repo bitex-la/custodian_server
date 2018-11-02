@@ -24,6 +24,7 @@ extern crate tiny_ram_db;
 mod data_guards;
 mod handlers;
 mod models;
+mod serializers;
 mod server_state;
 
 use handlers::{addresses, blocks, transactions, wallets};

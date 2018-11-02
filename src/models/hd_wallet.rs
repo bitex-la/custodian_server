@@ -8,26 +8,13 @@ use models::database::Database;
 use models::transaction::Transaction;
 use models::resource_transaction::JsonApiModelTransaction;
 use data_guards::FromJsonApiDocument;
+use models::address::Address;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct HdWallet {
     pub version: String,
     pub xpub: String,
     pub label: String,
-}
-
-impl FromJsonApiDocument for HdWallet {
-    fn from_json_api_document(doc: JsonApiDocument, db: Database) -> Result<Self, String> {
-        let data = doc.data;
-        if data.jsonapi_type() != "hd_wallet" {
-            return Err("Type was wrong");
-        }
-
-        let version = data.attributes.version;
-        let xpub = data.attributes.xpub;
-        let label = data.attributes.label;
-        Ok(HdWallet{version, xpub, label})
-    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -49,7 +36,7 @@ impl Wallet for HdWallet {
     fn construct_utxo(&self, received: Received, address: &HdAddress) -> Self::Utxo {
         HdUtxo {
             address: address.clone(),
-            transaction: Transaction::new(received, address.to_string())
+            transaction: Transaction::new(received, address.public())
         }
     }
 
@@ -59,5 +46,29 @@ impl Wallet for HdWallet {
 
     fn wallets_from_database<'a>(database: &'a mut Database) -> &'a mut PlainTable<Self> {
         &mut database.hd_wallets
+    }
+}
+
+impl ToJsonApi for HdWallet {
+    const TYPE : &'static str = "multisig_wallets";
+
+		fn attributes(&self, _fields: &QueryFields) -> ResourceAttributes {
+				hashmap!{
+						"version" => serde_json::to_value(self.version).unwrap()
+						"xpub" => serde_json::to_value(self.xpub).unwrap()
+						"label" => serde_json::to_value(self.label).unwrap()
+				}
+		}
+}
+
+impl FromJsonApiDocument for HdWallet {
+    const TYPE : &'static str = "hd_wallet";
+
+    fn from_json_api_resource(resource: Resource, _db: Database) -> Result<Self, String> {
+        Ok(HdWallet{
+            version: Self::attribute(&resource, "version")?,
+            xpub: Self::attribute(&resource, "xpub")?,
+            label: Self::attribute(&resource, "label")?
+        })
     }
 }

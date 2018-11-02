@@ -13,19 +13,6 @@ pub struct PlainWallet {
     pub label: String,
 }
 
-impl FromJsonApiDocument for PlainWallet {
-    fn from_json_api_document(doc: JsonApiDocument, db: Database) -> Result<Self, String> {
-        let data = doc.data;
-        if data.jsonapi_type() != "multisig_wallet" {
-            return Err("Type was wrong");
-        }
-
-        let version = data.attributes.version;
-        let label = data.attributes.label;
-        Ok(PlainWallet{version, label})
-    }
-}
-
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PlainUtxo {
     pub prev_hash: String,
@@ -61,3 +48,26 @@ impl Wallet for PlainWallet {
         &mut database.plain_wallets
     }
 }
+
+impl ToJsonApi for PlainWallet {
+    const TYPE : &'static str = "plain_wallets";
+
+		fn attributes(&self, _fields: &QueryFields) -> ResourceAttributes {
+				hashmap!{
+						"version" => serde_json::to_value(self.version).unwrap()
+						"label" => serde_json::to_value(self.label).unwrap()
+				}
+		}
+}
+
+impl FromJsonApiDocument for PlainWallet {
+    const TYPE : &'static str = "plain_wallets";
+
+    fn from_json_api_resource(resource: Resource, _db: Database) -> Result<Self, String> {
+        Ok(PlainWallet{
+            version: Self::attribute(&resource, "version")?,
+            label: Self::attribute(&resource, "label")?
+        })
+    }
+}
+

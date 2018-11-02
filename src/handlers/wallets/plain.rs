@@ -2,8 +2,8 @@ use handlers::handler::GetTransactionParams;
 use handlers::handler::JsonResult;
 use handlers::wallets::base::WalletHandler;
 use models::plain_wallet::PlainWallet;
-use models::resource_wallet::ResourceWallet;
 use server_state::ServerState;
+use data_guards::Mapped;
 
 #[get("/plain_wallets")]
 pub fn index(state: &ServerState) -> JsonResult
@@ -27,12 +27,12 @@ pub fn show(state: &ServerState, id: usize) -> JsonResult {
 }
 
 #[post("/plain_wallets", data = "<wallet>")]
-pub fn create(state: &ServerState, wallet: ResourceWallet<PlainWallet>) -> JsonResult {
+pub fn create(state: &ServerState, wallet: Mapped<PlainWallet>) -> JsonResult {
     PlainWallet::create(state, wallet)
 }
 
 #[put("/plain_wallets/<id>", data = "<wallet>")]
-pub fn update(state: &ServerState, id: usize, wallet: ResourceWallet<PlainWallet>) -> JsonResult {
+pub fn update(state: &ServerState, id: usize, wallet: Mapped<PlainWallet>) -> JsonResult {
     PlainWallet::update(state, id, wallet)
 }
 

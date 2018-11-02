@@ -2,44 +2,27 @@ use jsonapi::model::*;
 use models::address::Address;
 use models::database::Database;
 use models::plain_wallet::PlainWallet;
-use models::resource_address::ResourceAddress;
 use std::collections::HashSet;
-use std::fmt;
-use std::io::Read;
 use tiny_ram_db;
 use tiny_ram_db::{Index, Indexer, Record, Table};
 use data_guards::FromJsonApiDocument;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct PlainAddress {
-    pub public_address: Option<String>,
+    pub public_address: String,
     pub wallet: Record<PlainWallet>,
 }
 
-jsonapi_model!(ResourceAddress<PlainAddress, PlainWallet>; "address"; has one wallet);
-
-impl FromJsonApiDocument for PlainAddress {
-    fn from_json_api_document(doc: JsonApiDocument, db: Database) -> Result<Self, String> {
-        let data = doc.data;
-        if data.jsonapi_type() != "plain_address" {
-            return Err("Type was wrong");
-        }
-
-        let public_address = data.attributes.public_address;
-        let wallet = db.hd_wallets.find(data.relationships.wallet.data.id);
-        Ok(PlainAddress{public_address, wallet})
-    }
-}
 impl Address for PlainAddress {
     type Index = AddressIndex;
     type Wallet = PlainWallet;
 
-    fn addresses_from_database<'a>(database: &'a mut Database) -> &'a mut Table<Self, Self::Index> {
-        &mut database.plain_addresses
+    fn public(&self) -> String {
+        self.public_address.clone()
     }
 
-    fn jsonapi_type() -> &'static str {
-        "plain_address"
+    fn addresses_from_database<'a>(database: &'a mut Database) -> &'a mut Table<Self, Self::Index> {
+        &mut database.plain_addresses
     }
 
     fn filter_by_wallet<'a>(
@@ -60,15 +43,9 @@ impl Address for PlainAddress {
     }
 }
 
-impl fmt::Display for PlainAddress {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        write!(fmt, "{}", self.public_address.as_ref().map_or("", |id| id))
-    }
-}
-
 #[derive(Default)]
 pub struct AddressIndex {
-    by_public_address: Index<Option<String>, PlainAddress>,
+    by_public_address: Index<String, PlainAddress>,
     by_wallet: Index<Record<PlainWallet>, PlainAddress>,
 }
 
@@ -80,5 +57,37 @@ impl Indexer for AddressIndex {
         self.by_wallet
             .insert(item.data.wallet.clone(), item.clone())?;
         Ok(true)
+    }
+}
+
+impl ToJsonApi for PlainAddress {
+    const TYPE : &'static str = "plain_addresses";
+
+		fn relationships(&self, _fields: &QueryFields) -> Option<Relationships> {
+				Some(hashmap!{
+						"wallet" => Self::has_one("wallets", self.wallet.id),
+				})
+    }
+
+		fn attributes(&self, _fields: &QueryFields) -> ResourceAttributes {
+				hashmap!{
+						"public_address" => serde_json::to_value(self.public_address).unwrap()
+				}
+		}
+
+		fn included(&self, _fields: &QueryFields) -> Option<Resources> {
+				Some(vec![self.wallet.data.to_jsonapi_resource(self.wallet.id)])
+		}
+}
+
+impl FromJsonApi for PlainAddress {
+    const TYPE : &'static str = "plain_addresses";
+
+    fn from_json_api_resource(resource: Resource, db: Database) -> Result<Self, String> {
+        let public_address = Self::attribute(&resource, "public_address")?;
+        let wallet_id = Self::has_one_id(&resource, "wallet")?;
+        let wallet = db.plain_wallets.find(wallet_id)
+            .map_err(|_| format!("Wallet not found"))?;
+        Ok(PlainAddress{public_address, wallet})
     }
 }

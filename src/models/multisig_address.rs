@@ -1,47 +1,29 @@
-use std::io::Read;
-use std::fmt;
 use std::collections::HashSet;
 
 use tiny_ram_db::{ Index, Indexer, Record, Table };
 use jsonapi::model::*;
 use models::address::Address;
 use models::multisig_wallet::MultisigWallet;
-use models::resource_address::ResourceAddress;
 use models::database::Database;
 use data_guards::FromJsonApiDocument;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct MultisigAddress {
-    pub public_address: Option<String>,
+    pub public_address: String,
     pub path: Vec<u64>,
     pub wallet: Record<MultisigWallet>,
-}
-jsonapi_model!(ResourceAddress<MultisigAddress, MultisigWallet>; "multisig_address"; has one wallet);
-
-impl FromJsonApiDocument for MultisigAddress {
-    fn from_json_api_document(doc: JsonApiDocument, db: Database) -> Result<Self, String> {
-        let data = doc.data;
-        if data.jsonapi_type() != "multisig_address" {
-            return Err("Type was wrong");
-        }
-
-        let public_address = data.attributes.public_address;
-        let path = data.attributes.path;
-        let wallet = db.hd_wallets.find(data.relationships.wallet.data.id);
-        Ok(MultisigAddress{public_address, path, wallet})
-    }
 }
 
 impl Address for MultisigAddress {
     type Index = MultisigAddressIndex;
     type Wallet = MultisigWallet;
 
-    fn addresses_from_database<'a>(database: &'a mut Database) -> &'a mut Table<Self, Self::Index> {
-        &mut database.multisig_addresses
+    fn public(&self) -> String {
+        self.public_address.clone()
     }
 
-    fn jsonapi_type() -> &'static str {
-        "multisig_address"
+    fn addresses_from_database<'a>(database: &'a mut Database) -> &'a mut Table<Self, Self::Index> {
+        &mut database.multisig_addresses
     }
 
     fn filter_by_wallet<'a>(
@@ -62,15 +44,9 @@ impl Address for MultisigAddress {
     }
 }
 
-impl fmt::Display for MultisigAddress {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        write!(fmt, "{}", self.public_address.as_ref().map_or("", |id| id))
-    }
-}
-
 #[derive(Default)]
 pub struct MultisigAddressIndex {
-    by_public_address: Index<Option<String>, MultisigAddress>,
+    by_public_address: Index<String, MultisigAddress>,
     by_wallet: Index<Record<MultisigWallet>, MultisigAddress>
 }
 
@@ -82,3 +58,38 @@ impl Indexer for MultisigAddressIndex {
         Ok(true)
     }
 }
+
+impl ToJsonApi for MultisigAddress {
+    const TYPE : &'static str = "multisig_addresses";
+
+		fn relationships(&self, _fields: &QueryFields) -> Option<Relationships> {
+				Some(hashmap!{
+						"wallet" => Self::has_one("wallets", self.wallet.id),
+				})
+    }
+
+		fn attributes(&self, _fields: &QueryFields) -> ResourceAttributes {
+				hashmap!{
+						"public_address" => serde_json::to_value(self.public_address).unwrap()
+						"path" => serde_json::to_value(self.path).unwrap()
+				}
+		}
+
+		fn included(&self, _fields: &QueryFields) -> Option<Resources> {
+				Some(vec![self.wallet.data.to_jsonapi_resource(self.wallet.id)])
+		}
+}
+
+impl FromJsonApiDocument for MultisigAddress {
+    const TYPE : &'static str = "multisig_addresses";
+
+    fn from_json_api_resource(resource: Resource, db: Database) -> Result<Self, String> {
+        let public_address = Self::attribute(&resource, "public_address")?;
+        let path = Self::attribute(&resource, "path")?;
+        let wallet_id = Self::has_one_id(&resource, "wallet")?;
+        let wallet = db.multisig_wallets.find(wallet_id)
+            .map_err(|_| format!("Wallet not found"))?;
+        Ok(MultisigAddress{public_address, path, wallet})
+    }
+}
+

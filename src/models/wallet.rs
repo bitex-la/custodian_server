@@ -59,7 +59,7 @@ pub trait Wallet: std::marker::Sized + Clone + std::fmt::Debug {
     }
 
     fn construct_transaction(&self, received: Received, address: &Self::RA) -> Transaction {
-        Transaction::new(received, address.to_string())
+        Transaction::new(received, address.public())
     }
 
     fn construct_utxo(&self, received: Received, address: &Self::RA) -> Self::Utxo;
@@ -93,7 +93,7 @@ pub trait Wallet: std::marker::Sized + Clone + std::fmt::Debug {
     {
         let mut result: Vec<ResourceTransaction<T>> = vec![];
         for record in addresses {
-            if let Ok(valid_address) = PaymentAddress::from_str(&record.data.to_string()) {
+            if let Ok(valid_address) = PaymentAddress::from_str(&record.data.public()) {
                 let vec_received = explorer_fn(valid_address, limit, since)
                     .expect("Not expecting failure on explore transaction!");
 

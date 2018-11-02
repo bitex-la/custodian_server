@@ -1,12 +1,12 @@
 use bitprim::executor::Executor;
 use std::collections::HashSet;
+use data_guards::Mapped;
 use handlers::handler::{
     check_resource_operation, from_record_to_resource_wallet, parse_to_value,
     plain_table_to_jsonapi, JsonResult,
 };
 use jsonapi::model::{vec_to_jsonapi_document, JsonApiModel};
 use models::address::Address;
-use models::resource_wallet::ResourceWallet;
 use models::wallet::Wallet;
 use rocket::http::Status;
 use rocket::response::status;
@@ -90,24 +90,21 @@ where
         }
     }
 
-    fn show(state: &ServerState, id: usize) -> JsonResult
-    where
-        ResourceWallet<Self>: JsonApiModel,
-    {
+    fn show(state: &ServerState, id: usize) -> JsonResult {
         let mut database = state.database_lock();
         let wallets = Self::wallets_from_database(&mut database);
 
         from_record_to_resource_wallet(wallets.find(id))
     }
 
-    fn create(state: &ServerState, new: ResourceWallet<Self>) -> JsonResult {
+    fn create(state: &ServerState, new: Mapped<Self>) -> JsonResult {
         let mut database = state.database_lock();
         let wallets = Self::wallets_from_database(&mut database);
 
-        check_resource_operation(wallets.insert(new.wallet))
+        check_resource_operation(wallets.insert(new.0))
     }
 
-    fn update(state: &ServerState, id: usize, resource_wallet: ResourceWallet<Self>) -> JsonResult {
+    fn update(state: &ServerState, id: usize, resource_wallet: Mapped<Self>) -> JsonResult {
         let mut database = state.database_lock();
         let wallets = Self::wallets_from_database(&mut database);
 
@@ -115,7 +112,7 @@ where
         vec_records.remove(id);
         let new_record = Record {
             id,
-            data: Arc::new(resource_wallet.wallet),
+            data: Arc::new(resource_wallet.0),
         };
         vec_records.insert(id, new_record);
 
