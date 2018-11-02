@@ -19,7 +19,7 @@ pub struct PlainAddress {
 jsonapi_model!(ResourceAddress<PlainAddress, PlainWallet>; "address"; has one wallet);
 
 impl FromJsonApiDocument for PlainAddress {
-    fn from_json_api_document(doc: JsonApiDocument, db: Database) -> Result<Self> {
+    fn from_json_api_document(doc: JsonApiDocument, db: Database) -> Result<Self, String> {
         let data = doc.data;
         if data.jsonapi_type() != "plain_address" {
             return Err("Type was wrong");

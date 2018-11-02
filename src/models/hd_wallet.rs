@@ -1,10 +1,7 @@
-use std::io::Read;
-
 use bitprim::explorer::Received;
 use jsonapi::model::*;
 use tiny_ram_db::PlainTable;
 
-use models::resource_wallet::ResourceWallet;
 use models::wallet::Wallet;
 use models::hd_address::HdAddress;
 use models::database::Database;
@@ -20,7 +17,7 @@ pub struct HdWallet {
 }
 
 impl FromJsonApiDocument for HdWallet {
-    fn from_json_api_document(doc: JsonApiDocument, db: Database) -> Result<Self> {
+    fn from_json_api_document(doc: JsonApiDocument, db: Database) -> Result<Self, String> {
         let data = doc.data;
         if data.jsonapi_type() != "hd_wallet" {
             return Err("Type was wrong");

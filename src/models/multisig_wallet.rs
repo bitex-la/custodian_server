@@ -1,4 +1,3 @@
-use std::io::Read;
 use std::str;
 use std::str::FromStr;
 
@@ -10,7 +9,6 @@ use tiny_ram_db::PlainTable;
 use models::database::Database;
 use models::multisig_address::MultisigAddress;
 use models::resource_transaction::JsonApiModelTransaction;
-use models::resource_wallet::ResourceWallet;
 use models::transaction::Transaction;
 use models::wallet::Wallet;
 use data_guards::FromJsonApiDocument;
@@ -24,7 +22,7 @@ pub struct MultisigWallet {
 }
 
 impl FromJsonApiDocument for MultisigWallet {
-    fn from_json_api_document(doc: JsonApiDocument, db: Database) -> Result<Self> {
+    fn from_json_api_document(doc: JsonApiDocument, db: Database) -> Result<Self, String> {
         let data = doc.data;
         if data.jsonapi_type() != "multisig_wallet" {
             return Err("Type was wrong");

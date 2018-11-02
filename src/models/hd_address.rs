@@ -26,11 +26,18 @@ impl FromJsonApiDocument for HdAddress {
                 return Err("Type was wrong".into());
             }
 
+            let public_address = match resource.attributes.get("public_address") {
+              Some(serde_json::Value::String(value)) => value.clone(),
+              _ => Err("No public address")
+            }?;
+
+            /*
             let public_address = if let Some(serde_json::Value::String(value)) = resource.attributes.get("public_address") {
                 value.clone()
             } else  {
                 return Err("No public address".into())
             };
+            */
             let path: Vec<u64> = if let Some(value) = resource.attributes.get("path") {
                 match serde_json::from_value(*value) {
                     Ok(path) => path,

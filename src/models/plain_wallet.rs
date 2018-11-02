@@ -1,11 +1,8 @@
-use std::io::Read;
-
 use bitprim::explorer::Received;
 use jsonapi::model::*;
 use models::database::Database;
 use models::plain_address::PlainAddress;
 use models::resource_transaction::JsonApiModelTransaction;
-use models::resource_wallet::ResourceWallet;
 use models::wallet::Wallet;
 use tiny_ram_db::PlainTable;
 use data_guards::FromJsonApiDocument;
@@ -17,7 +14,7 @@ pub struct PlainWallet {
 }
 
 impl FromJsonApiDocument for PlainWallet {
-    fn from_json_api_document(doc: JsonApiDocument, db: Database) -> Result<Self> {
+    fn from_json_api_document(doc: JsonApiDocument, db: Database) -> Result<Self, String> {
         let data = doc.data;
         if data.jsonapi_type() != "multisig_wallet" {
             return Err("Type was wrong");

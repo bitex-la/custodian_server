@@ -2,10 +2,9 @@ use handlers::addresses::base::AddressHandler;
 use handlers::handler::GetTransactionParams;
 use handlers::handler::JsonResult;
 use models::hd_address::HdAddress;
-use models::hd_wallet::HdWallet;
-use models::resource_address::ResourceAddress;
 use server_state::ServerState;
 use handlers::addresses::base::AddressFilters;
+use data_guards::Mapped;
 
 #[get("/hd_addresses?<filters>")]
 pub fn index(state: &ServerState, filters: AddressFilters) -> JsonResult {
@@ -13,8 +12,8 @@ pub fn index(state: &ServerState, filters: AddressFilters) -> JsonResult {
 }
 
 #[post("/hd_addresses", data = "<address>")]
-pub fn create(state: &ServerState, address: ResourceAddress<HdAddress, HdWallet>) -> JsonResult {
-    HdAddress::create(state, address)
+pub fn create(state: &ServerState, address: Mapped<HdAddress>) -> JsonResult {
+    HdAddress::create(state, address.0)
 }
 
 #[get("/hd_addresses/<id>")]

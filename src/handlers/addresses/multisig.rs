@@ -2,10 +2,9 @@ use handlers::addresses::base::AddressHandler;
 use handlers::handler::GetTransactionParams;
 use handlers::handler::JsonResult;
 use models::multisig_address::MultisigAddress;
-use models::multisig_wallet::MultisigWallet;
-use models::resource_address::ResourceAddress;
 use server_state::ServerState;
 use handlers::addresses::base::AddressFilters;
+use data_guards::Mapped;
 
 #[get("/multisig_addresses?<filters>")]
 pub fn index(state: &ServerState, filters: AddressFilters) -> JsonResult {
@@ -13,8 +12,8 @@ pub fn index(state: &ServerState, filters: AddressFilters) -> JsonResult {
 }
 
 #[post( "/multisig_addresses", data = "<address>")]
-pub fn create(state: &ServerState, address: ResourceAddress<MultisigAddress, MultisigWallet>) -> JsonResult {
-    MultisigAddress::create(state, address)
+pub fn create(state: &ServerState, address: Mapped<MultisigAddress>) -> JsonResult {
+    MultisigAddress::create(state, address.0)
 }
 
 #[get("/multisig_addresses/<id>")]

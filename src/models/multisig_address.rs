@@ -19,7 +19,7 @@ pub struct MultisigAddress {
 jsonapi_model!(ResourceAddress<MultisigAddress, MultisigWallet>; "multisig_address"; has one wallet);
 
 impl FromJsonApiDocument for MultisigAddress {
-    fn from_json_api_document(doc: JsonApiDocument, db: Database) -> Result<Self> {
+    fn from_json_api_document(doc: JsonApiDocument, db: Database) -> Result<Self, String> {
         let data = doc.data;
         if data.jsonapi_type() != "multisig_address" {
             return Err("Type was wrong");

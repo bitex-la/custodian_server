@@ -1,19 +1,33 @@
 use std::io::Read;
 use jsonapi::model::JsonApiDocument;
 use models::database::Database;
-use rocket::data::FromData;
 use rocket::http::Status;
 use rocket::{Data, Outcome, Request, State};
 use rocket::data;
+use rocket::data::FromData;
+use std::ops::Deref;
 
-pub trait FromJsonApiDocument {
+pub trait FromJsonApiDocument: Sized {
     fn from_json_api_document(doc: JsonApiDocument, db: Database) -> Result<Self, String>;
 }
 
-impl<T: FromJsonApiDocument> FromData for T {
+pub struct Mapped<T>(pub T);
+
+impl<T> Deref for Mapped<T> {
+    type Target = T;
+    fn deref(&self) -> &T {
+        &self.0
+    }
+}
+
+
+impl<T> FromData for Mapped<T>
+    where T: FromJsonApiDocument
+{
     type Error = String;
 
-    fn from_data(request: &Request, data: Data) -> data::Outcome<T, String> {
+    fn from_data(request: &Request, data: Data) -> data::Outcome<Self, String> {
+
         let mut string_data = String::new();
         if let Err(e) = data.open().read_to_string(&mut string_data) {
             return Outcome::Failure((Status::InternalServerError, format!("{:#?}", e)));
@@ -36,7 +50,7 @@ impl<T: FromJsonApiDocument> FromData for T {
         };
 
         match T::from_json_api_document(doc, db.clone()) {
-            Ok(item) => Outcome::Success(item),
+            Ok(item) => Outcome::Success(Mapped(item)),
             Err(err) => {
                 println!("Cannot parse from jsonapi document {:#?}, {:#?}", &doc, &err);
                 Outcome::Failure((Status::BadRequest, err))

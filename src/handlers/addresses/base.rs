@@ -48,12 +48,12 @@ where
 
     fn create(
         state: &ServerState,
-        new: ResourceAddress<Self, <Self as Address>::Wallet>,
+        new: Self,
     ) -> JsonResult {
         let mut database = state.database_lock();
         let addresses = Self::addresses_from_database(&mut database);
 
-        check_resource_operation(addresses.insert(new.address))
+        check_resource_operation(addresses.insert(new))
     }
 
     fn show(state: &ServerState, id: usize) -> JsonResult
