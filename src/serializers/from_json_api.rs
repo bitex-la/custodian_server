@@ -1,3 +1,4 @@
+use models::database::Database;
 pub use jsonapi::api::*;
 
 /* This trait helps us parsing requests that contain one resource that may

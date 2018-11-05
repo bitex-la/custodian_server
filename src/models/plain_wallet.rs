@@ -4,6 +4,7 @@ use models::database::Database;
 use models::plain_address::PlainAddress;
 use models::resource_transaction::JsonApiModelTransaction;
 use models::wallet::Wallet;
+use serializers::{FromJsonApi, ToJsonApi};
 use tiny_ram_db::PlainTable;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, FromForm)]
@@ -44,23 +45,23 @@ impl Wallet for PlainWallet {
     }
 
     fn wallets_from_database<'a>(database: &'a mut Database)
-      -> &'a mut PlainTable<Self> {
-        &mut database.plain_wallets
-    }
+        -> &'a mut PlainTable<Self> {
+            &mut database.plain_wallets
+        }
 }
 
 impl ToJsonApi for PlainWallet {
     const TYPE : &'static str = "plain_wallets";
 
-		fn attributes(&self, _fields: &QueryFields) -> ResourceAttributes {
-				hashmap!{
-						"version" => serde_json::to_value(self.version).unwrap(),
-						"label" => serde_json::to_value(self.label).unwrap()
-				}
-		}
+    fn attributes(&self, _fields: &QueryFields) -> ResourceAttributes {
+        hashmap!{
+            "version".to_string() => serde_json::to_value(self.version).unwrap(),
+            "label".to_string() => serde_json::to_value(self.label).unwrap()
+        }
+    }
 }
 
-impl FromJsonApiDocument for PlainWallet {
+impl FromJsonApi for PlainWallet {
     const TYPE : &'static str = "plain_wallets";
 
     fn from_json_api_resource(resource: Resource, _db: Database) -> Result<Self, String> {

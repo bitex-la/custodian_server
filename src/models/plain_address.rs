@@ -2,6 +2,7 @@ use jsonapi::model::*;
 use models::address::Address;
 use models::database::Database;
 use models::plain_wallet::PlainWallet;
+use serializers::{FromJsonApi, ToJsonApi};
 use std::collections::HashSet;
 use tiny_ram_db;
 use tiny_ram_db::{Index, Indexer, Record, Table};
@@ -24,9 +25,10 @@ impl Address for PlainAddress {
         &mut database.plain_addresses
     }
 
-    fn by_wallet<'a>( wallet_id: usize, database: &'a mut Database)
-        -> Result<HashSet<Record<Self>>, tiny_ram_db::errors::Error> 
-    {
+    fn by_wallet<'a>(
+        wallet_id: usize,
+        database: &'a mut Database,
+    ) -> Result<HashSet<Record<Self>>, tiny_ram_db::errors::Error> {
         let wallet = database.plain_wallets.find(wallet_id)?;
         database
             .plain_addresses
@@ -59,33 +61,38 @@ impl Indexer for AddressIndex {
 }
 
 impl ToJsonApi for PlainAddress {
-    const TYPE : &'static str = "plain_addresses";
+    const TYPE: &'static str = "plain_addresses";
 
-		fn relationships(&self, _fields: &QueryFields) -> Option<Relationships> {
-				Some(hashmap!{
-						"wallet" => Self::has_one("wallets", self.wallet.id),
-				})
+    fn relationships(&self, _fields: &QueryFields) -> Option<Relationships> {
+        Some(hashmap!{
+                "wallet".to_string() => Self::has_one("wallets", self.wallet.id),
+        })
     }
 
-		fn attributes(&self, _fields: &QueryFields) -> ResourceAttributes {
-				hashmap!{
-						"public_address" => serde_json::to_value(self.public_address).unwrap()
-				}
-		}
+    fn attributes(&self, _fields: &QueryFields) -> ResourceAttributes {
+        hashmap!{
+                "public_address".to_string() => serde_json::to_value(self.public_address).unwrap()
+        }
+    }
 
-		fn included(&self, _fields: &QueryFields) -> Option<Resources> {
-				Some(vec![self.wallet.data.to_jsonapi_resource(self.wallet.id)])
-		}
+    fn included(&self, _fields: &Vec<String>) -> Option<Resources> {
+        Some(vec![self.wallet.data.to_jsonapi_resource(self.wallet.id).0])
+    }
 }
 
 impl FromJsonApi for PlainAddress {
-    const TYPE : &'static str = "plain_addresses";
+    const TYPE: &'static str = "plain_addresses";
 
     fn from_json_api_resource(resource: Resource, db: Database) -> Result<Self, String> {
         let public_address = Self::attribute(&resource, "public_address")?;
         let wallet_id = Self::has_one_id(&resource, "wallet")?;
-        let wallet = db.plain_wallets.find(wallet_id)
+        let wallet = db
+            .plain_wallets
+            .find(wallet_id)
             .map_err(|_| format!("Wallet not found"))?;
-        Ok(PlainAddress{public_address, wallet})
+        Ok(PlainAddress {
+            public_address,
+            wallet,
+        })
     }
 }

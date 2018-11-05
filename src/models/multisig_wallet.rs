@@ -12,6 +12,7 @@ use models::resource_transaction::JsonApiModelTransaction;
 use models::transaction::Transaction;
 use models::wallet::Wallet;
 use models::address::Address;
+use serializers::{FromJsonApi, ToJsonApi};
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct MultisigWallet {
@@ -75,7 +76,7 @@ impl Wallet for MultisigWallet {
                 let (chain_code, pub_key) =
                     if let Ok(extended_pub_key) = ExtendedPubKey::from_str(xpub) {
                         (
-                            self.slice_to_hex(&extended_pub_key.chain_code.data()),
+                            self.slice_to_hex(&extended_pub_key.chain_code.to_bytes()),
                             self.slice_to_hex(&extended_pub_key.public_key.serialize()),
                         )
                     } else {
@@ -93,7 +94,7 @@ impl Wallet for MultisigWallet {
                     },
                 }
             })
-            .collect();
+        .collect();
         MultisigUtxo {
             address: address.clone(),
             script_type: "SPENDMULTISIG".to_string(),
@@ -118,17 +119,17 @@ impl Wallet for MultisigWallet {
 impl ToJsonApi for MultisigWallet {
     const TYPE : &'static str = "multisig_wallets";
 
-		fn attributes(&self, _fields: &QueryFields) -> ResourceAttributes {
-				hashmap!{
-						"version" => serde_json::to_value(self.version).unwrap(),
-						"xpubs" => serde_json::to_value(self.xpubs).unwrap(),
-						"label" => serde_json::to_value(self.label).unwrap(),
-						"signers" => serde_json::to_value(self.signers).unwrap(),
-				}
-		}
+    fn attributes(&self, _fields: &QueryFields) -> ResourceAttributes {
+        hashmap!{
+            "version".to_string() => serde_json::to_value(self.version).unwrap(),
+            "xpubs".to_string() => serde_json::to_value(self.xpubs).unwrap(),
+            "label".to_string() => serde_json::to_value(self.label).unwrap(),
+            "signers".to_string() => serde_json::to_value(self.signers).unwrap(),
+        }
+    }
 }
 
-impl FromJsonApiDocument for MultisigWallet {
+impl FromJsonApi for MultisigWallet {
     const TYPE : &'static str = "multisig_wallets";
 
     fn from_json_api_resource(resource: Resource, _db: Database) -> Result<Self, String> {

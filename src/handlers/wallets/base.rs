@@ -1,3 +1,5 @@
+use rocket_contrib::{Json, Value};
+use jsonapi::model::*;
 use bitprim::executor::Executor;
 use std::collections::HashSet;
 use data_guards::Mapped;
@@ -21,7 +23,7 @@ where
     fn index(state: &ServerState) -> JsonResult {
         let mut database = state.database_lock();
         let wallets = Self::wallets_from_database(&mut database);
-        plain_table_to_jsonapi(wallets)
+        Json(wallets)
     }
 
     fn get_utxos(
@@ -75,7 +77,7 @@ where
     {
         match Self::get_wallet_and_addresses(state, id) {
             Ok((wallet, addresses)) => {
-                parse_to_value(vec_to_jsonapi_document(fn_tx(
+                Json(vec_to_jsonapi_document(fn_tx(
                     &state.executor,
                     &&*wallet.data,
                     addresses,
@@ -91,14 +93,14 @@ where
         let mut database = state.database_lock();
         let wallets = Self::wallets_from_database(&mut database);
 
-        from_record_to_resource_wallet(wallets.find(id))
+        Json(wallets.find(id))
     }
 
     fn create(state: &ServerState, new: Mapped<Self>) -> JsonResult {
         let mut database = state.database_lock();
         let wallets = Self::wallets_from_database(&mut database);
 
-        check_resource_operation(wallets.insert(new.0))
+        Json(wallets.insert(new.0))
     }
 
     fn update(state: &ServerState, id: usize, resource_wallet: Mapped<Self>) -> JsonResult {
@@ -113,7 +115,7 @@ where
         };
         vec_records.insert(id, new_record);
 
-        parse_to_value(true)
+        Ok(Json(Value::Bool(true)))
     }
 
     //TODO: Naive version
@@ -124,7 +126,7 @@ where
         let mut vec_records = wallets.data.write().unwrap();
         vec_records.remove(id);
 
-        parse_to_value(true)
+        Ok(Json(Value::Bool(true)))
     }
 
     fn get_wallet_and_addresses(state: &ServerState, id: usize) -> Result<(Record<Self>, HashSet<Record<Self::RA>>), tiny_ram_db::errors::Error> {
@@ -144,7 +146,7 @@ where
 
     fn get_addresses(state: &ServerState, wallet_id: usize) -> Result<HashSet<Record<Self::RA>>, tiny_ram_db::errors::Error> {
         let mut database = state.database_lock();
-        let addresses = Self::RA::filter_by_wallet(wallet_id, &mut database)?;
+        let addresses = Self::RA::by_wallet(wallet_id, &mut database)?;
 
         Ok(addresses)
     }

@@ -1,3 +1,4 @@
+use std::collections::hash_set::HashSet;
 use std::str::FromStr;
 
 use bitprim::executor::Executor;
@@ -8,8 +9,11 @@ use models::address::Address;
 use models::transaction::Transaction;
 use rocket::http::Status;
 use rocket::response::status;
+use rocket_contrib::{Json, Value};
+use serde_json;
 use server_state::ServerState;
 use tiny_ram_db;
+use serializers::ToJsonApi;
 
 #[derive(FromForm, Debug)]
 pub struct AddressFilters {
@@ -26,39 +30,48 @@ where
     <Self as Address>::Index: tiny_ram_db::Indexer<Item = Self>,
 {
     fn index(state: &ServerState, filters: AddressFilters) -> JsonResult {
-        let db = state.database_lock();
+        let mut db = state.database_lock();
         let addresses = if let Some(wallet_id) = filters.wallet_id {
-            Self::filter_by_wallet(wallet_id, &db)
-                .map_err(|_| status::NotFound("Wallet not found") )?;
+            Self::by_wallet(wallet_id, &mut db)
+                .map_err(|_| status::Custom(Status::NotFound, format!("Wallet Not Found")))?
         } else {
-            Self::addresses_from_database(&db);
-        }
-        vec_to_jsonapi_document(addresses);
+            HashSet::new()
+        };
+        serde_json::to_value(ToJsonApi::collection_to_jsonapi_document(addresses))
+            .map(|value| Json(value))
+            .map_err(|error| status::Custom(Status::InternalServerError, error.to_string()))
     }
 
     fn create(state: &ServerState, new: Self) -> JsonResult {
         let mut database = state.database_lock();
-        let addresses = Self::addresses_from_database(&mut database);
 
-        check_resource_operation(addresses.insert(new))
+        let record = Self::table(&mut database)
+            .insert(new)
+            .map_err(|error| status::Custom(Status::InternalServerError, error.to_string()))?;
+
+        serde_json::to_value(record)
+            .map(|value| Json(value))
+            .map_err(|error| status::Custom(Status::InternalServerError, error.to_string()))
     }
 
     fn show(state: &ServerState, id: usize) -> JsonResult {
         let mut database = state.database_lock();
-        let addresses = Self::addresses_from_database(&mut database);
+        let addresses = Self::table(&mut database);
 
-        from_record_to_resource_address(addresses.find(id))
+        addresses.find(id)
+            .map(|address| Json(address))
+            .map_err(|error| status::Custom(Status::NotFound, error.to_string()))
     }
 
     //TODO: Naive version
     fn destroy(state: &ServerState, id: usize) -> JsonResult {
         let mut database = state.database_lock();
-        let addresses = Self::addresses_from_database(&mut database);
+        let addresses = Self::table(&mut database);
 
         let mut vec_records = addresses.data.write().unwrap();
         vec_records.remove(id);
 
-        parse_to_value(true)
+        Ok(Json(Value::Bool(true)))
     }
 
     fn balance(
@@ -75,9 +88,7 @@ where
                 limit.unwrap_or(10_000),
                 since.unwrap_or(0),
             ) {
-                Ok(vec_received) => {
-                    parse_to_value(vec_received.iter().map(|r| r.satoshis).sum::<u64>())
-                }
+                Ok(vec_received) => Ok(Json(serde_json::to_value(vec_received.iter().map(|r| r.satoshis).sum::<u64>()).unwrap_or(Value::Number(serde_json::Number::from(0))))),
                 Err(error) => Err(status::Custom(
                     Status::InternalServerError,
                     error.to_string(),
@@ -105,12 +116,12 @@ where
                 limit.unwrap_or(10_000),
                 since.unwrap_or(0),
             ) {
-                Ok(vec_received) => parse_to_value(
-                    vec_received
+                Ok(vec_received) => Ok(Json(
+                    serde_json::to_value(vec_received
                         .into_iter()
                         .map(|received| Transaction::new(received, address.clone()))
                         .collect::<Vec<Transaction>>(),
-                ),
+                ).unwrap_or(vec![]))),
                 Err(error) => Err(status::Custom(
                     Status::InternalServerError,
                     error.to_string(),

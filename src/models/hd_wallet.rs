@@ -8,7 +8,7 @@ use models::database::Database;
 use models::transaction::Transaction;
 use models::resource_transaction::JsonApiModelTransaction;
 use models::address::Address;
-use serializers::*;
+use serializers::{FromJsonApi, ToJsonApi};
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct HdWallet {
@@ -52,16 +52,16 @@ impl Wallet for HdWallet {
 impl ToJsonApi for HdWallet {
     const TYPE : &'static str = "multisig_wallets";
 
-		fn attributes(&self, _fields: &QueryFields) -> ResourceAttributes {
-				hashmap!{
-						"version" => serde_json::to_value(self.version).unwrap(),
-						"xpub" => serde_json::to_value(self.xpub).unwrap(),
-						"label" => serde_json::to_value(self.label).unwrap()
-				}
-		}
+    fn attributes(&self, _fields: &QueryFields) -> ResourceAttributes {
+        hashmap!{
+            "version".to_string() => serde_json::to_value(self.version).unwrap(),
+            "xpub".to_string() => serde_json::to_value(self.xpub).unwrap(),
+            "label".to_string() => serde_json::to_value(self.label).unwrap()
+        }
+    }
 }
 
-impl FromJsonApiDocument for HdWallet {
+impl FromJsonApi for HdWallet {
     const TYPE : &'static str = "hd_wallet";
 
     fn from_json_api_resource(resource: Resource, _db: Database) -> Result<Self, String> {
