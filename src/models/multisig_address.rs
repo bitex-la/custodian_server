@@ -5,7 +5,6 @@ use jsonapi::model::*;
 use models::address::Address;
 use models::multisig_wallet::MultisigWallet;
 use models::database::Database;
-use data_guards::FromJsonApiDocument;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct MultisigAddress {
@@ -22,14 +21,14 @@ impl Address for MultisigAddress {
         self.public_address.clone()
     }
 
-    fn addresses_from_database<'a>(database: &'a mut Database) -> &'a mut Table<Self, Self::Index> {
+    fn table<'a>(database: &'a mut Database) -> &'a mut Table<Self, Self::Index>
+    {
         &mut database.multisig_addresses
     }
 
-    fn filter_by_wallet<'a>(
-        wallet_id: usize,
-        database: &'a mut Database,
-    ) -> Result<HashSet<Record<Self>>, tiny_ram_db::errors::Error> {
+    fn by_wallet<'a>( wallet_id: usize, database: &'a mut Database)
+        -> Result<HashSet<Record<Self>>, tiny_ram_db::errors::Error>
+    {
         let wallet = database.multisig_wallets.find(wallet_id)?;
         database
             .multisig_addresses
@@ -70,7 +69,7 @@ impl ToJsonApi for MultisigAddress {
 
 		fn attributes(&self, _fields: &QueryFields) -> ResourceAttributes {
 				hashmap!{
-						"public_address" => serde_json::to_value(self.public_address).unwrap()
+						"public_address" => serde_json::to_value(self.public_address).unwrap(),
 						"path" => serde_json::to_value(self.path).unwrap()
 				}
 		}

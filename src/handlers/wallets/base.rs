@@ -1,11 +1,7 @@
 use bitprim::executor::Executor;
 use std::collections::HashSet;
 use data_guards::Mapped;
-use handlers::handler::{
-    check_resource_operation, from_record_to_resource_wallet, parse_to_value,
-    plain_table_to_jsonapi, JsonResult,
-};
-use jsonapi::model::{vec_to_jsonapi_document, JsonApiModel};
+use handlers::handler::JsonResult;
 use models::address::Address;
 use models::wallet::Wallet;
 use rocket::http::Status;
@@ -15,6 +11,7 @@ use serde::ser::Serialize;
 use server_state::ServerState;
 use std::sync::Arc;
 use tiny_ram_db::{Record};
+use serializers::*;
 
 pub trait WalletHandler
 where

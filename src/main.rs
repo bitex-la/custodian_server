@@ -19,6 +19,8 @@ extern crate jsonapi;
 
 extern crate bitcoin;
 extern crate tiny_ram_db;
+#[macro_use]
+extern crate maplit;
 
 #[macro_use]
 mod data_guards;
@@ -26,6 +28,7 @@ mod handlers;
 mod models;
 mod serializers;
 mod server_state;
+mod serializers;
 
 use handlers::{addresses, blocks, transactions, wallets};
 use server_state::ServerState;

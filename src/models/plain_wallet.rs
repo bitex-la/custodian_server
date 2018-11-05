@@ -5,7 +5,6 @@ use models::plain_address::PlainAddress;
 use models::resource_transaction::JsonApiModelTransaction;
 use models::wallet::Wallet;
 use tiny_ram_db::PlainTable;
-use data_guards::FromJsonApiDocument;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, FromForm)]
 pub struct PlainWallet {
@@ -44,7 +43,8 @@ impl Wallet for PlainWallet {
         "plain_wallet"
     }
 
-    fn wallets_from_database<'a>(database: &'a mut Database) -> &'a mut PlainTable<Self> {
+    fn wallets_from_database<'a>(database: &'a mut Database)
+      -> &'a mut PlainTable<Self> {
         &mut database.plain_wallets
     }
 }
@@ -54,7 +54,7 @@ impl ToJsonApi for PlainWallet {
 
 		fn attributes(&self, _fields: &QueryFields) -> ResourceAttributes {
 				hashmap!{
-						"version" => serde_json::to_value(self.version).unwrap()
+						"version" => serde_json::to_value(self.version).unwrap(),
 						"label" => serde_json::to_value(self.label).unwrap()
 				}
 		}

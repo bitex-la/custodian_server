@@ -11,7 +11,6 @@ use models::multisig_address::MultisigAddress;
 use models::resource_transaction::JsonApiModelTransaction;
 use models::transaction::Transaction;
 use models::wallet::Wallet;
-use data_guards::FromJsonApiDocument;
 use models::address::Address;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -121,10 +120,10 @@ impl ToJsonApi for MultisigWallet {
 
 		fn attributes(&self, _fields: &QueryFields) -> ResourceAttributes {
 				hashmap!{
-						"version" => serde_json::to_value(self.version).unwrap()
-						"xpubs" => serde_json::to_value(self.xpubs).unwrap()
-						"label" => serde_json::to_value(self.label).unwrap()
-						"signers" => serde_json::to_value(self.signers).unwrap()
+						"version" => serde_json::to_value(self.version).unwrap(),
+						"xpubs" => serde_json::to_value(self.xpubs).unwrap(),
+						"label" => serde_json::to_value(self.label).unwrap(),
+						"signers" => serde_json::to_value(self.signers).unwrap(),
 				}
 		}
 }

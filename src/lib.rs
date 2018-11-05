@@ -18,9 +18,12 @@ extern crate serde_derive;
 extern crate jsonapi;
 extern crate bitcoin;
 extern crate tiny_ram_db;
+#[macro_use]
+extern crate maplit;
 
 #[macro_use]
 pub mod data_guards;
 pub mod handlers;
 pub mod models;
 pub mod server_state;
+pub mod serializers;

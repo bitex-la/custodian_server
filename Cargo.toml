@@ -16,6 +16,7 @@ serde = "1.0"
 serde_json = "1.0"
 serde_derive = "1.0"
 maplit = "1.0.1"
+bitcoin = "*"
 jsonapi = { git = "https://github.com/bitex-la/jsonapi-rust" }
 bitprim = { git = "https://github.com/bitex-la/bitprim-rust", features = ["btc"] }
 

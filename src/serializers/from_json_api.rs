@@ -1,3 +1,5 @@
+pub use jsonapi::api::*;
+
 /* This trait helps us parsing requests that contain one resource that may
  * have relationships.
  * It tries to fiend the relationships in our database, and to fetch all

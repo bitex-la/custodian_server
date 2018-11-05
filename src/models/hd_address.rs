@@ -4,7 +4,6 @@ use tiny_ram_db::{ Index, Indexer, Record, Table };
 use models::hd_wallet::HdWallet;
 use models::address::Address;
 use models::database::Database;
-use data_guards::FromJsonApiDocument;
 use jsonapi::model::*;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -22,11 +21,11 @@ impl Address for HdAddress {
         self.public_address.clone()
     }
 
-    fn addresses_from_database<'a>(database: &'a mut Database) -> &'a mut Table<Self, Self::Index> {
+    fn table<'a>(database: &'a mut Database) -> &'a mut Table<Self, Self::Index> {
         &mut database.hd_addresses
     }
 
-    fn filter_by_wallet<'a>(
+    fn by_wallet<'a>(
         wallet_id: usize,
         database: &'a mut Database,
     ) -> Result<HashSet<Record<Self>>, tiny_ram_db::errors::Error> {
@@ -70,7 +69,7 @@ impl ToJsonApi for HdAddress {
 
 		fn attributes(&self, _fields: &QueryFields) -> ResourceAttributes {
 				hashmap!{
-						"public_address" => serde_json::to_value(self.public_address).unwrap()
+						"public_address" => serde_json::to_value(self.public_address).unwrap(),
 						"path" => serde_json::to_value(self.path).unwrap()
 				}
 		}

@@ -6,6 +6,7 @@ use rocket::{Data, Outcome, Request, State};
 use rocket::data;
 use rocket::data::FromData;
 use std::ops::Deref;
+use serializers::FromJsonApi;
 
 pub struct Mapped<T>(pub T);
 
@@ -17,7 +18,7 @@ impl<T> Deref for Mapped<T> {
 }
 
 impl<T> FromData for Mapped<T>
-    where T: FromJsonApiDocument
+    where T: FromJsonApi
 {
     type Error = String;
     

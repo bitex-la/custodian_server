@@ -5,7 +5,6 @@ use models::plain_wallet::PlainWallet;
 use std::collections::HashSet;
 use tiny_ram_db;
 use tiny_ram_db::{Index, Indexer, Record, Table};
-use data_guards::FromJsonApiDocument;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct PlainAddress {
@@ -21,14 +20,13 @@ impl Address for PlainAddress {
         self.public_address.clone()
     }
 
-    fn addresses_from_database<'a>(database: &'a mut Database) -> &'a mut Table<Self, Self::Index> {
+    fn table<'a>(database: &'a mut Database) -> &'a mut Table<Self, Self::Index> {
         &mut database.plain_addresses
     }
 
-    fn filter_by_wallet<'a>(
-        wallet_id: usize,
-        database: &'a mut Database,
-    ) -> Result<HashSet<Record<Self>>, tiny_ram_db::errors::Error> {
+    fn by_wallet<'a>( wallet_id: usize, database: &'a mut Database)
+        -> Result<HashSet<Record<Self>>, tiny_ram_db::errors::Error> 
+    {
         let wallet = database.plain_wallets.find(wallet_id)?;
         database
             .plain_addresses

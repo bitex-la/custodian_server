@@ -18,13 +18,6 @@ pub struct GetTransactionParams {
     pub since: Option<u64>,
 }
 
-pub fn parse_to_value<T: Serialize>(value: T) -> JsonResult {
-    match to_value(value) {
-        Ok(value_parsed) => Ok(Json(value_parsed)),
-        Err(err) => Err(status::Custom(Status::InternalServerError, err.to_string())),
-    }
-}
-
 pub fn check_resource_operation<T: Serialize>(
     result_value: Result<T, tiny_ram_db::errors::Error>,
 ) -> JsonResult {

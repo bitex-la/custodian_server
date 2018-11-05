@@ -7,8 +7,8 @@ use models::hd_address::HdAddress;
 use models::database::Database;
 use models::transaction::Transaction;
 use models::resource_transaction::JsonApiModelTransaction;
-use data_guards::FromJsonApiDocument;
 use models::address::Address;
+use serializers::*;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct HdWallet {
@@ -54,8 +54,8 @@ impl ToJsonApi for HdWallet {
 
 		fn attributes(&self, _fields: &QueryFields) -> ResourceAttributes {
 				hashmap!{
-						"version" => serde_json::to_value(self.version).unwrap()
-						"xpub" => serde_json::to_value(self.xpub).unwrap()
+						"version" => serde_json::to_value(self.version).unwrap(),
+						"xpub" => serde_json::to_value(self.xpub).unwrap(),
 						"label" => serde_json::to_value(self.label).unwrap()
 				}
 		}

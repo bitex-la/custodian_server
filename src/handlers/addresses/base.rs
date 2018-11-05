@@ -2,10 +2,7 @@ use std::str::FromStr;
 
 use bitprim::executor::Executor;
 use bitprim::payment_address::PaymentAddress;
-use handlers::handler::{
-    check_resource_operation, from_record_to_resource_address, parse_to_value, table_to_jsonapi,
-    JsonResult,
-};
+use handlers::handler::JsonResult;
 use jsonapi::model::*;
 use models::address::Address;
 use models::transaction::Transaction;
@@ -19,35 +16,27 @@ pub struct AddressFilters {
     pub wallet_id: Option<usize>,
 }
 
+/* This trait is the base of all the address handlers, it should only
+ * take care of receiving the request input like filters and fields,
+ * and serializing the output to jsonapi.
+ */
 pub trait AddressHandler
 where
     Self: serde::Serialize + Address,
     <Self as Address>::Index: tiny_ram_db::Indexer<Item = Self>,
 {
     fn index(state: &ServerState, filters: AddressFilters) -> JsonResult {
-        let mut database = state.database_lock();
-        match filters.wallet_id {
-            Some(wallet_id) => {
-                if let Ok(addresses) = Self::filter_by_wallet(wallet_id, &mut database) {
-                    parse_to_value(addresses)
-                } else {
-                    Err(status::Custom(
-                        Status::NotFound,
-                        "Wallet not found".to_string(),
-                    ))
-                }
-            }
-            None => {
-                let addresses = Self::addresses_from_database(&mut database);
-                table_to_jsonapi(addresses)
-            }
+        let db = state.database_lock();
+        let addresses = if let Some(wallet_id) = filters.wallet_id {
+            Self::filter_by_wallet(wallet_id, &db)
+                .map_err(|_| status::NotFound("Wallet not found") )?;
+        } else {
+            Self::addresses_from_database(&db);
         }
+        vec_to_jsonapi_document(addresses);
     }
 
-    fn create(
-        state: &ServerState,
-        new: Self,
-    ) -> JsonResult {
+    fn create(state: &ServerState, new: Self) -> JsonResult {
         let mut database = state.database_lock();
         let addresses = Self::addresses_from_database(&mut database);
 
