@@ -3,7 +3,7 @@ use jsonapi::model::*;
 use bitprim::executor::Executor;
 use std::collections::HashSet;
 use data_guards::Mapped;
-use handlers::handler::JsonResult;
+use handlers::helpers::JsonResult;
 use models::address::Address;
 use models::wallet::Wallet;
 use rocket::http::Status;

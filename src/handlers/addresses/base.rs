@@ -3,7 +3,7 @@ use std::str::FromStr;
 
 use bitprim::executor::Executor;
 use bitprim::payment_address::PaymentAddress;
-use handlers::handler::JsonResult;
+use handlers::helpers::JsonResult;
 use jsonapi::model::*;
 use models::address::Address;
 use models::transaction::Transaction;

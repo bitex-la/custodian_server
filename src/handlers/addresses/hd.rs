@@ -1,6 +1,6 @@
 use handlers::addresses::base::AddressHandler;
-use handlers::handler::GetTransactionParams;
-use handlers::handler::JsonResult;
+use handlers::helpers::GetTransactionParams;
+use handlers::helpers::JsonResult;
 use models::hd_address::HdAddress;
 use server_state::ServerState;
 use handlers::addresses::base::AddressFilters;

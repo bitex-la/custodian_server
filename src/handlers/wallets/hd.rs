@@ -1,5 +1,5 @@
-use handlers::handler::GetTransactionParams;
-use handlers::handler::JsonResult;
+use handlers::helpers::GetTransactionParams;
+use handlers::helpers::JsonResult;
 use handlers::wallets::base::WalletHandler;
 use models::hd_wallet::HdWallet;
 use server_state::ServerState;

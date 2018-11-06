@@ -1,4 +1,4 @@
-use handlers::handler::JsonResult;
+use handlers::helpers::JsonResult;
 use jsonapi::model::*;
 use models::block::Block;
 use rocket::http::Status;
