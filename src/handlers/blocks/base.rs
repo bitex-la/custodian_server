@@ -1,10 +1,6 @@
-use handlers::helpers::JsonResult;
+use handlers::helpers::{JsonResult, to_value};
 use jsonapi::model::*;
 use models::block::Block;
-use rocket::http::Status;
-use rocket::response::status;
-use rocket_contrib::Json;
-use serde_json;
 use server_state::ServerState;
 
 #[get("/blocks/last")]
@@ -22,7 +18,5 @@ pub fn last(state: &ServerState) -> JsonResult {
         height: last_height,
         timestamp: bitprim_header.0.timestamp(),
     };
-    serde_json::to_value(block.to_jsonapi_document())
-        .map(|value| Json(value))
-        .map_err(|error| status::Custom(Status::InternalServerError, error.to_string()))
+    to_value(block.to_jsonapi_document())
 }

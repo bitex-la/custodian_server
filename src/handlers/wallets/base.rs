@@ -1,14 +1,12 @@
-use rocket_contrib::{Json, Value};
 use jsonapi::model::*;
 use bitprim::executor::Executor;
 use std::collections::HashSet;
 use data_guards::Mapped;
-use handlers::helpers::JsonResult;
+use handlers::helpers::{JsonResult, to_value};
 use models::address::Address;
 use models::wallet::Wallet;
 use rocket::http::Status;
 use rocket::response::status;
-use serde_json;
 use serde::de::Deserialize;
 use serde::ser::Serialize;
 use server_state::ServerState;
@@ -23,9 +21,7 @@ where
     fn index(state: &ServerState) -> JsonResult {
         let mut database = state.database_lock();
         let wallets = Self::wallets_from_database(&mut database);
-        serde_json::to_value(wallets)
-            .map(|value| Json(value))
-            .map_err(|error| status::Custom(Status::InternalServerError, error.to_string()))
+        to_value(wallets)
     }
 
     fn get_utxos(
@@ -79,15 +75,13 @@ where
     {
         match Self::get_wallet_and_addresses(state, id) {
             Ok((wallet, addresses)) => {
-                serde_json::to_value(vec_to_jsonapi_document(fn_tx(
+                to_value(vec_to_jsonapi_document(fn_tx(
                     &state.executor,
                     &&*wallet.data,
                     addresses,
                     limit,
                     since,
                 )))
-                .map(|value| Json(value))
-                .map_err(|error| status::Custom(Status::InternalServerError, error.to_string()))
             }
             Err(_) => Err(status::Custom(Status::NotFound, format!("{:?}", id))),
         }
@@ -100,9 +94,7 @@ where
         let wallet = wallets.find(id)
             .map_err(|error| status::Custom(Status::NotFound, error.to_string()))?;
 
-        serde_json::to_value(wallet)
-            .map(|value| Json(value))
-            .map_err(|error| status::Custom(Status::InternalServerError, error.to_string()))
+        to_value(wallet)
     }
 
     fn create(state: &ServerState, new: Mapped<Self>) -> JsonResult {
@@ -112,9 +104,7 @@ where
         let wallet = wallets.insert(new.0)
             .map_err(|error| status::Custom(Status::InternalServerError, error.to_string()))?;
 
-        serde_json::to_value(wallet)
-            .map(|value| Json(value))
-            .map_err(|error| status::Custom(Status::InternalServerError, error.to_string()))
+        to_value(wallet)
     }
 
     fn update(state: &ServerState, id: usize, resource_wallet: Mapped<Self>) -> JsonResult {
@@ -129,7 +119,7 @@ where
         };
         vec_records.insert(id, new_record);
 
-        Ok(Json(Value::Bool(true)))
+        to_value(true)
     }
 
     //TODO: Naive version
@@ -140,7 +130,7 @@ where
         let mut vec_records = wallets.data.write().unwrap();
         vec_records.remove(id);
 
-        Ok(Json(Value::Bool(true)))
+        to_value(true)
     }
 
     fn get_wallet_and_addresses(state: &ServerState, id: usize) -> Result<(Record<Self>, HashSet<Record<Self::RA>>), tiny_ram_db::errors::Error> {
