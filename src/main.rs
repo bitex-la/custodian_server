@@ -28,7 +28,6 @@ mod handlers;
 mod models;
 mod serializers;
 mod server_state;
-mod serializers;
 
 use handlers::{addresses, blocks, transactions, wallets};
 use server_state::ServerState;

@@ -29,15 +29,15 @@ impl Address for MultisigAddress {
 
     fn by_wallet<'a>( wallet_id: usize, database: &'a mut Database)
         -> Result<HashSet<Record<Self>>, tiny_ram_db::errors::Error>
-    {
-        let wallet = database.multisig_wallets.find(wallet_id)?;
-        database
-            .multisig_addresses
-            .indexes
-            .read()?
-            .by_wallet
-            .get(&wallet, |items| items.clone())
-    }
+        {
+            let wallet = database.multisig_wallets.find(wallet_id)?;
+            database
+                .multisig_addresses
+                .indexes
+                .read()?
+                .by_wallet
+                .get(&wallet, |items| items.clone())
+        }
 
     fn get_record_wallet(&self) -> Record<Self::Wallet> {
         self.wallet.clone()
@@ -62,22 +62,22 @@ impl Indexer for MultisigAddressIndex {
 impl ToJsonApi for MultisigAddress {
     const TYPE : &'static str = "multisig_addresses";
 
-		fn relationships(&self, _fields: &QueryFields) -> Option<Relationships> {
-				Some(hashmap!{
-						"wallet".to_string() => Self::has_one("wallets", self.wallet.id),
-				})
+    fn relationships(&self, _fields: &QueryFields) -> Option<Relationships> {
+        Some(hashmap!{
+            "wallet".to_string() => Self::has_one("wallets", self.wallet.id),
+        })
     }
 
-		fn attributes(&self, _fields: &QueryFields) -> ResourceAttributes {
-				hashmap!{
-						"public_address".to_string() => serde_json::to_value(self.public_address).unwrap(),
-						"path".to_string() => serde_json::to_value(self.path).unwrap()
-				}
-		}
+    fn attributes(&self, _fields: &QueryFields) -> ResourceAttributes {
+        hashmap!{
+            "public_address".to_string() => serde_json::to_value(&self.public_address).unwrap(),
+            "path".to_string() => serde_json::to_value(&self.path).unwrap()
+        }
+    }
 
-		fn included(&self, _fields: &Vec<String>) -> Option<Resources> {
-				Some(vec![self.wallet.data.to_jsonapi_resource(self.wallet.id).0])
-		}
+    fn included(&self, _fields: &Vec<String>) -> Option<Resources> {
+        Some(vec![self.wallet.data.to_jsonapi_resource(self.wallet.id).0])
+    }
 }
 
 impl FromJsonApi for MultisigAddress {

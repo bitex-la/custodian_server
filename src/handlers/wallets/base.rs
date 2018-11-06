@@ -8,12 +8,12 @@ use models::address::Address;
 use models::wallet::Wallet;
 use rocket::http::Status;
 use rocket::response::status;
+use serde_json;
 use serde::de::Deserialize;
 use serde::ser::Serialize;
 use server_state::ServerState;
 use std::sync::Arc;
 use tiny_ram_db::{Record};
-use serializers::*;
 
 pub trait WalletHandler
 where
@@ -23,7 +23,9 @@ where
     fn index(state: &ServerState) -> JsonResult {
         let mut database = state.database_lock();
         let wallets = Self::wallets_from_database(&mut database);
-        Json(wallets)
+        serde_json::to_value(wallets)
+            .map(|value| Json(value))
+            .map_err(|error| status::Custom(Status::InternalServerError, error.to_string()))
     }
 
     fn get_utxos(
@@ -77,13 +79,15 @@ where
     {
         match Self::get_wallet_and_addresses(state, id) {
             Ok((wallet, addresses)) => {
-                Json(vec_to_jsonapi_document(fn_tx(
+                serde_json::to_value(vec_to_jsonapi_document(fn_tx(
                     &state.executor,
                     &&*wallet.data,
                     addresses,
                     limit,
                     since,
                 )))
+                .map(|value| Json(value))
+                .map_err(|error| status::Custom(Status::InternalServerError, error.to_string()))
             }
             Err(_) => Err(status::Custom(Status::NotFound, format!("{:?}", id))),
         }
@@ -93,14 +97,24 @@ where
         let mut database = state.database_lock();
         let wallets = Self::wallets_from_database(&mut database);
 
-        Json(wallets.find(id))
+        let wallet = wallets.find(id)
+            .map_err(|error| status::Custom(Status::NotFound, error.to_string()))?;
+
+        serde_json::to_value(wallet)
+            .map(|value| Json(value))
+            .map_err(|error| status::Custom(Status::InternalServerError, error.to_string()))
     }
 
     fn create(state: &ServerState, new: Mapped<Self>) -> JsonResult {
         let mut database = state.database_lock();
         let wallets = Self::wallets_from_database(&mut database);
 
-        Json(wallets.insert(new.0))
+        let wallet = wallets.insert(new.0)
+            .map_err(|error| status::Custom(Status::InternalServerError, error.to_string()))?;
+
+        serde_json::to_value(wallet)
+            .map(|value| Json(value))
+            .map_err(|error| status::Custom(Status::InternalServerError, error.to_string()))
     }
 
     fn update(state: &ServerState, id: usize, resource_wallet: Mapped<Self>) -> JsonResult {

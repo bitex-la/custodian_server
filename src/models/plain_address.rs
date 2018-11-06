@@ -28,7 +28,7 @@ impl Address for PlainAddress {
     fn by_wallet<'a>(
         wallet_id: usize,
         database: &'a mut Database,
-    ) -> Result<HashSet<Record<Self>>, tiny_ram_db::errors::Error> {
+        ) -> Result<HashSet<Record<Self>>, tiny_ram_db::errors::Error> {
         let wallet = database.plain_wallets.find(wallet_id)?;
         database
             .plain_addresses
@@ -65,13 +65,13 @@ impl ToJsonApi for PlainAddress {
 
     fn relationships(&self, _fields: &QueryFields) -> Option<Relationships> {
         Some(hashmap!{
-                "wallet".to_string() => Self::has_one("wallets", self.wallet.id),
+            "wallet".to_string() => Self::has_one("wallets", self.wallet.id),
         })
     }
 
     fn attributes(&self, _fields: &QueryFields) -> ResourceAttributes {
         hashmap!{
-                "public_address".to_string() => serde_json::to_value(self.public_address).unwrap()
+            "public_address".to_string() => serde_json::to_value(&self.public_address).unwrap()
         }
     }
 

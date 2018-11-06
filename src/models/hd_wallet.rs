@@ -54,9 +54,9 @@ impl ToJsonApi for HdWallet {
 
     fn attributes(&self, _fields: &QueryFields) -> ResourceAttributes {
         hashmap!{
-            "version".to_string() => serde_json::to_value(self.version).unwrap(),
-            "xpub".to_string() => serde_json::to_value(self.xpub).unwrap(),
-            "label".to_string() => serde_json::to_value(self.label).unwrap()
+            "version".to_string() => serde_json::to_value(&self.version).unwrap(),
+            "xpub".to_string() => serde_json::to_value(&self.xpub).unwrap(),
+            "label".to_string() => serde_json::to_value(&self.label).unwrap()
         }
     }
 }

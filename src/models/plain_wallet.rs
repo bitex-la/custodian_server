@@ -55,8 +55,8 @@ impl ToJsonApi for PlainWallet {
 
     fn attributes(&self, _fields: &QueryFields) -> ResourceAttributes {
         hashmap!{
-            "version".to_string() => serde_json::to_value(self.version).unwrap(),
-            "label".to_string() => serde_json::to_value(self.label).unwrap()
+            "version".to_string() => serde_json::to_value(&self.version).unwrap(),
+            "label".to_string() => serde_json::to_value(&self.label).unwrap()
         }
     }
 }

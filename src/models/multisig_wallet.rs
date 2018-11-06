@@ -121,10 +121,10 @@ impl ToJsonApi for MultisigWallet {
 
     fn attributes(&self, _fields: &QueryFields) -> ResourceAttributes {
         hashmap!{
-            "version".to_string() => serde_json::to_value(self.version).unwrap(),
-            "xpubs".to_string() => serde_json::to_value(self.xpubs).unwrap(),
-            "label".to_string() => serde_json::to_value(self.label).unwrap(),
-            "signers".to_string() => serde_json::to_value(self.signers).unwrap(),
+            "version".to_string() => serde_json::to_value(&self.version).unwrap(),
+            "xpubs".to_string() => serde_json::to_value(&self.xpubs).unwrap(),
+            "label".to_string() => serde_json::to_value(&self.label).unwrap(),
+            "signers".to_string() => serde_json::to_value(&self.signers).unwrap(),
         }
     }
 }

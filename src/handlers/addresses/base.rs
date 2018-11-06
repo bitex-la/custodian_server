@@ -1,4 +1,4 @@
-use std::collections::hash_set::HashSet;
+use std::collections::HashSet;
 use std::str::FromStr;
 
 use bitprim::executor::Executor;
@@ -12,7 +12,7 @@ use rocket::response::status;
 use rocket_contrib::{Json, Value};
 use serde_json;
 use server_state::ServerState;
-use tiny_ram_db;
+use tiny_ram_db::Indexer;
 use serializers::ToJsonApi;
 
 #[derive(FromForm, Debug)]
@@ -27,9 +27,12 @@ pub struct AddressFilters {
 pub trait AddressHandler
 where
     Self: serde::Serialize + Address,
-    <Self as Address>::Index: tiny_ram_db::Indexer<Item = Self>,
+    <Self as Address>::Index: Indexer<Item = Self>,
+    Self: ToJsonApi
 {
-    fn index(state: &ServerState, filters: AddressFilters) -> JsonResult {
+
+    fn index(state: &ServerState, filters: AddressFilters) -> JsonResult 
+    {
         let mut db = state.database_lock();
         let addresses = if let Some(wallet_id) = filters.wallet_id {
             Self::by_wallet(wallet_id, &mut db)
@@ -37,7 +40,8 @@ where
         } else {
             HashSet::new()
         };
-        serde_json::to_value(ToJsonApi::collection_to_jsonapi_document(addresses))
+        let hash_set_addresses: JsonApiDocument = Self::collection_to_jsonapi_document(addresses);
+        serde_json::to_value(hash_set_addresses)
             .map(|value| Json(value))
             .map_err(|error| status::Custom(Status::InternalServerError, error.to_string()))
     }
@@ -58,9 +62,12 @@ where
         let mut database = state.database_lock();
         let addresses = Self::table(&mut database);
 
-        addresses.find(id)
-            .map(|address| Json(address))
-            .map_err(|error| status::Custom(Status::NotFound, error.to_string()))
+        let address = addresses.find(id)
+            .map_err(|error| status::Custom(Status::NotFound, error.to_string()))?;
+
+        serde_json::to_value(address)
+            .map(|value| Json(value))
+            .map_err(|error| status::Custom(Status::InternalServerError, error.to_string()))
     }
 
     //TODO: Naive version
@@ -79,7 +86,7 @@ where
         address: String,
         limit: Option<u64>,
         since: Option<u64>,
-    ) -> JsonResult {
+        ) -> JsonResult {
         let explorer = exec.explorer();
 
         if let Ok(valid_address) = PaymentAddress::from_str(&address) {
@@ -87,18 +94,18 @@ where
                 valid_address,
                 limit.unwrap_or(10_000),
                 since.unwrap_or(0),
-            ) {
+                ) {
                 Ok(vec_received) => Ok(Json(serde_json::to_value(vec_received.iter().map(|r| r.satoshis).sum::<u64>()).unwrap_or(Value::Number(serde_json::Number::from(0))))),
                 Err(error) => Err(status::Custom(
-                    Status::InternalServerError,
-                    error.to_string(),
-                )),
+                        Status::InternalServerError,
+                        error.to_string(),
+                        )),
             }
         } else {
             Err(status::Custom(
-                Status::InternalServerError,
-                "Invalid Address".to_string(),
-            ))
+                    Status::InternalServerError,
+                    "Invalid Address".to_string(),
+                    ))
         }
     }
 
@@ -107,7 +114,7 @@ where
         address: String,
         limit: Option<u64>,
         since: Option<u64>,
-    ) -> JsonResult {
+        ) -> JsonResult {
         let explorer = exec.explorer();
 
         if let Ok(valid_address) = PaymentAddress::from_str(&address) {
@@ -115,30 +122,31 @@ where
                 valid_address,
                 limit.unwrap_or(10_000),
                 since.unwrap_or(0),
-            ) {
+                ) {
                 Ok(vec_received) => Ok(Json(
-                    serde_json::to_value(vec_received
-                        .into_iter()
-                        .map(|received| Transaction::new(received, address.clone()))
-                        .collect::<Vec<Transaction>>(),
-                ).unwrap_or(vec![]))),
+                        serde_json::to_value(vec_received
+                                             .into_iter()
+                                             .map(|received| Transaction::new(received, address.clone()))
+                                             .collect::<Vec<Transaction>>(),
+                                             ).unwrap_or(Value::Array(<[_]>::into_vec(Box::new([])))))),
                 Err(error) => Err(status::Custom(
-                    Status::InternalServerError,
-                    error.to_string(),
-                )),
+                        Status::InternalServerError,
+                        error.to_string(),
+                        )),
             }
         } else {
             Err(status::Custom(
-                Status::InternalServerError,
-                "Invalid Address".to_string(),
-            ))
+                    Status::InternalServerError,
+                    "Invalid Address".to_string(),
+                    ))
         }
     }
 }
 
 impl<R> AddressHandler for R
 where
-    R: serde::Serialize + Address,
-    <R as Address>::Index: tiny_ram_db::Indexer<Item = Self>,
+R: serde::Serialize + Address,
+<R as Address>::Index: Indexer<Item = Self>,
+Self: ToJsonApi
 {
 }
