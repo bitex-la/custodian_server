@@ -64,7 +64,7 @@ impl ToJsonApi for MultisigAddress {
 
     fn relationships(&self, _fields: &QueryFields) -> Option<Relationships> {
         Some(hashmap!{
-            "wallet".to_string() => Self::has_one("wallets", self.wallet.id),
+            "wallet".to_string() => Self::has_one("multisig_wallets", self.wallet.id),
         })
     }
 

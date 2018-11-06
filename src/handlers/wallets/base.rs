@@ -5,6 +5,7 @@ use data_guards::Mapped;
 use handlers::helpers::{JsonResult, to_value};
 use models::address::Address;
 use models::wallet::Wallet;
+use serializers::ToJsonApi;
 use rocket::http::Status;
 use rocket::response::status;
 use serde::de::Deserialize;
@@ -17,11 +18,15 @@ pub trait WalletHandler
 where
     Self: serde::Serialize + Wallet,
     for<'de> Self: serde::Deserialize<'de>,
+    Self: ToJsonApi
 {
     fn index(state: &ServerState) -> JsonResult {
         let mut database = state.database_lock();
-        let wallets = Self::wallets_from_database(&mut database);
-        to_value(wallets)
+        let plain_table = Self::wallets_from_database(&mut database);
+        let wallets = plain_table.data.read()
+            .map_err(|error| status::Custom(Status::InternalServerError, error.to_string()))?;
+        let hash_set_wallets: JsonApiDocument = Self::collection_to_jsonapi_document((*wallets).clone());
+        to_value(hash_set_wallets)
     }
 
     fn get_utxos(
@@ -87,24 +92,30 @@ where
         }
     }
 
-    fn show(state: &ServerState, id: usize) -> JsonResult {
+    fn show(state: &ServerState, id: usize) -> JsonResult
+        where
+            Record<Self>: ToJsonApi
+    {
         let mut database = state.database_lock();
         let wallets = Self::wallets_from_database(&mut database);
 
         let wallet = wallets.find(id)
             .map_err(|error| status::Custom(Status::NotFound, error.to_string()))?;
 
-        to_value(wallet)
+        to_value(wallet.to_jsonapi_document(wallet.id))
     }
 
-    fn create(state: &ServerState, new: Mapped<Self>) -> JsonResult {
+    fn create(state: &ServerState, new: Mapped<Self>) -> JsonResult 
+        where
+            Record<Self>: ToJsonApi
+    {
         let mut database = state.database_lock();
         let wallets = Self::wallets_from_database(&mut database);
 
         let wallet = wallets.insert(new.0)
             .map_err(|error| status::Custom(Status::InternalServerError, error.to_string()))?;
 
-        to_value(wallet)
+        to_value(wallet.to_jsonapi_document(wallet.id))
     }
 
     fn update(state: &ServerState, id: usize, resource_wallet: Mapped<Self>) -> JsonResult {
@@ -161,5 +172,6 @@ impl<R> WalletHandler for R
 where
     R: serde::Serialize + Wallet,
     for<'de> R: serde::Deserialize<'de>,
+    R: ToJsonApi
 {
 }

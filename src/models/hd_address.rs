@@ -64,7 +64,7 @@ impl ToJsonApi for HdAddress {
 
     fn relationships(&self, _fields: &QueryFields) -> Option<Relationships> {
         Some(hashmap!{
-            "wallet".to_string() => Self::has_one("wallets", self.wallet.id),
+            "wallet".to_string() => Self::has_one("hd_wallets", self.wallet.id),
         })
     }
 

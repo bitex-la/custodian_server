@@ -59,7 +59,7 @@ where
         let address = addresses.find(id)
             .map_err(|error| status::Custom(Status::NotFound, error.to_string()))?;
 
-        to_value(address)
+        to_value(address.to_jsonapi_document(address.id))
     }
 
     //TODO: Naive version
@@ -112,8 +112,8 @@ where
 
 impl<R> AddressHandler for R
 where
-R: serde::Serialize + Address,
-<R as Address>::Index: Indexer<Item = Self>,
-Self: ToJsonApi
+    R: serde::Serialize + Address,
+    <R as Address>::Index: Indexer<Item = Self>,
+    Self: ToJsonApi
 {
 }

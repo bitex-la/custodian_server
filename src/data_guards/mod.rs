@@ -6,7 +6,8 @@ use rocket::{Data, Outcome, Request, State};
 use rocket::data;
 use rocket::data::FromData;
 use std::ops::Deref;
-use serializers::FromJsonApi;
+use serializers::{FromJsonApi, ToJsonApi};
+use server_state::ServerState;
 
 pub struct Mapped<T>(pub T);
 
@@ -37,12 +38,14 @@ impl<T> FromData for Mapped<T>
             }
         };
 
-        let db: State<Database> = match request.guard::<State<Database>>() {
+        let state: State<ServerState> = match request.guard::<State<ServerState>>() {
             Outcome::Success(value) => value,
             _ => {
                 return Outcome::Failure((Status::BadRequest, "Can't access db".into()));
             }
         };
+
+        let db = state.database_lock();
 
         match T::from_json_api_document(doc.clone(), db.clone()) {
             Ok(item) => Outcome::Success(Mapped(item)),

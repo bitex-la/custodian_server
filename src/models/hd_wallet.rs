@@ -50,7 +50,7 @@ impl Wallet for HdWallet {
 }
 
 impl ToJsonApi for HdWallet {
-    const TYPE : &'static str = "multisig_wallets";
+    const TYPE : &'static str = "hd_wallets";
 
     fn attributes(&self, _fields: &QueryFields) -> ResourceAttributes {
         hashmap!{
@@ -62,7 +62,7 @@ impl ToJsonApi for HdWallet {
 }
 
 impl FromJsonApi for HdWallet {
-    const TYPE : &'static str = "hd_wallet";
+    const TYPE : &'static str = "hd_wallets";
 
     fn from_json_api_resource(resource: Resource, _db: Database) -> Result<Self, String> {
         Ok(HdWallet{
