@@ -3,14 +3,12 @@ use std::str::FromStr;
 
 use bitprim::executor::Executor;
 use bitprim::payment_address::PaymentAddress;
-use handlers::helpers::JsonResult;
+use handlers::helpers::{JsonResult, to_value};
 use jsonapi::model::*;
 use models::address::Address;
 use models::transaction::Transaction;
 use rocket::http::Status;
 use rocket::response::status;
-use rocket_contrib::{Json, Value};
-use serde_json;
 use server_state::ServerState;
 use tiny_ram_db::Indexer;
 use serializers::ToJsonApi;
@@ -41,9 +39,7 @@ where
             HashSet::new()
         };
         let hash_set_addresses: JsonApiDocument = Self::collection_to_jsonapi_document(addresses);
-        serde_json::to_value(hash_set_addresses)
-            .map(|value| Json(value))
-            .map_err(|error| status::Custom(Status::InternalServerError, error.to_string()))
+        to_value(hash_set_addresses)
     }
 
     fn create(state: &ServerState, new: Self) -> JsonResult {
@@ -53,9 +49,7 @@ where
             .insert(new)
             .map_err(|error| status::Custom(Status::InternalServerError, error.to_string()))?;
 
-        serde_json::to_value(record)
-            .map(|value| Json(value))
-            .map_err(|error| status::Custom(Status::InternalServerError, error.to_string()))
+        to_value(record)
     }
 
     fn show(state: &ServerState, id: usize) -> JsonResult {
@@ -65,9 +59,7 @@ where
         let address = addresses.find(id)
             .map_err(|error| status::Custom(Status::NotFound, error.to_string()))?;
 
-        serde_json::to_value(address)
-            .map(|value| Json(value))
-            .map_err(|error| status::Custom(Status::InternalServerError, error.to_string()))
+        to_value(address)
     }
 
     //TODO: Naive version
@@ -78,7 +70,7 @@ where
         let mut vec_records = addresses.data.write().unwrap();
         vec_records.remove(id);
 
-        Ok(Json(Value::Bool(true)))
+        to_value(true)
     }
 
     fn balance(
@@ -89,24 +81,14 @@ where
         ) -> JsonResult {
         let explorer = exec.explorer();
 
-        if let Ok(valid_address) = PaymentAddress::from_str(&address) {
-            match explorer.address_unspents(
-                valid_address,
-                limit.unwrap_or(10_000),
-                since.unwrap_or(0),
-                ) {
-                Ok(vec_received) => Ok(Json(serde_json::to_value(vec_received.iter().map(|r| r.satoshis).sum::<u64>()).unwrap_or(Value::Number(serde_json::Number::from(0))))),
-                Err(error) => Err(status::Custom(
-                        Status::InternalServerError,
-                        error.to_string(),
-                        )),
-            }
-        } else {
-            Err(status::Custom(
-                    Status::InternalServerError,
-                    "Invalid Address".to_string(),
-                    ))
-        }
+        let valid_address = PaymentAddress::from_str(&address)
+            .map_err(|error| status::Custom(Status::InternalServerError, error.to_string()))?;
+
+        let balance = explorer.address_unspents(valid_address, limit.unwrap_or(10_000), since.unwrap_or(0))
+            .map(|vec_received| vec_received.iter().map(|r| r.satoshis).sum::<u64>())
+            .map_err(|error| status::Custom(Status::InternalServerError, error.to_string()))?;
+
+        to_value(balance)
     }
 
     fn get_utxos(
@@ -117,29 +99,14 @@ where
         ) -> JsonResult {
         let explorer = exec.explorer();
 
-        if let Ok(valid_address) = PaymentAddress::from_str(&address) {
-            match explorer.address_unspents(
-                valid_address,
-                limit.unwrap_or(10_000),
-                since.unwrap_or(0),
-                ) {
-                Ok(vec_received) => Ok(Json(
-                        serde_json::to_value(vec_received
-                                             .into_iter()
-                                             .map(|received| Transaction::new(received, address.clone()))
-                                             .collect::<Vec<Transaction>>(),
-                                             ).unwrap_or(Value::Array(<[_]>::into_vec(Box::new([])))))),
-                Err(error) => Err(status::Custom(
-                        Status::InternalServerError,
-                        error.to_string(),
-                        )),
-            }
-        } else {
-            Err(status::Custom(
-                    Status::InternalServerError,
-                    "Invalid Address".to_string(),
-                    ))
-        }
+        let valid_address = PaymentAddress::from_str(&address)
+            .map_err(|error| status::Custom(Status::InternalServerError, error.to_string()))?;
+
+        let transactions = explorer.address_unspents(valid_address, limit.unwrap_or(10_000), since.unwrap_or(0))
+            .map(|vec_received| vec_received.into_iter().map(|received| Transaction::new(received, address.clone())).collect::<Vec<Transaction>>())
+            .map_err(|error| status::Custom(Status::InternalServerError, error.to_string()))?;
+
+        to_value(transactions)
     }
 }
 
