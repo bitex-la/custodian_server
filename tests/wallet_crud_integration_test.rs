@@ -38,6 +38,7 @@ mod wallet_test {
     use std::io::BufReader;
     use std::io::Read;
     use std::sync::MutexGuard;
+    use jsonapi::model::*;
 
     use serde_json::{Error, Value};
 
@@ -413,21 +414,45 @@ mod wallet_test {
             }"#,
         );
 
-        //TODO: Find a way of testing this in a deterministic way
-        // assert_eq!(
-        //     get(&client, "/multisig_wallets/1/get_utxos?since=0&limit=400")
-        //         .body_string()
-        //         .unwrap(),
-        //     load_fixture_file("./tests/data/multisig_utxos.json")
-        // );
+        let transactions : JsonApiDocument = serde_json::from_str(&get(&client, "/multisig_wallets/1/get_utxos?since=0&limit=400").body_string().unwrap()).unwrap();
+        if let PrimaryData::Multiple(data) = transactions.data.unwrap() {
+            let mut transaction_hashes = vec![];
+            for resource in data {
+                if let serde_json::value::Value::Object(ref value) = resource.attributes["transaction"] {
+                    if let serde_json::value::Value::String(ref inner_value) = value["transaction"]["transaction_hash"] {
+                        transaction_hashes.push(inner_value.clone());
+                    }
+                }
+            }
+            assert_eq!(transaction_hashes,
+                vec!["956b30c3c4335f019dbee60c60d76994319473acac356f774c7858cd5c968e40",
+                     "1db1f22beb84e5fbe92c8c5e6e7f43d80aa5cfe5d48d83513edd9641fc00d055",
+                     "0ded7f014fa3213e9b000bc81b8151bc6f2f926b9afea6e3643c8ad658353c72"]);
+        }
 
-        //TODO: Find a way of testing this in a deterministic way
-        // assert_eq!(
-        //     get(&client, "/multisig_wallets/1/get_incoming?since=400")
-        //         .body_string()
-        //         .unwrap(),
-        //     load_fixture_file("./tests/data/multisig_incoming_transactions.json")
-        // );
+        let transactions : JsonApiDocument = serde_json::from_str(&get(&client, "/multisig_wallets/1/get_incoming?since=400").body_string().unwrap()).unwrap();
+        if let PrimaryData::Multiple(data) = transactions.data.unwrap() {
+            let mut transaction_hashes = vec![];
+            for resource in data {
+                if let serde_json::value::Value::Object(ref value) = resource.attributes["transaction"] {
+                    if let serde_json::value::Value::String(ref inner_value) = value["transaction_hash"] {
+                        transaction_hashes.push(inner_value.clone());
+                    }
+                }
+            }
+            assert_eq!(transaction_hashes,
+                vec!["81fa58dc058b60f725bd703651c9bcd17b436705a8aa5c29815d0b8e2980e729",
+                     "956b30c3c4335f019dbee60c60d76994319473acac356f774c7858cd5c968e40",
+                     "558b3e19b720bed80e334d2e5f0fc291f57f5c611263d9634255c10ffc3f4c46",
+                     "c9355b79000bea68d9fa078d0e73a5a53bd6d4b46f46993acae283530aa77351",
+                     "243f38d7127d5dd23a737932ba6e2f6699f93df44db17082cfa71b542542f852",
+                     "85eb1fed8b704d38cbf4bcff3297f2d3c991211a35e9feaa4e12849cffa24455",
+                     "1db1f22beb84e5fbe92c8c5e6e7f43d80aa5cfe5d48d83513edd9641fc00d055",
+                     "0ded7f014fa3213e9b000bc81b8151bc6f2f926b9afea6e3643c8ad658353c72",
+                     "dab5ac2087837e8ac46c9a224f2e86b4816d61d3ac0f8169df0c270d721c8681",
+                     "5775ffba2abebeef1c3b63272ef78024937b2a20291b8dd1c6cfc6a511ea28c9",
+                     "f257cbb984db0a457c02e3b91df175e9ed1b73c36229583b291680e0400c47da"]);
+        }
 
         let v: Value =
             ::serde_json::from_str(&get(&client, "/blocks/last").body_string().unwrap()).unwrap();
