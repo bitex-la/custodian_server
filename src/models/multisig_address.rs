@@ -1,5 +1,6 @@
 use std::collections::HashSet;
 use serde_json;
+use tiny_ram_db;
 
 use tiny_ram_db::{ Index, Indexer, Record, Table };
 use jsonapi::model::*;
