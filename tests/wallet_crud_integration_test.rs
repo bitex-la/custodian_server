@@ -27,7 +27,6 @@ mod wallet_test {
     use custodian_server::handlers::blocks;
     use custodian_server::handlers::transactions;
     use custodian_server::handlers::wallets;
-    use custodian_server::models::wallets::Wallets;
     use custodian_server::server_state::ServerState;
     use rocket;
     use rocket::http::ContentType;
@@ -40,6 +39,7 @@ mod wallet_test {
     use std::sync::MutexGuard;
     use jsonapi::model::*;
 
+    use serde_json;
     use serde_json::{Error, Value};
 
     fn rocket() -> rocket::Rocket {
@@ -139,10 +139,6 @@ mod wallet_test {
         let response = client.get(url).header(ContentType::JSON).dispatch();
         assert_eq!(response.status(), Status::Ok);
         response
-    }
-
-    fn count_wallets(wallets: &Wallets) -> usize {
-        wallets.plains.len() + wallets.hds.len() + wallets.multisigs.len()
     }
 
     fn load_fixture_file(path: &str) -> String {
