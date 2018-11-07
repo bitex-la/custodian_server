@@ -1,14 +1,14 @@
 use std::str;
 use std::str::FromStr;
+use serde_json;
 
 use bitcoin::util::bip32::ExtendedPubKey;
 use bitprim::explorer::Received;
 use jsonapi::model::*;
-use tiny_ram_db::PlainTable;
+use tiny_ram_db::{PlainTable, Record};
 
 use models::database::Database;
 use models::multisig_address::MultisigAddress;
-use models::resource_transaction::JsonApiModelTransaction;
 use models::transaction::Transaction;
 use models::wallet::Wallet;
 use models::address::Address;
@@ -24,15 +24,31 @@ pub struct MultisigWallet {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MultisigUtxo {
-    pub address: MultisigAddress,
+    pub address: Record<MultisigAddress>,
     pub script_type: String,
     pub multisig: MultisigDefinition,
     pub transaction: Transaction,
 }
 
-impl JsonApiModelTransaction for MultisigUtxo {
-    fn jsonapi_type() -> &'static str {
-        "multisig_utxo"
+impl ToJsonApi for MultisigUtxo {
+    const TYPE : &'static str = "multisig_utxos";
+
+    fn attributes(&self, _fields: &QueryFields) -> ResourceAttributes {
+        hashmap!{
+            "script_type".to_string() => serde_json::to_value(&self.script_type).unwrap(),
+            "multisig".to_string() => serde_json::to_value(&self.multisig).unwrap(),
+            "transaction".to_string() => serde_json::to_value(&self.transaction).unwrap()
+        }
+    }
+
+    fn relationships(&self, _fields: &QueryFields) -> Option<Relationships> {
+        Some(hashmap!{
+            "address".to_string() => Self::has_one("multisig_addresses", self.address.id),
+        })
+    }
+
+    fn included(&self, _fields: &Vec<String>) -> Option<Resources> {
+        Some(vec![self.address.data.to_jsonapi_resource(self.address.id).0])
     }
 }
 
@@ -68,7 +84,7 @@ impl Wallet for MultisigWallet {
     type Utxo = MultisigUtxo;
     type RA = MultisigAddress;
 
-    fn construct_utxo(&self, received: Received, address: &MultisigAddress) -> Self::Utxo {
+    fn construct_utxo(&self, received: Received, address: Record<MultisigAddress>) -> Self::Utxo {
         let pubkeys = self
             .xpubs
             .iter()
@@ -84,7 +100,7 @@ impl Wallet for MultisigWallet {
                     };
 
                 PubkeyDefinition {
-                    address_n: address.path.clone(),
+                    address_n: address.data.path.clone(),
                     node: NodeDefinition {
                         chain_code,
                         depth: 0,
@@ -103,7 +119,7 @@ impl Wallet for MultisigWallet {
                 m: self.xpubs.len(),
                 pubkeys,
             },
-            transaction: Transaction::new(received, address.public()),
+            transaction: Transaction::new(received, address.data.public()),
         }
     }
 

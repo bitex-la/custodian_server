@@ -1,7 +1,9 @@
+use serde_json;
 use bitprim::explorer::Received;
 use bitprim::explorer::InputDetail;
 use bitprim::explorer::OutputDetail;
-use models::resource_transaction::JsonApiModelTransaction;
+use jsonapi::model::*;
+use serializers::ToJsonApi;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Transaction {
@@ -17,9 +19,22 @@ pub struct Transaction {
     pub outputs: Vec<OutputDetail>
 }
 
-impl JsonApiModelTransaction  for Transaction {
-    fn jsonapi_type() -> &'static str {
-        "transaction"
+impl ToJsonApi for Transaction {
+    const TYPE : &'static str = "transactions";
+
+    fn attributes(&self, _fields: &QueryFields) -> ResourceAttributes {
+        hashmap!{
+            "satoshis".to_string() => serde_json::to_value(&self.satoshis).unwrap(),
+            "transaction_hash".to_string() => serde_json::to_value(&self.transaction_hash).unwrap(),
+            "position".to_string() => serde_json::to_value(&self.position).unwrap(),
+            "is_spent".to_string() => serde_json::to_value(&self.is_spent).unwrap(),
+            "block_height".to_string() => serde_json::to_value(&self.block_height).unwrap(),
+            "address".to_string() => serde_json::to_value(&self.address).unwrap(),
+            "version".to_string() => serde_json::to_value(&self.version).unwrap(),
+            "locktime".to_string() => serde_json::to_value(&self.locktime).unwrap(),
+            "inputs".to_string() => serde_json::to_value(&self.inputs).unwrap(),
+            "outputs".to_string() => serde_json::to_value(&self.outputs).unwrap(),
+        }
     }
 }
 

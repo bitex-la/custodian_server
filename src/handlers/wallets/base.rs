@@ -1,3 +1,4 @@
+use serde;
 use jsonapi::model::*;
 use bitprim::executor::Executor;
 use std::collections::HashSet;
@@ -12,6 +13,7 @@ use serde::de::Deserialize;
 use serde::ser::Serialize;
 use server_state::ServerState;
 use std::sync::Arc;
+use tiny_ram_db;
 use tiny_ram_db::{Record};
 
 pub trait WalletHandler
@@ -38,6 +40,7 @@ where
     where
         <Self as Wallet>::Utxo: Serialize,
         for<'de> <Self as Wallet>::Utxo: Deserialize<'de>,
+        <Self as Wallet>::Utxo: ToJsonApi
     {
         WalletHandler::get_transactions(
             state,
@@ -76,11 +79,11 @@ where
     ) -> JsonResult
     where
         F: FnOnce(&Executor, &&Self, HashSet<Record<Self::RA>>, Option<u64>, Option<u64>) -> Vec<T>,
-        T: JsonApiModel,
+        T: ToJsonApi,
     {
         match Self::get_wallet_and_addresses(state, id) {
             Ok((wallet, addresses)) => {
-                to_value(vec_to_jsonapi_document(fn_tx(
+                to_value(Self::collection_to_jsonapi_document(fn_tx(
                     &state.executor,
                     &&*wallet.data,
                     addresses,

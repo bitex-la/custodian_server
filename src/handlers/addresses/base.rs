@@ -1,3 +1,4 @@
+use serde;
 use std::collections::HashSet;
 use std::str::FromStr;
 

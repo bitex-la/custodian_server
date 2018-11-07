@@ -419,7 +419,7 @@ mod wallet_test {
             let mut transaction_hashes = vec![];
             for resource in data {
                 if let serde_json::value::Value::Object(ref value) = resource.attributes["transaction"] {
-                    if let serde_json::value::Value::String(ref inner_value) = value["transaction"]["transaction_hash"] {
+                    if let serde_json::value::Value::String(ref inner_value) = value["transaction_hash"] {
                         transaction_hashes.push(inner_value.clone());
                     }
                 }
@@ -434,10 +434,8 @@ mod wallet_test {
         if let PrimaryData::Multiple(data) = transactions.data.unwrap() {
             let mut transaction_hashes = vec![];
             for resource in data {
-                if let serde_json::value::Value::Object(ref value) = resource.attributes["transaction"] {
-                    if let serde_json::value::Value::String(ref inner_value) = value["transaction_hash"] {
-                        transaction_hashes.push(inner_value.clone());
-                    }
+                if let serde_json::value::Value::String(ref value) = resource.attributes["transaction_hash"] {
+                    transaction_hashes.push(value.clone());
                 }
             }
             assert_eq!(transaction_hashes,

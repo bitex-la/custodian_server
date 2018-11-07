@@ -1,12 +1,11 @@
 use std::io::Read;
 use jsonapi::model::*;
-use models::database::Database;
 use rocket::http::Status;
 use rocket::{Data, Outcome, Request, State};
 use rocket::data;
 use rocket::data::FromData;
 use std::ops::Deref;
-use serializers::{FromJsonApi, ToJsonApi};
+use serializers::FromJsonApi;
 use server_state::ServerState;
 
 pub struct Mapped<T>(pub T);

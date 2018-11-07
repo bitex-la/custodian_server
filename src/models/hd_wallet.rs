@@ -1,12 +1,12 @@
 use bitprim::explorer::Received;
 use jsonapi::model::*;
-use tiny_ram_db::PlainTable;
+use tiny_ram_db::{PlainTable, Record};
+use serde_json;
 
 use models::wallet::Wallet;
 use models::hd_address::HdAddress;
 use models::database::Database;
 use models::transaction::Transaction;
-use models::resource_transaction::JsonApiModelTransaction;
 use models::address::Address;
 use serializers::{FromJsonApi, ToJsonApi};
 
@@ -19,13 +19,27 @@ pub struct HdWallet {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HdUtxo {
-    pub address: HdAddress,
+    pub address: Record<HdAddress>,
     pub transaction: Transaction
 }
 
-impl JsonApiModelTransaction  for HdUtxo {
-    fn jsonapi_type() -> &'static str {
-        "hd_utxo"
+impl ToJsonApi for HdUtxo {
+    const TYPE : &'static str = "hd_utxos";
+
+    fn attributes(&self, _fields: &QueryFields) -> ResourceAttributes {
+        hashmap!{
+            "transaction".to_string() => serde_json::to_value(&self.transaction).unwrap()
+        }
+    }
+
+    fn relationships(&self, _fields: &QueryFields) -> Option<Relationships> {
+        Some(hashmap!{
+            "address".to_string() => Self::has_one("hd_addresses", self.address.id),
+        })
+    }
+
+    fn included(&self, _fields: &Vec<String>) -> Option<Resources> {
+        Some(vec![self.address.data.to_jsonapi_resource(self.address.id).0])
     }
 }
 
@@ -33,10 +47,10 @@ impl Wallet for HdWallet {
     type Utxo = HdUtxo;
     type RA = HdAddress;
 
-    fn construct_utxo(&self, received: Received, address: &HdAddress) -> Self::Utxo {
+    fn construct_utxo(&self, received: Received, address: Record<HdAddress>) -> Self::Utxo {
         HdUtxo {
             address: address.clone(),
-            transaction: Transaction::new(received, address.public())
+            transaction: Transaction::new(received, address.data.public())
         }
     }
 

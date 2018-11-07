@@ -1,5 +1,7 @@
 use std::collections::{HashSet};
 
+use tiny_ram_db;
+use serde_json;
 use tiny_ram_db::{ Index, Indexer, Record, Table };
 use models::hd_wallet::HdWallet;
 use models::address::Address;

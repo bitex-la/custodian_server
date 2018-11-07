@@ -12,10 +12,9 @@ use jsonapi::model::Query;
 use models::address::Address;
 use models::transaction::Transaction;
 use models::database::Database;
-use models::resource_transaction::{ JsonApiModelTransaction, ResourceTransaction };
 
 pub trait Wallet: std::marker::Sized + Clone + std::fmt::Debug {
-    type Utxo: JsonApiModelTransaction;
+    type Utxo;
     type RA: Address;
 
     fn get_utxos(
@@ -24,7 +23,7 @@ pub trait Wallet: std::marker::Sized + Clone + std::fmt::Debug {
         addresses: HashSet<Record<Self::RA>>,
         limit: Option<u64>,
         maybe_since: Option<u64>,
-    ) -> Vec<ResourceTransaction<Self::Utxo>> {
+    ) -> Vec<Self::Utxo> {
         let explorer = exec.explorer();
 
         let since = self.get_since(exec, maybe_since);
@@ -44,7 +43,7 @@ pub trait Wallet: std::marker::Sized + Clone + std::fmt::Debug {
         addresses: HashSet<Record<Self::RA>>,
         limit: Option<u64>,
         maybe_since: Option<u64>,
-    ) -> Vec<ResourceTransaction<Transaction>> {
+    ) -> Vec<Transaction> {
         let explorer = exec.explorer();
 
         let since = self.get_since(exec, maybe_since);
@@ -58,11 +57,11 @@ pub trait Wallet: std::marker::Sized + Clone + std::fmt::Debug {
         )
     }
 
-    fn construct_transaction(&self, received: Received, address: &Self::RA) -> Transaction {
-        Transaction::new(received, address.public())
+    fn construct_transaction(&self, received: Received, address: Record<Self::RA>) -> Transaction {
+        Transaction::new(received, address.data.public())
     }
 
-    fn construct_utxo(&self, received: Received, address: &Self::RA) -> Self::Utxo;
+    fn construct_utxo(&self, received: Received, address: Record<Self::RA>) -> Self::Utxo;
 
     fn get_since(&self, exec: &Executor, maybe_since: Option<u64>) -> u64 {
         maybe_since.unwrap_or_else(|| {
@@ -85,20 +84,19 @@ pub trait Wallet: std::marker::Sized + Clone + std::fmt::Debug {
         addresses: HashSet<Record<Self::RA>>,
         explorer_fn: E,
         tx: F,
-    ) -> Vec<ResourceTransaction<T>>
+    ) -> Vec<T>
     where
-        T: JsonApiModelTransaction,
         E: Fn(PaymentAddress, u64, u64) -> Result<Vec<Received>, Error>,
-        F: Fn(Received, &Self::RA) -> T,
+        F: Fn(Received, Record<Self::RA>) -> T,
     {
-        let mut result: Vec<ResourceTransaction<T>> = vec![];
+        let mut result: Vec<T> = vec![];
         for record in addresses {
             if let Ok(valid_address) = PaymentAddress::from_str(&record.data.public()) {
                 let vec_received = explorer_fn(valid_address, limit, since)
                     .expect("Not expecting failure on explore transaction!");
 
-                for (index, received) in vec_received.into_iter().enumerate() {
-                    result.push(ResourceTransaction { id: Some(index), transaction: tx(received, &record.data)})
+                for received in vec_received.into_iter() {
+                    result.push(tx(received, record.clone()))
                 }
             }
         }
