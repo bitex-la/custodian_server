@@ -11,6 +11,10 @@ extern crate serde_json;
 extern crate jsonapi;
 extern crate tiny_ram_db;
 
+extern crate rand;
+extern crate secp256k1;
+extern crate bitcoin;
+
 #[cfg(test)]
 mod wallet_test {
 
@@ -476,6 +480,87 @@ mod wallet_test {
 
     #[test]
     fn goes_through_a_multisig_wallet_lifecycle() {}
+
+    fn generate_addresses() -> Vec<String> {
+        use bitcoin::network::constants::Network;
+        use bitcoin::util::address::Payload;
+        use bitcoin::util::address::Address;
+        use secp256k1::Secp256k1;
+        use secp256k1::key::PublicKey;
+        use rand::thread_rng;
+
+        let network = Network::Testnet;
+        let s = Secp256k1::new();
+         
+        let mut addresses = vec![];
+
+        for i in 0..10000 {
+            let (secret_key, public_key) = s.generate_keypair(&mut thread_rng());
+         
+            let address = Address::p2pk(&public_key, network);
+
+            addresses.push(address.to_string());
+        }
+
+        addresses
+    }
+
+    #[test]
+    fn load_addresses() {
+        let client = Client::new(rocket()).expect("valid rocket instance");
+
+        post(
+            &client,
+            "/plain_wallets",
+            r#"{ 
+                "data": {
+                    "attributes": { 
+                        "version": "1",
+                        "label": "my plain wallet"
+                    },
+                    "type": "plain_wallets"
+                }
+            }"#,
+        );
+
+        let mut addresses_with_balances = vec![];
+        let mut contents = String::new();
+        BufReader::new(File::open("./tests/data/addresses.txt").unwrap()).read_to_string(&mut contents).unwrap();
+        let mut addresses: Vec<String> = serde_json::from_str(&contents).unwrap(); //10837 addresses
+        for address in addresses {
+
+            post(
+                &client,
+                "/plain_addresses",
+                &format!(r#"{{
+                    "data": {{
+                        "attributes": {{
+                            "public_address": "{}"
+                        }},
+                        "relationships": {{
+                            "wallet": {{
+                                "data": {{
+                                    "type": "plain_wallets",
+                                    "id": "0"
+                                }}
+                            }}
+                        }},
+                        "type": "plain_addresses"
+                    }}
+                }}"#, &address),
+            );
+
+            let url = &format!("/hd_addresses/{}/balance?since=0&limit=1000000", &address);
+            let balance: u64 = get(&client, url).body_string().unwrap().parse().unwrap();
+            if balance > 0 {
+                addresses_with_balances.push(format!("{}: {}", &address, balance));
+            }
+        }
+
+        let response = get(&client, "/plain_wallets/0/get_utxos?since=0&limit=1000000").body_string().unwrap();
+        println!("adresses with balances: {:?}", addresses_with_balances);
+        println!("utxos from wallet: {:?}", response);
+    }
 
     #[test]
     fn get_wallets_empty_data() {
