@@ -522,9 +522,6 @@ mod wallet_test {
             }"#,
         );
 
-        let response = get(&client, "/plain_wallets").body_string().unwrap();
-        println!("wallets: {:?}", response);
-
         let mut addresses_with_balances = vec![];
         let mut contents = String::new();
         BufReader::new(File::open("./tests/data/addresses.txt").unwrap()).read_to_string(&mut contents).unwrap();
