@@ -481,7 +481,7 @@ mod wallet_test {
          
         let mut addresses = vec![];
 
-        for i in 0..10000 {
+        for i in 0..90000 {
             let (secret_key, public_key) = s.generate_keypair(&mut thread_rng());
          
             let address = Address::p2pk(&public_key, network);
@@ -492,8 +492,20 @@ mod wallet_test {
         addresses
     }
 
+    fn create_and_add_addresses(addresses: Vec<String>) {
+        use std::fs::File;
+        use std::io::prelude::*;
+
+        let mut file = File::create("./tests/data/addresses2.txt").unwrap();
+        for address in &addresses {
+            file.write_all(format!("\"{}\",", address).as_bytes()).unwrap();
+        }
+    }
+
     #[test]
     fn load_addresses() {
+        use std::time::Instant;
+
         let client = Client::new(rocket()).expect("valid rocket instance");
 
         post(
@@ -516,9 +528,10 @@ mod wallet_test {
         let mut addresses_with_balances = vec![];
         let mut contents = String::new();
         BufReader::new(File::open("./tests/data/addresses.txt").unwrap()).read_to_string(&mut contents).unwrap();
-        let mut addresses: Vec<String> = serde_json::from_str(&contents).unwrap(); //10837 addresses
-        for address in addresses {
+        let mut addresses: Vec<String> = serde_json::from_str(&contents).unwrap(); //100837 addresses
 
+        let adding_addresses = Instant::now();
+        for address in &addresses {
             post(
                 &client,
                 "/plain_addresses",
@@ -539,17 +552,26 @@ mod wallet_test {
                     }}
                 }}"#, &address),
             );
+        }
+        let finish_adding_addresses = adding_addresses.elapsed();
 
+        let consulting_balances = Instant::now();
+        for address in &addresses {
             let url = &format!("/hd_addresses/{}/balance?since=0&limit=1000000", &address);
             let balance: u64 = get(&client, url).body_string().unwrap().parse().unwrap();
             if balance > 0 {
                 addresses_with_balances.push(format!("{}: {}", &address, balance));
             }
         }
+        let finish_consulting_balances = consulting_balances.elapsed();
 
+        let get_utxos = Instant::now();
         let response = get(&client, "/plain_wallets/1/get_utxos?since=0&limit=1000000").body_string().unwrap();
-        println!("adresses with balances: {:?}", addresses_with_balances);
-        println!("utxos from wallet: {:?}", response);
+        let finish_get_utxos = get_utxos.elapsed();
+
+        println!("Finish adding 100837 addresses {:?}", finish_adding_addresses);
+        println!("Finish consulting balances for 100837 addresses {:?}", finish_consulting_balances);
+        println!("Finish consulting utxos for a wallet of 100837 addresses {:?}", finish_get_utxos);
     }
 
     #[test]
