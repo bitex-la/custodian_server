@@ -1,5 +1,5 @@
 use std::clone::Clone;
-use std::collections::hash_set::HashSet;
+use tiny_ram_db::hashbrown;
 use models::database::Database;
 use models::wallet::Wallet;
 use tiny_ram_db;
@@ -15,7 +15,7 @@ pub trait Address: Clone {
     fn public(&self) -> String;
 
     fn by_wallet<'a>(wallet_id: usize, database: &'a mut Database)
-      -> Result<HashSet<Record<Self>>, tiny_ram_db::errors::Error>;
+      -> Result<hashbrown::HashSet<Record<Self>>, tiny_ram_db::errors::Error>;
 
     fn get_record_wallet(&self) -> Record<Self::Wallet>;
 

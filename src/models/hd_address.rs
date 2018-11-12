@@ -1,4 +1,4 @@
-use std::collections::{HashSet};
+use tiny_ram_db::hashbrown;
 
 use tiny_ram_db;
 use serde_json;
@@ -31,7 +31,7 @@ impl Address for HdAddress {
     fn by_wallet<'a>(
         wallet_id: usize,
         database: &'a mut Database,
-        ) -> Result<HashSet<Record<Self>>, tiny_ram_db::errors::Error> {
+        ) -> Result<hashbrown::HashSet<Record<Self>>, tiny_ram_db::errors::Error> {
         let wallet = database.hd_wallets.find(wallet_id)?;
         database
             .hd_addresses

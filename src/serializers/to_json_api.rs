@@ -135,3 +135,23 @@ impl<T> ToJsonApi for Record<T>
         self.data.included(fields)
     }
 }
+
+impl<T> ToJsonApi for (usize, Record<T>)
+    where T: ToJsonApi
+{
+    const TYPE: &'static str = T::TYPE;
+
+    fn id(&self) -> usize { self.0 }
+
+    fn attributes(&self, fields: &QueryFields) -> ResourceAttributes {
+        self.1.data.attributes(fields)
+    }
+
+    fn relationships(&self, fields: &QueryFields) -> Option<Relationships> {
+        self.1.data.relationships(fields)
+    }
+
+    fn included(&self, fields: &Vec<String>) -> Option<Resources> {
+        self.1.data.included(fields)
+    }
+}

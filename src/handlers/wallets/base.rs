@@ -1,7 +1,6 @@
 use serde;
 use jsonapi::model::*;
 use bitprim::executor::Executor;
-use std::collections::HashSet;
 use data_guards::Mapped;
 use handlers::helpers::{JsonResult, to_value};
 use models::address::Address;
@@ -14,13 +13,14 @@ use serde::ser::Serialize;
 use server_state::ServerState;
 use std::sync::Arc;
 use tiny_ram_db;
+use tiny_ram_db::hashbrown;
 use tiny_ram_db::{Record};
 
 pub trait WalletHandler
 where
     Self: serde::Serialize + Wallet,
     for<'de> Self: serde::Deserialize<'de>,
-    Self: ToJsonApi
+    Self: ToJsonApi,
 {
     fn index(state: &ServerState) -> JsonResult {
         let mut database = state.database_lock();
@@ -47,7 +47,7 @@ where
             id,
             limit,
             since,
-            |executor: &Executor, wallet: &&Self, addresses: HashSet<Record<Self::RA>>, limit, since| {
+            |executor: &Executor, wallet: &&Self, addresses: hashbrown::HashSet<Record<Self::RA>>, limit, since| {
                 wallet.get_utxos(executor, addresses, limit, since)
             },
         )
@@ -64,7 +64,7 @@ where
             id,
             limit,
             since,
-            |executor: &Executor, wallet: &&Self, addresses: HashSet<Record<Self::RA>>, limit, since| {
+            |executor: &Executor, wallet: &&Self, addresses: hashbrown::HashSet<Record<Self::RA>>, limit, since| {
                 wallet.get_incoming(executor, addresses, limit, since)
             },
         )
@@ -78,7 +78,7 @@ where
         fn_tx: F,
     ) -> JsonResult
     where
-        F: FnOnce(&Executor, &&Self, HashSet<Record<Self::RA>>, Option<u64>, Option<u64>) -> Vec<T>,
+        F: FnOnce(&Executor, &&Self, hashbrown::HashSet<Record<Self::RA>>, Option<u64>, Option<u64>) -> Vec<T>,
         T: ToJsonApi,
     {
         match Self::get_wallet_and_addresses(state, id) {
@@ -126,7 +126,7 @@ where
         let wallets = Self::wallets_from_database(&mut database);
 
         let mut vec_records = wallets.data.write().unwrap();
-        vec_records.remove(id);
+        vec_records.remove(&id);
         let new_record = Record {
             id,
             data: Arc::new(resource_wallet.0),
@@ -136,18 +136,17 @@ where
         to_value(true)
     }
 
-    //TODO: Naive version
     fn destroy(state: &ServerState, id: usize) -> JsonResult {
         let mut database = state.database_lock();
         let wallets = Self::wallets_from_database(&mut database);
 
         let mut vec_records = wallets.data.write().unwrap();
-        vec_records.remove(id);
+        vec_records.remove(&id);
 
         to_value(true)
     }
 
-    fn get_wallet_and_addresses(state: &ServerState, id: usize) -> Result<(Record<Self>, HashSet<Record<Self::RA>>), tiny_ram_db::errors::Error> {
+    fn get_wallet_and_addresses(state: &ServerState, id: usize) -> Result<(Record<Self>, hashbrown::HashSet<Record<Self::RA>>), tiny_ram_db::errors::Error> {
         let wallet = Self::get_wallet(state, id)?;
         let addresses = Self::get_addresses(state, wallet.id)?;
 
@@ -162,7 +161,7 @@ where
         Ok(wallet)
     }
 
-    fn get_addresses(state: &ServerState, wallet_id: usize) -> Result<HashSet<Record<Self::RA>>, tiny_ram_db::errors::Error> {
+    fn get_addresses(state: &ServerState, wallet_id: usize) -> Result<hashbrown::HashSet<Record<Self::RA>>, tiny_ram_db::errors::Error> {
         let mut database = state.database_lock();
         let addresses = Self::RA::by_wallet(wallet_id, &mut database)?;
 
@@ -175,6 +174,6 @@ impl<R> WalletHandler for R
 where
     R: serde::Serialize + Wallet,
     for<'de> R: serde::Deserialize<'de>,
-    R: ToJsonApi
+    R: ToJsonApi,
 {
 }

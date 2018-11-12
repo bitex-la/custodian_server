@@ -1,6 +1,6 @@
-use std::collections::HashSet;
 use serde_json;
 use tiny_ram_db;
+use tiny_ram_db::hashbrown;
 
 use tiny_ram_db::{ Index, Indexer, Record, Table };
 use jsonapi::model::*;
@@ -30,7 +30,7 @@ impl Address for MultisigAddress {
     }
 
     fn by_wallet<'a>( wallet_id: usize, database: &'a mut Database)
-        -> Result<HashSet<Record<Self>>, tiny_ram_db::errors::Error>
+        -> Result<hashbrown::HashSet<Record<Self>>, tiny_ram_db::errors::Error>
         {
             let wallet = database.multisig_wallets.find(wallet_id)?;
             database

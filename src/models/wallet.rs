@@ -1,6 +1,6 @@
 use std;
 use std::str::FromStr;
-use std::collections::HashSet;
+use tiny_ram_db::hashbrown;
 
 use bitprim::errors::Error;
 use bitprim::executor::Executor;
@@ -20,7 +20,7 @@ pub trait Wallet: std::marker::Sized + Clone + std::fmt::Debug {
     fn get_utxos(
         &self,
         exec: &Executor,
-        addresses: HashSet<Record<Self::RA>>,
+        addresses: hashbrown::HashSet<Record<Self::RA>>,
         limit: Option<u64>,
         maybe_since: Option<u64>,
     ) -> Vec<Self::Utxo> {
@@ -40,7 +40,7 @@ pub trait Wallet: std::marker::Sized + Clone + std::fmt::Debug {
     fn get_incoming(
         &self,
         exec: &Executor,
-        addresses: HashSet<Record<Self::RA>>,
+        addresses: hashbrown::HashSet<Record<Self::RA>>,
         limit: Option<u64>,
         maybe_since: Option<u64>,
     ) -> Vec<Transaction> {
@@ -81,7 +81,7 @@ pub trait Wallet: std::marker::Sized + Clone + std::fmt::Debug {
         &self,
         limit: u64,
         since: u64,
-        addresses: HashSet<Record<Self::RA>>,
+        addresses: hashbrown::HashSet<Record<Self::RA>>,
         explorer_fn: E,
         tx: F,
     ) -> Vec<T>

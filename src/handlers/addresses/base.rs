@@ -1,7 +1,7 @@
 use serde;
-use std::collections::HashSet;
 use std::str::FromStr;
 
+use tiny_ram_db::hashbrown;
 use bitprim::executor::Executor;
 use bitprim::payment_address::PaymentAddress;
 use handlers::helpers::{JsonResult, to_value};
@@ -37,7 +37,7 @@ where
             Self::by_wallet(wallet_id, &mut db)
                 .map_err(|_| status::Custom(Status::NotFound, format!("Wallet Not Found")))?
         } else {
-            HashSet::new()
+            hashbrown::HashSet::new()
         };
         let hash_set_addresses: JsonApiDocument = Self::collection_to_jsonapi_document(addresses);
         to_value(hash_set_addresses)
@@ -69,7 +69,7 @@ where
         let addresses = Self::table(&mut database);
 
         let mut vec_records = addresses.data.write().unwrap();
-        vec_records.remove(id);
+        vec_records.remove(&id);
 
         to_value(true)
     }

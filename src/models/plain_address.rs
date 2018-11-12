@@ -3,9 +3,9 @@ use models::address::Address;
 use models::database::Database;
 use models::plain_wallet::PlainWallet;
 use serializers::{FromJsonApi, ToJsonApi};
-use std::collections::HashSet;
-use tiny_ram_db;
 use serde_json;
+use tiny_ram_db;
+use tiny_ram_db::hashbrown;
 use tiny_ram_db::{Index, Indexer, Record, Table};
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -29,7 +29,7 @@ impl Address for PlainAddress {
     fn by_wallet<'a>(
         wallet_id: usize,
         database: &'a mut Database,
-        ) -> Result<HashSet<Record<Self>>, tiny_ram_db::errors::Error> {
+        ) -> Result<hashbrown::HashSet<Record<Self>>, tiny_ram_db::errors::Error> {
         let wallet = database.plain_wallets.find(wallet_id)?;
         database
             .plain_addresses

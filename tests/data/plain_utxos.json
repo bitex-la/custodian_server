@@ -10,7 +10,7 @@
             "relationships": {
                 "address": {
                     "data": {
-                        "id": "0",
+                        "id": "2",
                         "type": "plain_addresses"
                     }
                 }
@@ -23,7 +23,7 @@
             "attributes": {
                 "public_address": "mhjp3ZgbGxx5qc9Y8dvk1F71QeQcE9swLE"
             },
-            "id": "0",
+            "id": "2",
             "relationships": {
                 "wallet": {
                     "data": {
