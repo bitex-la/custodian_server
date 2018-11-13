@@ -63,7 +63,6 @@ where
         to_value(address.to_jsonapi_document(address.id))
     }
 
-    //TODO: Naive version
     fn destroy(state: &ServerState, id: usize) -> JsonResult {
         let mut database = state.database_lock();
         let addresses = Self::table(&mut database);
