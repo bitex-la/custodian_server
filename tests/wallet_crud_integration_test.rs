@@ -104,7 +104,7 @@ mod wallet_test {
             &client,
             "/plain_wallets",
             r#"{ "data": {
-            "attributes": { "version": "90" },
+            "attributes": { "version": "0" },
             "type": "plain_wallet",
             "id": "1"
           }
@@ -190,7 +190,7 @@ mod wallet_test {
             r#"{ 
                 "data": {
                     "attributes": { 
-                        "version": "90",
+                        "version": "0",
                         "label": "my plain wallet"
                     },
                     "type": "plain_wallets"
@@ -204,7 +204,7 @@ mod wallet_test {
             r#"{ 
                 "data": {
                     "attributes": { 
-                        "version": "90",
+                        "version": "0",
                         "label": "my hd wallet",
                         "xpub": "xpub661MyMwAqRbcGCmcnz4JtnieVyuvgQFGqZqw3KS1g9khndpF3segkAYbYCKKaQ9Di2ZuWLaZU4Axt7TrKq41aVYx8XTbDbQFzhhDMntKLU5"
                     },
@@ -219,7 +219,7 @@ mod wallet_test {
             r#"{
                 "data": {
                     "attributes": {
-                        "version": "90",
+                        "version": "0",
                         "label": "my multisig wallet",
                         "xpubs": ["xpub2323323232", "xpub12121212", "xpub12121221"],
                         "signers": 2
@@ -231,7 +231,7 @@ mod wallet_test {
 
         assert_eq!(
             get(&client, "/plain_wallets/1").body_string().unwrap(),
-            r#"{"data":{"attributes":{"label":"my plain wallet","version":"90"},"id":"1","type":"plain_wallets"}}"#,
+            r#"{"data":{"attributes":{"label":"my plain wallet","version":"0"},"id":"1","type":"plain_wallets"}}"#,
         );
 
         post(
@@ -240,7 +240,7 @@ mod wallet_test {
             r#"{
                 "data": {
                     "attributes": { 
-                        "version": "54",
+                        "version": "0",
                         "label": "my_second_wallet"
                     },
                     "type": "plain_wallets"
@@ -250,7 +250,7 @@ mod wallet_test {
 
         assert_eq!(
             get(&client, "/plain_wallets").body_string().unwrap(),
-            r#"{"data":[{"attributes":{"label":"my plain wallet","version":"90"},"id":"1","type":"plain_wallets"},{"attributes":{"label":"my_second_wallet","version":"54"},"id":"2","type":"plain_wallets"}]}"#
+            r#"{"data":[{"attributes":{"label":"my plain wallet","version":"0"},"id":"1","type":"plain_wallets"},{"attributes":{"label":"my_second_wallet","version":"0"},"id":"2","type":"plain_wallets"}]}"#
         );
 
         put(
@@ -259,7 +259,7 @@ mod wallet_test {
             r#"{
                 "data": {
                     "attributes": { 
-                        "version": "91",
+                        "version": "0",
                         "label": "my plain wallet updated"
                     },
                     "type": "plain_wallets"
@@ -269,7 +269,7 @@ mod wallet_test {
 
         assert_eq!(
             get(&client, "/plain_wallets/1").body_string().unwrap(),
-            r#"{"data":{"attributes":{"label":"my plain wallet updated","version":"91"},"id":"1","type":"plain_wallets"}}"#,
+            r#"{"data":{"attributes":{"label":"my plain wallet updated","version":"0"},"id":"1","type":"plain_wallets"}}"#,
         );
 
         post(
@@ -297,7 +297,7 @@ mod wallet_test {
             get(&client, "/plain_addresses/1")
                 .body_string()
                 .unwrap(),
-            r#"{"data":{"attributes":{"public_address":"mru76ADdwx3EFjuknsZZVRXKUrnWxedwH7"},"id":"1","relationships":{"wallet":{"data":{"id":"1","type":"plain_wallets"}}},"type":"plain_addresses"},"included":[{"attributes":{"label":"my plain wallet updated","version":"91"},"id":"1","type":"plain_wallets"}]}"#,
+            r#"{"data":{"attributes":{"public_address":"mru76ADdwx3EFjuknsZZVRXKUrnWxedwH7"},"id":"1","relationships":{"wallet":{"data":{"id":"1","type":"plain_wallets"}}},"type":"plain_addresses"},"included":[{"attributes":{"label":"my plain wallet updated","version":"0"},"id":"1","type":"plain_wallets"}]}"#,
         );
 
         delete(&client, "/plain_addresses/1", "");
@@ -305,7 +305,7 @@ mod wallet_test {
 
         assert_eq!(
             get(&client, "/plain_wallets/1").body_string().unwrap(),
-            r#"{"data":{"attributes":{"label":"my plain wallet updated","version":"91"},"id":"1","type":"plain_wallets"}}"#,
+            r#"{"data":{"attributes":{"label":"my plain wallet updated","version":"0"},"id":"1","type":"plain_wallets"}}"#,
         );
 
         post(
@@ -342,7 +342,7 @@ mod wallet_test {
             r#"{
                 "data": {
                     "attributes": { 
-                        "version": "54",
+                        "version": "0",
                         "label": "my_second_wallet",
                         "xpubs": ["xpub661MyMwAqRbcGCmcnz4JtnieVyuvgQFGqZqw3KS1g9khndpF3segkAYbYCKKaQ9Di2ZuWLaZU4Axt7TrKq41aVYx8XTbDbQFzhhDMntKLU5",
                                 "xpub661MyMwAqRbcFwc3Nmz8WmMU9okGmeVSmuprwNHCVsfhy6vMyg6g79octqwNftK4g62TMWmb7UtVpnAWnANzqwtKrCDFe2UaDCv1HoErssE",
@@ -456,7 +456,7 @@ mod wallet_test {
 
         assert_eq!(
             get(&client, "/plain_wallets").body_string().unwrap(),
-            r#"{"data":[{"attributes":{"label":"my_second_wallet","version":"54"},"id":"2","type":"plain_wallets"}]}"#
+            r#"{"data":[{"attributes":{"label":"my_second_wallet","version":"0"},"id":"2","type":"plain_wallets"}]}"#
         );
 
         post(&client, "/transactions/broadcast", r#"01000000017b1eabe0209b1fe794124575ef807057c77ada2138ae4fa8d6c4de0398a14f3f00000000494830450221008949f0cb400094ad2b5eb399d59d01c14d73d8fe6e96df1a7150deb388ab8935022079656090d7f6bac4c9a94e0aad311a4268e082a725f8aeae0573fb12ff866a5f01ffffffff01f0ca052a010000001976a914cbc20a7664f2f69e5355aa427045bc15e7c6c77288ac00000000"#);
@@ -514,7 +514,7 @@ mod wallet_test {
             r#"{ 
                 "data": {
                     "attributes": { 
-                        "version": "1",
+                        "version": "0",
                         "label": "my plain wallet"
                     },
                     "type": "plain_wallets"
@@ -585,7 +585,7 @@ mod wallet_test {
         let wallets = r#"
             {
                 "data": {
-                    "attributes": { "addresses": [ "uno", "dos" ], "version": "90" },
+                    "attributes": { "addresses": [ "uno", "dos" ], "version": "0" },
                     "id": "1",
                     "type": "plain_wallet"
                 }
@@ -604,7 +604,7 @@ mod wallet_test {
         let wallets = r#"
             {
                 "data": {
-                    "attributes": { "addresses": [ "uno", "dos", ], "version": "90" },
+                    "attributes": { "addresses": [ "uno", "dos", ], "version": "0" },
                     "id": "1",
                     "type": "plain_wallet"
                 }
@@ -624,7 +624,7 @@ mod wallet_test {
         let wallets_to_update = r#"
             {
                 "data": {
-                        "attributes": { "version": "92" },
+                        "attributes": { "version": "0" },
                         "id": "1",
                         "type": "plain_wallet"
                     }
