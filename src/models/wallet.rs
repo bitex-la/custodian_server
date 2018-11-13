@@ -114,4 +114,10 @@ pub trait Wallet: std::marker::Sized + Clone + std::fmt::Debug {
     fn jsonapi_type() -> &'static str;
 
     fn wallets_from_database<'a>(database: &'a mut Database) -> &'a mut PlainTable<Self>;
+
+    fn incr_version(&mut self);
+
+    fn decr_version(&mut self);
+
+    fn get_version(&self) -> String;
 }

@@ -61,6 +61,22 @@ impl Wallet for HdWallet {
     fn wallets_from_database<'a>(database: &'a mut Database) -> &'a mut PlainTable<Self> {
         &mut database.hd_wallets
     }
+
+    fn incr_version(&mut self) {
+        if let Ok(new_version) = self.version.parse::<usize>().map(|num| num + 1) {
+            self.version = new_version.to_string();
+        }
+    }
+
+    fn decr_version(&mut self) {
+        if let Ok(new_version) = self.version.parse::<usize>().map(|num| num - 1) {
+            self.version = new_version.to_string();
+        }
+    }
+
+    fn get_version(&self) -> String {
+        self.version.clone()
+    }
 }
 
 impl ToJsonApi for HdWallet {
