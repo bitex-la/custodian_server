@@ -99,11 +99,13 @@ where
         where
             Record<Self>: ToJsonApi
     {
-        let mut database = state.database_lock();
-        let wallets = Self::wallets_from_database(&mut database);
 
-        let wallet = wallets.find(id)
+        let mut wallet = Self::get_wallet(state, id)
             .map_err(|error| status::Custom(Status::NotFound, error.to_string()))?;
+        let addresses = Self::get_addresses(state, wallet.id)
+            .map_err(|error| status::Custom(Status::NotFound, error.to_string()))?;
+
+        wallet.data = Arc::new(wallet.data.update_version(addresses));
 
         to_value(wallet.to_jsonapi_document(wallet.id))
     }
@@ -140,10 +142,11 @@ where
         let mut database = state.database_lock();
         let wallets = Self::wallets_from_database(&mut database);
 
-        let mut vec_records = wallets.data.write().unwrap();
-        vec_records.remove(&id);
+        let mut records = wallets.data.write().unwrap();
+        let record = records.remove(&id)
+            .ok_or_else(|| status::Custom(Status::InternalServerError, "Could not remove".to_string()))?;
 
-        to_value(true)
+        to_value(record)
     }
 
     fn get_wallet_and_addresses(state: &ServerState, id: usize) -> Result<(Record<Self>, hashbrown::HashSet<Record<Self::RA>>), tiny_ram_db::errors::Error> {

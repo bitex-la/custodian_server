@@ -15,7 +15,7 @@ use models::database::Database;
 
 pub trait Wallet: std::marker::Sized + Clone + std::fmt::Debug {
     type Utxo;
-    type RA: Address;
+    type RA: Address + std::fmt::Debug;
 
     fn get_utxos(
         &self,
@@ -115,9 +115,5 @@ pub trait Wallet: std::marker::Sized + Clone + std::fmt::Debug {
 
     fn wallets_from_database<'a>(database: &'a mut Database) -> &'a mut PlainTable<Self>;
 
-    fn incr_version(&mut self);
-
-    fn decr_version(&mut self);
-
-    fn get_version(&self) -> String;
+    fn update_version<'a>(&self, addresses: hashbrown::HashSet<Record<Self::RA>>) -> Self;
 }

@@ -1,6 +1,7 @@
 use std::str;
 use std::str::FromStr;
 use serde_json;
+use tiny_ram_db::hashbrown;
 
 use bitcoin::util::bip32::ExtendedPubKey;
 use bitprim::explorer::Received;
@@ -131,20 +132,14 @@ impl Wallet for MultisigWallet {
         &mut database.multisig_wallets
     }
 
-    fn incr_version(&mut self) {
-        if let Ok(new_version) = self.version.parse::<usize>().map(|num| num + 1) {
-            self.version = new_version.to_string();
+    fn update_version<'a>(&self, addresses: hashbrown::HashSet<Record<Self::RA>>) -> Self{
+        let version = addresses.len().to_string();
+        MultisigWallet {
+            version,
+            xpubs: self.xpubs.clone(),
+            label: self.label.clone(),
+            signers: self.signers.clone()
         }
-    }
-
-    fn decr_version(&mut self) {
-        if let Ok(new_version) = self.version.parse::<usize>().map(|num| num - 1) {
-            self.version = new_version.to_string();
-        }
-    }
-
-    fn get_version(&self) -> String {
-        self.version.clone()
     }
 }
 

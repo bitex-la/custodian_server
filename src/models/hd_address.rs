@@ -44,12 +44,29 @@ impl Address for HdAddress {
     fn get_record_wallet(&self) -> Record<Self::Wallet> {
         self.wallet.clone()
     }
+
+    fn remove_from_indexes<'a>(table: &'a Table<Self, Self::Index>, id: &'a usize) -> Result<bool, tiny_ram_db::errors::Error> {
+        let mut indexes = table.indexes.write().unwrap();
+        indexes.remove(table, id)?;
+        Ok(true)
+    }
 }
 
 #[derive(Default)]
 pub struct HdAddressIndex {
     by_public_address: Index<String, HdAddress>,
     by_wallet: Index<Record<HdWallet>, HdAddress>
+}
+
+impl HdAddressIndex {
+    fn remove(&mut self, table: &Table<HdAddress, HdAddressIndex>, id: &usize) -> Result<bool, tiny_ram_db::errors::Error> {
+        let address = table.find(id.clone())?;
+
+        self.by_public_address.data.remove(&address.data.public_address);
+        self.by_wallet.data.remove(&address.data.wallet);
+
+        Ok(true)
+    }
 }
 
 impl Indexer for HdAddressIndex {

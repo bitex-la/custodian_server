@@ -7,6 +7,7 @@ use serde_json;
 use tiny_ram_db;
 use tiny_ram_db::hashbrown;
 use tiny_ram_db::{Index, Indexer, Record, Table};
+use server_state::ServerState;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct PlainAddress {
@@ -42,12 +43,29 @@ impl Address for PlainAddress {
     fn get_record_wallet(&self) -> Record<Self::Wallet> {
         self.wallet.clone()
     }
+
+    fn remove_from_indexes<'a>(table: &'a Table<Self, Self::Index>, id: &'a usize) -> Result<bool, tiny_ram_db::errors::Error> {
+        let mut indexes = table.indexes.write().expect("Error getting write access to indexes");
+        indexes.remove(table, id)?;
+        Ok(true)
+    }
 }
 
 #[derive(Default)]
 pub struct AddressIndex {
     by_public_address: Index<String, PlainAddress>,
     by_wallet: Index<Record<PlainWallet>, PlainAddress>,
+}
+
+impl AddressIndex {
+    fn remove(&mut self, table: &Table<PlainAddress, AddressIndex>, id: &usize) -> Result<bool, tiny_ram_db::errors::Error> {
+        let address = table.find(id.clone())?;
+
+        self.by_public_address.data.remove(&address.data.public_address);
+        self.by_wallet.data.remove(&address.data.wallet);
+
+        Ok(true)
+    }
 }
 
 impl Indexer for AddressIndex {

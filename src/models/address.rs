@@ -20,4 +20,6 @@ pub trait Address: Clone {
     fn get_record_wallet(&self) -> Record<Self::Wallet>;
 
     fn table<'a>(database: &'a mut Database) -> &'a mut Table<Self, Self::Index>;
+
+    fn remove_from_indexes<'a>(table: &'a Table<Self, Self::Index>, id: &'a usize) -> Result<bool, tiny_ram_db::errors::Error>;
 }

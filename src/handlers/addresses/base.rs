@@ -1,6 +1,5 @@
 use serde;
 use std::str::FromStr;
-use std::sync::{Arc, MutexGuard};
 
 use tiny_ram_db::hashbrown;
 use bitprim::executor::Executor;
@@ -8,23 +7,16 @@ use bitprim::payment_address::PaymentAddress;
 use handlers::helpers::{JsonResult, to_value};
 use jsonapi::model::*;
 use models::address::Address;
-use models::wallet::Wallet;
 use models::transaction::Transaction;
 use rocket::http::Status;
 use rocket::response::status;
 use server_state::ServerState;
-use tiny_ram_db::{Indexer, Record};
+use tiny_ram_db::Indexer;
 use serializers::ToJsonApi;
-use models::database::Database;
 
 #[derive(FromForm, Debug)]
 pub struct AddressFilters {
     pub wallet_id: Option<usize>,
-}
-
-pub enum VersionMutation {
-    Increment,
-    Decrement
 }
 
 /* This trait is the base of all the address handlers, it should only
@@ -58,8 +50,6 @@ where
             .insert(new.clone())
             .map_err(|error| status::Custom(Status::InternalServerError, error.to_string()))?;
 
-        Self::mutate_version(VersionMutation::Increment, &new, &mut database, &record);
-
         to_value(record)
     }
 
@@ -77,30 +67,15 @@ where
         let mut database = state.database_lock();
         let addresses = Self::table(&mut database);
 
-        let mut records = addresses.data.write().unwrap();
-        records.remove(&id);
+        Self::remove_from_indexes(addresses, &id)
+            .map_err(|error| status::Custom(Status::NotFound, error.to_string()))?;
 
-        to_value(true)
-    }
+        let mut records = addresses.data.write().expect("Error getting write access to addresses");
 
-    fn mutate_version(version: VersionMutation, _self: &Self, database: &mut MutexGuard<Database>, record_address: &Record<Self>) {
-        let id = &_self.get_record_wallet().id;
-        let wallets = Self::Wallet::wallets_from_database(database);
+        let record = records.remove(&id)
+            .ok_or_else(|| status::Custom(Status::InternalServerError, "Could not remove".to_string()))?;
 
-        let mut records = wallets.data.write().unwrap();
-
-        records.remove(id);
-        let mut record_wallet = record_address.data.get_record_wallet().data;
-        let wallet = Arc::make_mut(&mut record_wallet);
-        match version {
-            VersionMutation::Increment => wallet.incr_version(),
-            VersionMutation::Decrement => wallet.decr_version()
-        }
-        let new_record = Record {
-            id: id.clone(),
-            data: Arc::new(wallet.clone())
-        };
-        records.insert(id.clone(), new_record);
+        to_value(record)
     }
 
     fn balance(

@@ -1,6 +1,6 @@
 use bitprim::explorer::Received;
 use jsonapi::model::*;
-use tiny_ram_db::{PlainTable, Record};
+use tiny_ram_db::{PlainTable, Record, hashbrown};
 use serde_json;
 
 use models::wallet::Wallet;
@@ -62,20 +62,13 @@ impl Wallet for HdWallet {
         &mut database.hd_wallets
     }
 
-    fn incr_version(&mut self) {
-        if let Ok(new_version) = self.version.parse::<usize>().map(|num| num + 1) {
-            self.version = new_version.to_string();
+    fn update_version<'a>(&self, addresses: hashbrown::HashSet<Record<Self::RA>>) -> Self{
+        let version = addresses.len().to_string();
+        HdWallet {
+            version,
+            xpub: self.xpub.clone(),
+            label: self.label.clone()
         }
-    }
-
-    fn decr_version(&mut self) {
-        if let Ok(new_version) = self.version.parse::<usize>().map(|num| num - 1) {
-            self.version = new_version.to_string();
-        }
-    }
-
-    fn get_version(&self) -> String {
-        self.version.clone()
     }
 }
 

@@ -130,13 +130,14 @@ mod wallet_test {
         assert_eq!(response.status(), Status::Ok);
     }
 
-    fn delete(client: &Client, url: &str, body: &str) {
+    fn delete<'a>(client: &'a Client, url: &'a str, body: &'a str) -> LocalResponse<'a> {
         let response = client
             .delete(url)
             .header(ContentType::JSON)
             .body(body)
             .dispatch();
         assert_eq!(response.status(), Status::Ok);
+        response
     }
 
     fn get<'a>(client: &'a Client, url: &'a str) -> LocalResponse<'a> {
