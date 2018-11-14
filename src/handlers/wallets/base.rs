@@ -14,7 +14,7 @@ use server_state::ServerState;
 use std::sync::Arc;
 use tiny_ram_db;
 use tiny_ram_db::hashbrown;
-use tiny_ram_db::{Record};
+use tiny_ram_db::{Record, HashMapRecord};
 
 pub trait WalletHandler
 where
@@ -23,11 +23,14 @@ where
     Self: ToJsonApi,
 {
     fn index(state: &ServerState) -> JsonResult {
-        let mut database = state.database_lock();
-        let plain_table = Self::wallets_from_database(&mut database);
-        let wallets = plain_table.data.read()
+        let wallets = Self::get_wallets(state)
             .map_err(|error| status::Custom(Status::InternalServerError, error.to_string()))?;
-        let hash_set_wallets: JsonApiDocument = Self::collection_to_jsonapi_document((*wallets).clone());
+        wallets.map(|wallet| {
+            let addresses = Self::get_addresses(state, wallet.id)
+                .map_err(|error| status::Custom(Status::NotFound, error.to_string()))?;
+            wallet.data = Arc::new(wallet.update_version(addresses));
+        });
+        let hash_set_wallets: JsonApiDocument = Self::collection_to_jsonapi_document(wallets);
         to_value(hash_set_wallets)
     }
 
@@ -154,6 +157,13 @@ where
         let addresses = Self::get_addresses(state, wallet.id)?;
 
         Ok((wallet, addresses))
+    }
+
+    fn get_wallets(state: &ServerState) -> Result<HashMapRecord<Self>, tiny_ram_db::errors::Error> {
+        let mut database = state.database_lock();
+        let plain_table = Self::wallets_from_database(&mut database);
+        let wallets = plain_table.data.read()?;
+        Ok(wallets.clone())
     }
 
     fn get_wallet(state: &ServerState, id: usize) -> Result<Record<Self>, tiny_ram_db::errors::Error> {
