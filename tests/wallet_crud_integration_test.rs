@@ -306,6 +306,10 @@ mod wallet_test {
             r#"{"data":{"attributes":{"label":"my plain wallet updated","version":"1"},"id":"1","type":"plain_wallets"}}"#,
         );
 
+        assert_eq!(
+            get(&client, "/plain_wallets").body_string().unwrap(), 
+            r#"{"data":[{"attributes":{"label":"my plain wallet updated","version":"1"},"id":"1","type":"plain_wallets"},{"attributes":{"label":"my_second_wallet","version":"0"},"id":"2","type":"plain_wallets"}]}"#);
+
         delete(&client, "/plain_addresses/1", "");
         not_found(&client, "/plain_addresses/1");
 

@@ -23,12 +23,15 @@ where
     Self: ToJsonApi,
 {
     fn index(state: &ServerState) -> JsonResult {
-        let wallets = Self::get_wallets(state)
+        let raw_wallets = Self::get_wallets(state)
             .map_err(|error| status::Custom(Status::InternalServerError, error.to_string()))?;
-        wallets.map(|wallet| {
-            let addresses = Self::get_addresses(state, wallet.id)
-                .map_err(|error| status::Custom(Status::NotFound, error.to_string()))?;
-            wallet.data = Arc::new(wallet.update_version(addresses));
+        
+        let wallets = raw_wallets.into_iter().map(|record| {
+            let mut wallet = record.clone().1;
+            if let Ok(addresses) = Self::get_addresses(state, record.0) {
+                wallet.data = Arc::new(wallet.data.update_version(addresses));
+            }
+            (record.0, wallet)
         });
         let hash_set_wallets: JsonApiDocument = Self::collection_to_jsonapi_document(wallets);
         to_value(hash_set_wallets)
