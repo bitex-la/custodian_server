@@ -53,49 +53,53 @@ mod wallet_test {
             ServerState::new(&format!("./tests/{}-testnet.cfg", CURRENCY), &f, &f)
                 .expect("Error creating State");
 
-        rocket::ignite().manage(state).mount(
-            "/",
+        let mut routes = vec![wallets::plain::index_filter_route()];
+        let mut automatic_routes = 
             routes![
-                wallets::plain::index,
-                wallets::plain::show,
-                wallets::plain::create,
-                wallets::plain::update,
-                wallets::plain::destroy,
-                wallets::plain::get_utxos,
-                wallets::plain::get_incoming,
-                wallets::hd::index,
-                wallets::hd::show,
-                wallets::hd::create,
-                wallets::hd::update,
-                wallets::hd::destroy,
-                wallets::hd::get_utxos,
-                wallets::hd::get_incoming,
-                wallets::multisig::index,
-                wallets::multisig::show,
-                wallets::multisig::create,
-                wallets::multisig::update,
-                wallets::multisig::destroy,
-                wallets::multisig::get_utxos,
-                wallets::multisig::get_incoming,
-                addresses::plain::index,
-                addresses::plain::create,
-                addresses::plain::show,
-                addresses::plain::destroy,
-                addresses::plain::balance,
-                addresses::hd::index,
-                addresses::hd::create,
-                addresses::hd::show,
-                addresses::hd::destroy,
-                addresses::hd::balance,
-                addresses::multisig::index,
-                addresses::multisig::create,
-                addresses::multisig::show,
-                addresses::multisig::destroy,
-                addresses::multisig::balance,
-                blocks::base::last,
-                transactions::base::broadcast
-            ],
-        )
+                    transactions::base::broadcast,
+                    wallets::plain::index,
+                    wallets::plain::show,
+                    wallets::plain::create,
+                    wallets::plain::update,
+                    wallets::plain::destroy,
+                    wallets::plain::get_utxos,
+                    wallets::plain::get_incoming,
+                    wallets::hd::index,
+                    wallets::hd::show,
+                    wallets::hd::create,
+                    wallets::hd::update,
+                    wallets::hd::destroy,
+                    wallets::hd::get_utxos,
+                    wallets::hd::get_incoming,
+                    wallets::multisig::index,
+                    wallets::multisig::show,
+                    wallets::multisig::create,
+                    wallets::multisig::update,
+                    wallets::multisig::destroy,
+                    wallets::multisig::get_utxos,
+                    wallets::multisig::get_incoming,
+                    addresses::plain::index,
+                    addresses::plain::create,
+                    addresses::plain::show,
+                    addresses::plain::destroy,
+                    addresses::plain::balance,
+                    addresses::plain::get_utxos,
+                    addresses::hd::index,
+                    addresses::hd::create,
+                    addresses::hd::show,
+                    addresses::hd::destroy,
+                    addresses::hd::balance,
+                    addresses::hd::get_utxos,
+                    addresses::multisig::index,
+                    addresses::multisig::create,
+                    addresses::multisig::show,
+                    addresses::multisig::destroy,
+                    addresses::multisig::balance,
+                    addresses::multisig::get_utxos,
+                    blocks::base::last
+                ];
+        routes.append(&mut automatic_routes);
+        rocket::ignite().manage(state).mount( "/", routes)
     }
 
     fn creates_wallet_for_other_tests() -> Client {
@@ -252,6 +256,11 @@ mod wallet_test {
         assert_eq!(
             get(&client, "/plain_wallets").body_string().unwrap(),
             r#"{"data":[{"attributes":{"label":"my plain wallet","version":"0"},"id":"1","type":"plain_wallets"},{"attributes":{"label":"my_second_wallet","version":"0"},"id":"2","type":"plain_wallets"}]}"#
+        );
+
+        assert_eq!(
+            get(&client, "/plain_wallets?filter[label]=my plain wallet").body_string().unwrap(),
+            r#"{"data":[{"attributes":{"label":"my plain wallet","version":"0"},"id":"1","type":"plain_wallets"}]}"#
         );
 
         put(

@@ -66,11 +66,9 @@ fn main() {
         println!("Do not signal. Stop by visiting /stop");
     }).expect("Error setting Ctrl-C handler");
 
-    rocket::ignite()
-        .manage(state)
-        .mount(
-            "/",
-            routes![
+    let mut routes = vec![wallets::plain::index_filter_route()];
+    let mut automatic_routes = 
+        routes![
                 transactions::base::broadcast,
                 wallets::plain::index,
                 wallets::plain::show,
@@ -113,8 +111,12 @@ fn main() {
                 addresses::multisig::get_utxos,
                 blocks::base::last,
                 stop
-            ],
-        )
+            ];
+    routes.append(&mut automatic_routes);
+
+    rocket::ignite()
+        .manage(state)
+        .mount("/", routes)
         .attach(options)
         .launch();
 }

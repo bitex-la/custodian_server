@@ -16,6 +16,11 @@ use tiny_ram_db;
 use tiny_ram_db::hashbrown;
 use tiny_ram_db::{Record, HashMapRecord};
 
+#[derive(FromForm, Debug)]
+pub struct WalletFilter {
+    pub label: String
+}
+
 pub trait WalletHandler
 where
     Self: serde::Serialize + Wallet,

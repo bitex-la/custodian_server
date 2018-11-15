@@ -1,6 +1,6 @@
 use handlers::helpers::GetTransactionParams;
 use handlers::helpers::JsonResult;
-use handlers::wallets::base::WalletHandler;
+use handlers::wallets::base::{WalletHandler, WalletFilter};
 use models::plain_wallet::PlainWallet;
 use server_state::ServerState;
 use data_guards::Mapped;
@@ -9,6 +9,37 @@ use data_guards::Mapped;
 pub fn index(state: &ServerState) -> JsonResult
 {
     PlainWallet::index(state)
+}
+
+
+use rocket::{Request, Route, Data, State, Outcome};
+use rocket::handler;
+use rocket::http::Method;
+use rocket::http::Status;
+
+fn handler<'r>(request: &'r Request, _data: Data) -> handler::Outcome<'r> {
+    let state: State<ServerState> = match request.guard::<State<ServerState>>() {
+        Outcome::Success(value) => value,
+        _ => {
+            return Outcome::Failure(Status::BadRequest);
+        }
+    };
+    println!("{:#?}", request.uri().query());
+    let wallet_filter = WalletFilter { 
+        label: request.uri().query().unwrap().to_string()
+    };
+    let responder = filter_index(&state, wallet_filter);
+
+    Outcome::from(request, responder)
+}
+
+fn filter_index(state: &ServerState, label: WalletFilter) -> JsonResult
+{
+    PlainWallet::index(state)
+}
+
+pub fn index_filter_route() -> Route {
+    Route::new(Method::Get, "/plain_wallets?filter[label]=<label>", handler)
 }
 
 #[get("/plain_wallets/<id>/get_utxos?<params>")]
