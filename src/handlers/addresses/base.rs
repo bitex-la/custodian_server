@@ -1,7 +1,6 @@
 use serde;
 use std::str::FromStr;
 
-use tiny_ram_db::hashbrown;
 use bitprim::executor::Executor;
 use bitprim::payment_address::PaymentAddress;
 use handlers::helpers::{JsonResult, to_value};
@@ -14,11 +13,6 @@ use server_state::ServerState;
 use tiny_ram_db::Indexer;
 use serializers::ToJsonApi;
 
-#[derive(FromForm, Debug)]
-pub struct AddressFilters {
-    pub wallet_id: Option<usize>,
-}
-
 /* This trait is the base of all the address handlers, it should only
  * take care of receiving the request input like filters and fields,
  * and serializing the output to jsonapi.
@@ -30,16 +24,13 @@ where
     Self: ToJsonApi
 {
 
-    fn index(state: &ServerState, filters: AddressFilters) -> JsonResult 
+    fn index(state: &ServerState) -> JsonResult 
     {
-        let mut db = state.database_lock();
-        let addresses = if let Some(wallet_id) = filters.wallet_id {
-            Self::by_wallet(wallet_id, &mut db)
-                .map_err(|_| status::Custom(Status::NotFound, format!("Wallet Not Found")))?
-        } else {
-            hashbrown::HashSet::new()
-        };
-        let hash_set_addresses: JsonApiDocument = Self::collection_to_jsonapi_document(addresses);
+        let mut database = state.database_lock();
+        let table = Self::table(&mut database);
+        let addresses = table.data.read()
+            .map_err(|error| status::Custom(Status::InternalServerError, error.to_string()))?;
+        let hash_set_addresses: JsonApiDocument = Self::collection_to_jsonapi_document(addresses.clone());
         to_value(hash_set_addresses)
     }
 

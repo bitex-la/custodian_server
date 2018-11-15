@@ -3,12 +3,11 @@ use handlers::helpers::GetTransactionParams;
 use handlers::helpers::JsonResult;
 use models::multisig_address::MultisigAddress;
 use server_state::ServerState;
-use handlers::addresses::base::AddressFilters;
 use data_guards::Mapped;
 
-#[get("/multisig_addresses?<filters>")]
-pub fn index(state: &ServerState, filters: AddressFilters) -> JsonResult {
-    MultisigAddress::index(state, filters)
+#[get("/multisig_addresses")]
+pub fn index(state: &ServerState) -> JsonResult {
+    MultisigAddress::index(state)
 }
 
 #[post( "/multisig_addresses", data = "<address>")]

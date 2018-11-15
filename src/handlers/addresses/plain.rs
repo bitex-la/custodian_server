@@ -3,12 +3,11 @@ use handlers::helpers::GetTransactionParams;
 use handlers::helpers::JsonResult;
 use models::plain_address::PlainAddress;
 use server_state::ServerState;
-use handlers::addresses::base::AddressFilters;
 use data_guards::Mapped;
 
-#[get("/plain_addresses?<filters>")]
-pub fn index(state: &ServerState, filters: AddressFilters) -> JsonResult {
-    PlainAddress::index(state, filters)
+#[get("/plain_addresses")]
+pub fn index(state: &ServerState) -> JsonResult {
+    PlainAddress::index(state)
 }
 
 #[post("/plain_addresses", data = "<address>")]
