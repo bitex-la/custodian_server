@@ -28,9 +28,13 @@ where
     {
         let mut database = state.database_lock();
         let table = Self::table(&mut database);
-        let addresses = table.data.read()
+        let result = table.data.read()
             .map_err(|error| status::Custom(Status::InternalServerError, error.to_string()))?;
-        let hash_set_addresses: JsonApiDocument = Self::collection_to_jsonapi_document(addresses.clone());
+
+        let addresses = result
+            .iter()
+            .map(|(id, record)| (id, record.data.as_ref().clone()));
+        let hash_set_addresses: JsonApiDocument = Self::collection_to_jsonapi_document(addresses);
         to_value(hash_set_addresses)
     }
 
@@ -48,10 +52,10 @@ where
         let mut database = state.database_lock();
         let addresses = Self::table(&mut database);
 
-        let address = addresses.find(id)
+        let record = addresses.find(id)
             .map_err(|error| status::Custom(Status::NotFound, error.to_string()))?;
 
-        to_value(address.to_jsonapi_document(address.id))
+        to_value(record.data.to_jsonapi_document(record.id))
     }
 
     fn destroy(state: &ServerState, id: usize) -> JsonResult {

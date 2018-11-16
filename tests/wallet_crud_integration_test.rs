@@ -53,8 +53,7 @@ mod wallet_test {
             ServerState::new(&format!("./tests/{}-testnet.cfg", CURRENCY), &f, &f)
                 .expect("Error creating State");
 
-        let mut routes = vec![wallets::plain::index_filter_route()];
-        let mut automatic_routes = 
+        let routes = 
             routes![
                     transactions::base::broadcast,
                     wallets::plain::index,
@@ -98,7 +97,6 @@ mod wallet_test {
                     addresses::multisig::get_utxos,
                     blocks::base::last
                 ];
-        routes.append(&mut automatic_routes);
         rocket::ignite().manage(state).mount( "/", routes)
     }
 
@@ -256,11 +254,6 @@ mod wallet_test {
         assert_eq!(
             get(&client, "/plain_wallets").body_string().unwrap(),
             r#"{"data":[{"attributes":{"label":"my plain wallet","version":"0"},"id":"1","type":"plain_wallets"},{"attributes":{"label":"my_second_wallet","version":"0"},"id":"2","type":"plain_wallets"}]}"#
-        );
-
-        assert_eq!(
-            get(&client, "/plain_wallets?filter[label]=my plain wallet").body_string().unwrap(),
-            r#"{"data":[{"attributes":{"label":"my plain wallet","version":"0"},"id":"1","type":"plain_wallets"}]}"#
         );
 
         put(

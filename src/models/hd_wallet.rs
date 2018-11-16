@@ -1,6 +1,6 @@
 use bitprim::explorer::Received;
 use jsonapi::model::*;
-use tiny_ram_db::{PlainTable, Record, hashbrown};
+use tiny_ram_db::{Table, Record, Index, Indexer, hashbrown};
 use serde_json;
 
 use models::wallet::Wallet;
@@ -43,7 +43,22 @@ impl ToJsonApi for HdUtxo {
     }
 }
 
+#[derive(Default)]
+pub struct HdWalletIndex {
+    by_label: Index<String, HdWallet>,
+}
+
+impl Indexer for HdWalletIndex {
+    type Item = HdWallet;
+    fn index(&mut self, item: &Record<HdWallet>) -> Result<bool, tiny_ram_db::errors::Error> {
+        self.by_label
+            .insert(item.data.label.clone(), item.clone())?;
+        Ok(true)
+    }
+}
+
 impl Wallet for HdWallet {
+    type Index = HdWalletIndex;
     type Utxo = HdUtxo;
     type RA = HdAddress;
 
@@ -58,7 +73,7 @@ impl Wallet for HdWallet {
         "hd_wallet"
     }
 
-    fn wallets_from_database<'a>(database: &'a mut Database) -> &'a mut PlainTable<Self> {
+    fn wallets_from_database<'a>(database: &'a mut Database) -> &'a mut Table<Self, Self::Index> {
         &mut database.hd_wallets
     }
 

@@ -2,15 +2,12 @@ pub use jsonapi::api::*;
 pub use jsonapi::query::{Query, QueryFields};
 pub use jsonapi::model::JsonApiModel;
 use std;
-use tiny_ram_db::Record;
 
 /* This trait constructs JsonApi Documents from structs and our database,
  * it relies on the JsonApi crate and the database
  */
 pub trait ToJsonApi {
     const TYPE: &'static str;
-
-    fn id(&self) -> usize { 0 }
 
     fn attributes(&self, fields: &QueryFields) -> ResourceAttributes;
 
@@ -22,11 +19,13 @@ pub trait ToJsonApi {
         None
     }
 
-    fn to_jsonapi_document(&self, id: usize) -> JsonApiDocument {
+    fn to_jsonapi_document<T>(&self, id: T) -> JsonApiDocument 
+        where T: ToString
+    {
         self.to_jsonapi_document_with_query(id, &Default::default())
     }
 
-    fn to_jsonapi_document_with_query(&self, id: usize, query: &Query) -> JsonApiDocument {
+    fn to_jsonapi_document_with_query<T: ToString>(&self, id: T, query: &Query) -> JsonApiDocument {
         let (res, included) = self.to_jsonapi_resource_with_query(id, query);
         JsonApiDocument {
             data: Some(PrimaryData::Single(Box::new(res))),
@@ -35,13 +34,13 @@ pub trait ToJsonApi {
         }
     }
 
-    fn to_jsonapi_resource(&self, id: usize) -> (Resource, Option<Resources>) {
+    fn to_jsonapi_resource<T: ToString>(&self, id: T) -> (Resource, Option<Resources>) {
         self.to_jsonapi_resource_with_query(id, &Default::default())
     }
 
-    fn to_jsonapi_resource_with_query(
+    fn to_jsonapi_resource_with_query<T: ToString>(
         &self,
-        id: usize,
+        id: T,
         query: &Query,
     ) -> (Resource, Option<Resources>) {
         let resource = Resource {
@@ -64,21 +63,23 @@ pub trait ToJsonApi {
         }
     }
 
-    fn collection_to_jsonapi_document<Collection, T>(objects: Collection) -> JsonApiDocument 
+    fn collection_to_jsonapi_document<Collection, S, T>(objects: Collection) -> JsonApiDocument 
         where
             T: ToJsonApi,
-            Collection: std::iter::IntoIterator<Item = T>
+            S: ToString,
+            Collection: std::iter::IntoIterator<Item = (S, T)>
     {
         Self::collection_to_jsonapi_document_with_query(objects, &Default::default())
     }
 
-    fn collection_to_jsonapi_document_with_query<Collection, T>(
+    fn collection_to_jsonapi_document_with_query<Collection, S, T>(
         objects: Collection,
         query: &Query,
     ) -> JsonApiDocument
         where
             T: ToJsonApi,
-            Collection: std::iter::IntoIterator<Item = T>
+            S: ToString,
+            Collection: std::iter::IntoIterator<Item = (S, T)>
     {
         let (resources, included) = Self::collection_to_jsonapi_resources(objects, query);
         JsonApiDocument {
@@ -88,19 +89,20 @@ pub trait ToJsonApi {
         }
     }
 
-    fn collection_to_jsonapi_resources<Collection, T>(
+    fn collection_to_jsonapi_resources<Collection, T, S>(
         objects: Collection,
         query: &Query,
     ) -> (Resources, Option<Resources>) 
         where
+            S: ToString,
             T: ToJsonApi,
-            Collection: std::iter::IntoIterator<Item = T>
+            Collection: std::iter::IntoIterator<Item = (S, T)>
     {
         let mut included = vec![];
         let resources = objects
             .into_iter()
-            .map(|obj| {
-                let (res, mut opt_incl) = obj.to_jsonapi_resource_with_query(obj.id(), query);
+            .map(|(id, obj)| {
+                let (res, mut opt_incl) = obj.to_jsonapi_resource_with_query(id, query);
                 if let Some(ref mut incl) = opt_incl {
                     included.append(incl);
                 }
@@ -116,42 +118,3 @@ pub trait ToJsonApi {
     }
 }
 
-impl<T> ToJsonApi for Record<T>
-    where T: ToJsonApi
-{
-    const TYPE: &'static str = T::TYPE;
-
-    fn id(&self) -> usize { self.id }
-
-    fn attributes(&self, fields: &QueryFields) -> ResourceAttributes {
-        self.data.attributes(fields)
-    }
-
-    fn relationships(&self, fields: &QueryFields) -> Option<Relationships> {
-        self.data.relationships(fields)
-    }
-
-    fn included(&self, fields: &Vec<String>) -> Option<Resources> {
-        self.data.included(fields)
-    }
-}
-
-impl<T> ToJsonApi for (usize, Record<T>)
-    where T: ToJsonApi
-{
-    const TYPE: &'static str = T::TYPE;
-
-    fn id(&self) -> usize { self.0 }
-
-    fn attributes(&self, fields: &QueryFields) -> ResourceAttributes {
-        self.1.data.attributes(fields)
-    }
-
-    fn relationships(&self, fields: &QueryFields) -> Option<Relationships> {
-        self.1.data.relationships(fields)
-    }
-
-    fn included(&self, fields: &Vec<String>) -> Option<Resources> {
-        self.1.data.included(fields)
-    }
-}

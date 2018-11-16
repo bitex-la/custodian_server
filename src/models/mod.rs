@@ -9,3 +9,4 @@ pub mod multisig_address;
 pub mod transaction;
 pub mod wallet;
 pub mod database;
+pub mod utxo;

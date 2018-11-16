@@ -6,7 +6,7 @@ use tiny_ram_db::hashbrown;
 use bitcoin::util::bip32::ExtendedPubKey;
 use bitprim::explorer::Received;
 use jsonapi::model::*;
-use tiny_ram_db::{PlainTable, Record};
+use tiny_ram_db::{Table, Record, Index, Indexer};
 
 use models::database::Database;
 use models::multisig_address::MultisigAddress;
@@ -29,6 +29,20 @@ pub struct MultisigUtxo {
     pub script_type: String,
     pub multisig: MultisigDefinition,
     pub transaction: Transaction,
+}
+
+#[derive(Default)]
+pub struct MultisigWalletIndex {
+    by_label: Index<String, MultisigWallet>,
+}
+
+impl Indexer for MultisigWalletIndex {
+    type Item = MultisigWallet;
+    fn index(&mut self, item: &Record<MultisigWallet>) -> Result<bool, tiny_ram_db::errors::Error> {
+        self.by_label
+            .insert(item.data.label.clone(), item.clone())?;
+        Ok(true)
+    }
 }
 
 impl ToJsonApi for MultisigUtxo {
@@ -82,6 +96,7 @@ impl MultisigWallet {
 }
 
 impl Wallet for MultisigWallet {
+    type Index = MultisigWalletIndex;
     type Utxo = MultisigUtxo;
     type RA = MultisigAddress;
 
@@ -128,7 +143,7 @@ impl Wallet for MultisigWallet {
         "multisig_wallet"
     }
 
-    fn wallets_from_database<'a>(database: &'a mut Database) -> &'a mut PlainTable<Self> {
+    fn wallets_from_database<'a>(database: &'a mut Database) -> &'a mut Table<Self, Self::Index> {
         &mut database.multisig_wallets
     }
 

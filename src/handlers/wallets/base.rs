@@ -1,11 +1,11 @@
 use serde;
-use serde_json;
 use jsonapi::model::*;
 use bitprim::executor::Executor;
 use data_guards::Mapped;
 use handlers::helpers::{JsonResult, to_value};
 use models::address::Address;
 use models::wallet::Wallet;
+use models::utxo::Utxo;
 use serializers::ToJsonApi;
 use rocket::http::Status;
 use rocket::response::status;
@@ -15,33 +15,27 @@ use server_state::ServerState;
 use std::sync::Arc;
 use tiny_ram_db;
 use tiny_ram_db::hashbrown;
-use tiny_ram_db::{Record, HashMapRecord};
-
-pub struct WalletFilter {
-    pub label: String
-}
+use tiny_ram_db::{Record, HashMapRecord, Indexer};
 
 pub trait WalletHandler
 where
     Self: serde::Serialize + Wallet,
     for<'de> Self: serde::Deserialize<'de>,
+    <Self as Wallet>::Index: Indexer<Item = Self>,
     Self: ToJsonApi,
 {
-    fn index(state: &ServerState, filter: WalletFilter) -> JsonResult {
+    fn index(state: &ServerState) -> JsonResult {
         let raw_wallets = Self::get_wallets(state)
             .map_err(|error| status::Custom(Status::InternalServerError, error.to_string()))?;
         
         let wallets = raw_wallets
             .into_iter()
-            .filter(|record| {
-                record.1.data.get_label() == filter.label
-            })
-            .map(|record| {
-                let mut wallet = record.clone().1;
-                if let Ok(addresses) = Self::get_addresses(state, record.0) {
-                    wallet.data = Arc::new(wallet.data.update_version(addresses));
+            .map(|(id, record)| {
+                let mut wallet = record.data.as_ref().clone();
+                if let Ok(addresses) = Self::get_addresses(state, id) {
+                    wallet = wallet.update_version(addresses);
                 }
-                (record.0, wallet)
+                (id, wallet)
             });
         let hash_set_wallets: JsonApiDocument = Self::collection_to_jsonapi_document(wallets);
         to_value(hash_set_wallets)
@@ -54,7 +48,7 @@ where
         since: Option<u64>,
     ) -> JsonResult
     where
-        <Self as Wallet>::Utxo: Serialize,
+        <Self as Wallet>::Utxo: Serialize + Utxo,
         for<'de> <Self as Wallet>::Utxo: Deserialize<'de>,
         <Self as Wallet>::Utxo: ToJsonApi
     {
@@ -63,8 +57,11 @@ where
             id,
             limit,
             since,
-            |executor: &Executor, wallet: &&Self, addresses: hashbrown::HashSet<Record<Self::RA>>, limit, since| {
+            |executor: &Executor, wallet: &Self, addresses: hashbrown::HashSet<Record<Self::RA>>, limit, since| {
                 wallet.get_utxos(executor, addresses, limit, since)
+                    .into_iter()
+                    .map(|utxo| (utxo.id(), utxo))
+                    .collect()
             },
         )
     }
@@ -80,8 +77,11 @@ where
             id,
             limit,
             since,
-            |executor: &Executor, wallet: &&Self, addresses: hashbrown::HashSet<Record<Self::RA>>, limit, since| {
+            |executor: &Executor, wallet: &Self, addresses: hashbrown::HashSet<Record<Self::RA>>, limit, since| {
                 wallet.get_incoming(executor, addresses, limit, since)
+                    .into_iter()
+                    .map(|tx| (tx.transaction_hash.clone(), tx))
+                    .collect()
             },
         )
     }
@@ -94,14 +94,14 @@ where
         fn_tx: F,
     ) -> JsonResult
     where
-        F: FnOnce(&Executor, &&Self, hashbrown::HashSet<Record<Self::RA>>, Option<u64>, Option<u64>) -> Vec<T>,
+        F: FnOnce(&Executor, &Self, hashbrown::HashSet<Record<Self::RA>>, Option<u64>, Option<u64>) -> Vec<(String, T)>,
         T: ToJsonApi,
     {
         match Self::get_wallet_and_addresses(state, id) {
             Ok((wallet, addresses)) => {
                 to_value(Self::collection_to_jsonapi_document(fn_tx(
                     &state.executor,
-                    &&*wallet.data,
+                    &wallet.data,
                     addresses,
                     limit,
                     since,
@@ -112,31 +112,28 @@ where
     }
 
     fn show(state: &ServerState, id: usize) -> JsonResult
-        where
-            Record<Self>: ToJsonApi
     {
 
-        let mut wallet = Self::get_wallet(state, id)
-            .map_err(|error| status::Custom(Status::NotFound, error.to_string()))?;
-        let addresses = Self::get_addresses(state, wallet.id)
+        let mut record = Self::get_wallet(state, id)
             .map_err(|error| status::Custom(Status::NotFound, error.to_string()))?;
 
-        wallet.data = Arc::new(wallet.data.update_version(addresses));
+        let addresses = Self::get_addresses(state, record.id)
+            .map_err(|error| status::Custom(Status::NotFound, error.to_string()))?;
 
-        to_value(wallet.to_jsonapi_document(wallet.id))
+        record.data = Arc::new(record.data.update_version(addresses));
+
+        to_value(record.data.to_jsonapi_document(record.id))
     }
 
     fn create(state: &ServerState, new: Mapped<Self>) -> JsonResult 
-        where
-            Record<Self>: ToJsonApi
     {
         let mut database = state.database_lock();
         let wallets = Self::wallets_from_database(&mut database);
 
-        let wallet = wallets.insert(new.0)
+        let record = wallets.insert(new.0)
             .map_err(|error| status::Custom(Status::InternalServerError, error.to_string()))?;
 
-        to_value(wallet.to_jsonapi_document(wallet.id))
+        to_value(record.data.to_jsonapi_document(record.id))
     }
 
     fn update(state: &ServerState, id: usize, resource_wallet: Mapped<Self>) -> JsonResult {
@@ -200,6 +197,7 @@ impl<R> WalletHandler for R
 where
     R: serde::Serialize + Wallet,
     for<'de> R: serde::Deserialize<'de>,
+    <Self as Wallet>::Index: Indexer<Item = Self>,
     R: ToJsonApi,
 {
 }

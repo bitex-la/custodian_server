@@ -1,5 +1,3 @@
-use serde_json;
-use tiny_ram_db;
 use handlers::helpers::GetTransactionParams;
 use handlers::helpers::JsonResult;
 use handlers::wallets::base::{WalletHandler};
@@ -10,44 +8,7 @@ use data_guards::Mapped;
 #[get("/plain_wallets")]
 pub fn index(state: &ServerState) -> JsonResult
 {
-    //PlainWallet::index(state)
-    unimplemented!()
-}
-
-
-use rocket::{Request, Route, Data, State, Outcome};
-use rocket::handler;
-use rocket::http::Method;
-use rocket::http::Status;
-use handlers::wallets::base::WalletFilter;
-
-fn index_handler<'r>(request: &'r Request, _data: Data) -> handler::Outcome<'r> {
-    let state: State<ServerState> = match request.guard::<State<ServerState>>() {
-        Outcome::Success(value) => value,
-        _ => {
-            return Outcome::Failure(Status::BadRequest);
-        }
-    };
-
-    let query = match request.uri().query() {
-        Some(value) => value,
-        None => return Outcome::Failure(Status::BadRequest)
-    };
-
-    let parsed: serde_json::Value = match serde_json::from_str(query) {
-        Ok(value) => value,
-        Err(_) => return Outcome::Failure(Status::BadRequest)
-    };
-
-    let wallet_filter = WalletFilter { label: parsed["filter"]["label"].to_string() };
-
-    let responder = PlainWallet::index(&state, wallet_filter);
-
-    Outcome::from(request, responder)
-}
-
-pub fn index_filter_route() -> Route {
-    Route::new(Method::Get, "/plain_wallets?filter[label]=<label>", index_handler)
+    PlainWallet::index(state)
 }
 
 #[get("/plain_wallets/<id>/get_utxos?<params>")]

@@ -6,13 +6,26 @@ use models::database::Database;
 use models::plain_address::PlainAddress;
 use models::wallet::Wallet;
 use serializers::{FromJsonApi, ToJsonApi};
-use tiny_ram_db::Record;
-use tiny_ram_db::PlainTable;
+use tiny_ram_db::{Record, Index, Indexer, Table};
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, FromForm)]
 pub struct PlainWallet {
     pub version: String,
     pub label: String,
+}
+
+#[derive(Default)]
+pub struct PlainWalletIndex {
+    by_label: Index<String, PlainWallet>,
+}
+
+impl Indexer for PlainWalletIndex {
+    type Item = PlainWallet;
+    fn index(&mut self, item: &Record<PlainWallet>) -> Result<bool, tiny_ram_db::errors::Error> {
+        self.by_label
+            .insert(item.data.label.clone(), item.clone())?;
+        Ok(true)
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -46,6 +59,7 @@ impl ToJsonApi for PlainUtxo {
 }
 
 impl Wallet for PlainWallet {
+    type Index = PlainWalletIndex;
     type Utxo = PlainUtxo;
     type RA = PlainAddress;
 
@@ -63,7 +77,7 @@ impl Wallet for PlainWallet {
     }
 
     fn wallets_from_database<'a>(database: &'a mut Database)
-        -> &'a mut PlainTable<Self> {
+        -> &'a mut Table<Self, Self::Index> {
             &mut database.plain_wallets
         }
 

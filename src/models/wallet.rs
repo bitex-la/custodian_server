@@ -6,7 +6,7 @@ use bitprim::errors::Error;
 use bitprim::executor::Executor;
 use bitprim::explorer::Received;
 use bitprim::payment_address::PaymentAddress;
-use tiny_ram_db::{PlainTable, Record};
+use tiny_ram_db::{Table, Record};
 use jsonapi::model::Query;
 
 use models::address::Address;
@@ -14,6 +14,7 @@ use models::transaction::Transaction;
 use models::database::Database;
 
 pub trait Wallet: std::marker::Sized + Clone + std::fmt::Debug {
+    type Index;
     type Utxo;
     type RA: Address + std::fmt::Debug;
 
@@ -113,7 +114,7 @@ pub trait Wallet: std::marker::Sized + Clone + std::fmt::Debug {
 
     fn jsonapi_type() -> &'static str;
 
-    fn wallets_from_database<'a>(database: &'a mut Database) -> &'a mut PlainTable<Self>;
+    fn wallets_from_database<'a>(database: &'a mut Database) -> &'a mut Table<Self, Self::Index>;
 
     fn update_version<'a>(&self, addresses: hashbrown::HashSet<Record<Self::RA>>) -> Self;
 
