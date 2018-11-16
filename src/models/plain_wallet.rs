@@ -74,6 +74,10 @@ impl Wallet for PlainWallet {
             label: self.label.clone()
         }
     }
+
+    fn get_label(&self) -> String {
+        self.label.clone()
+    }
 }
 
 impl ToJsonApi for PlainWallet {

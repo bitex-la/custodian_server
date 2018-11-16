@@ -21,6 +21,8 @@ extern crate tiny_ram_db;
 #[macro_use]
 extern crate maplit;
 
+extern crate queryst;
+
 #[macro_use]
 pub mod data_guards;
 pub mod handlers;

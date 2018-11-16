@@ -20,6 +20,7 @@ bitcoin = "*"
 jsonapi = { git = "https://github.com/bitex-la/jsonapi-rust" }
 bitprim = { git = "https://github.com/bitex-la/bitprim-rust", features = ["btc"] }
 rand="0.3"
+queryst="1"
 
 [build-dependencies]
 regex = "1.0"

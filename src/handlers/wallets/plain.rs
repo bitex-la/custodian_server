@@ -1,6 +1,8 @@
+use serde_json;
+use tiny_ram_db;
 use handlers::helpers::GetTransactionParams;
 use handlers::helpers::JsonResult;
-use handlers::wallets::base::{WalletHandler, WalletFilter};
+use handlers::wallets::base::{WalletHandler};
 use models::plain_wallet::PlainWallet;
 use server_state::ServerState;
 use data_guards::Mapped;
@@ -8,7 +10,8 @@ use data_guards::Mapped;
 #[get("/plain_wallets")]
 pub fn index(state: &ServerState) -> JsonResult
 {
-    PlainWallet::index(state)
+    //PlainWallet::index(state)
+    unimplemented!()
 }
 
 
@@ -16,30 +19,35 @@ use rocket::{Request, Route, Data, State, Outcome};
 use rocket::handler;
 use rocket::http::Method;
 use rocket::http::Status;
+use handlers::wallets::base::WalletFilter;
 
-fn handler<'r>(request: &'r Request, _data: Data) -> handler::Outcome<'r> {
+fn index_handler<'r>(request: &'r Request, _data: Data) -> handler::Outcome<'r> {
     let state: State<ServerState> = match request.guard::<State<ServerState>>() {
         Outcome::Success(value) => value,
         _ => {
             return Outcome::Failure(Status::BadRequest);
         }
     };
-    println!("{:#?}", request.uri().query());
-    let wallet_filter = WalletFilter { 
-        label: request.uri().query().unwrap().to_string()
+
+    let query = match request.uri().query() {
+        Some(value) => value,
+        None => return Outcome::Failure(Status::BadRequest)
     };
-    let responder = filter_index(&state, wallet_filter);
+
+    let parsed: serde_json::Value = match serde_json::from_str(query) {
+        Ok(value) => value,
+        Err(_) => return Outcome::Failure(Status::BadRequest)
+    };
+
+    let wallet_filter = WalletFilter { label: parsed["filter"]["label"].to_string() };
+
+    let responder = PlainWallet::index(&state, wallet_filter);
 
     Outcome::from(request, responder)
 }
 
-fn filter_index(state: &ServerState, label: WalletFilter) -> JsonResult
-{
-    PlainWallet::index(state)
-}
-
 pub fn index_filter_route() -> Route {
-    Route::new(Method::Get, "/plain_wallets?filter[label]=<label>", handler)
+    Route::new(Method::Get, "/plain_wallets?filter[label]=<label>", index_handler)
 }
 
 #[get("/plain_wallets/<id>/get_utxos?<params>")]

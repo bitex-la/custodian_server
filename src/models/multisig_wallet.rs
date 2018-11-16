@@ -141,6 +141,10 @@ impl Wallet for MultisigWallet {
             signers: self.signers.clone()
         }
     }
+
+    fn get_label(&self) -> String {
+        self.label.clone()
+    }
 }
 
 impl ToJsonApi for MultisigWallet {

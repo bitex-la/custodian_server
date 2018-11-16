@@ -7,7 +7,8 @@ use data_guards::Mapped;
 
 #[get("/hd_wallets")]
 pub fn index(state: &ServerState) -> JsonResult {
-    HdWallet::index(state)
+    // HdWallet::index(state)
+    unimplemented!()
 }
 
 #[get("/hd_wallets/<id>/get_utxos?<params>")]

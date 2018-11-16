@@ -1,4 +1,5 @@
 use serde;
+use serde_json;
 use jsonapi::model::*;
 use bitprim::executor::Executor;
 use data_guards::Mapped;
@@ -16,7 +17,6 @@ use tiny_ram_db;
 use tiny_ram_db::hashbrown;
 use tiny_ram_db::{Record, HashMapRecord};
 
-#[derive(FromForm, Debug)]
 pub struct WalletFilter {
     pub label: String
 }
@@ -27,17 +27,22 @@ where
     for<'de> Self: serde::Deserialize<'de>,
     Self: ToJsonApi,
 {
-    fn index(state: &ServerState) -> JsonResult {
+    fn index(state: &ServerState, filter: WalletFilter) -> JsonResult {
         let raw_wallets = Self::get_wallets(state)
             .map_err(|error| status::Custom(Status::InternalServerError, error.to_string()))?;
         
-        let wallets = raw_wallets.into_iter().map(|record| {
-            let mut wallet = record.clone().1;
-            if let Ok(addresses) = Self::get_addresses(state, record.0) {
-                wallet.data = Arc::new(wallet.data.update_version(addresses));
-            }
-            (record.0, wallet)
-        });
+        let wallets = raw_wallets
+            .into_iter()
+            .filter(|record| {
+                record.1.data.get_label() == filter.label
+            })
+            .map(|record| {
+                let mut wallet = record.clone().1;
+                if let Ok(addresses) = Self::get_addresses(state, record.0) {
+                    wallet.data = Arc::new(wallet.data.update_version(addresses));
+                }
+                (record.0, wallet)
+            });
         let hash_set_wallets: JsonApiDocument = Self::collection_to_jsonapi_document(wallets);
         to_value(hash_set_wallets)
     }

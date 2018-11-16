@@ -116,4 +116,6 @@ pub trait Wallet: std::marker::Sized + Clone + std::fmt::Debug {
     fn wallets_from_database<'a>(database: &'a mut Database) -> &'a mut PlainTable<Self>;
 
     fn update_version<'a>(&self, addresses: hashbrown::HashSet<Record<Self::RA>>) -> Self;
+
+    fn get_label(&self) -> String;
 }
