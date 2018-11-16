@@ -106,8 +106,19 @@ impl FromJsonApi for HdAddress {
         let public_address = Self::attribute(&resource, "public_address")?;
         let path = Self::attribute(&resource, "path")?;
         let wallet_id = Self::has_one_id(&resource, "wallet")?;
-        let wallet = db.hd_wallets.find(wallet_id)
-            .map_err(|_| format!("Wallet not found"))?;
+        let data = db
+                .hd_wallets
+                .indexes
+                .read()
+                .map_err(|_| format!("Wallet not found"))?;
+        let wallet = data
+                .by_label
+                .get(&wallet_id, |items| items.clone())
+            .map_err(|_| format!("Wallet not found"))?
+            .into_iter()
+            .nth(0)
+            .ok_or_else(|| format!("Wallet not found"))?;
+
         Ok(HdAddress{public_address, path, wallet})
     }
 }

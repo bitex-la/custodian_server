@@ -21,7 +21,7 @@ pub trait FromJsonApi: Sized {
           .map_err(|_| format!("Invalid type for {}", &attr_name))
     }
 
-    fn has_one_id(resource: &Resource, name: &str) -> Result<usize, String> {
+    fn has_one_id(resource: &Resource, name: &str) -> Result<String, String> {
         let all = resource.relationships.as_ref()
             .ok_or_else(|| format!("No relationships at all"))?
             .get(name)
@@ -32,8 +32,7 @@ pub trait FromJsonApi: Sized {
             _ => return Err(format!("Could not parse a single {}", name))
         };
 
-        identifier.id.parse::<usize>()
-            .map_err(|_| format!("Could not parse {} id", name))
+        Ok(identifier.id.to_string())
     }
 
     fn from_json_api_document(doc: JsonApiDocument, db: Database) -> Result<Self, String> {

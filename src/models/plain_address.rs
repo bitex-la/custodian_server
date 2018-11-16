@@ -104,10 +104,18 @@ impl FromJsonApi for PlainAddress {
     fn from_json_api_resource(resource: Resource, db: Database) -> Result<Self, String> {
         let public_address = Self::attribute(&resource, "public_address")?;
         let wallet_id = Self::has_one_id(&resource, "wallet")?;
-        let wallet = db
-            .plain_wallets
-            .find(wallet_id)
-            .map_err(|_| format!("Wallet not found"))?;
+        let data = db
+                .plain_wallets
+                .indexes
+                .read()
+                .map_err(|_| format!("Wallet not found"))?;
+        let wallet = data
+                .by_label
+                .get(&wallet_id, |items| items.clone())
+            .map_err(|_| format!("Wallet not found"))?
+            .into_iter()
+            .nth(0)
+            .ok_or_else(|| format!("Wallet not found"))?;
         Ok(PlainAddress {
             public_address,
             wallet,

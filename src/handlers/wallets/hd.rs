@@ -11,17 +11,17 @@ pub fn index(state: &ServerState) -> JsonResult {
 }
 
 #[get("/hd_wallets/<id>/get_utxos?<params>")]
-pub fn get_utxos(state: &ServerState, id: usize, params: GetTransactionParams) -> JsonResult {
+pub fn get_utxos(state: &ServerState, id: String, params: GetTransactionParams) -> JsonResult {
     HdWallet::get_utxos(state, id, params.limit, params.since)
 }
 
 #[get("/hd_wallets/<id>/get_incoming?<params>")]
-pub fn get_incoming(state: &ServerState, id: usize, params: GetTransactionParams) -> JsonResult {
+pub fn get_incoming(state: &ServerState, id: String, params: GetTransactionParams) -> JsonResult {
     HdWallet::get_incoming(state, id, params.limit, params.since)
 }
 
 #[get("/hd_wallets/<id>")]
-pub fn show(state: &ServerState, id: usize) -> JsonResult {
+pub fn show(state: &ServerState, id: String) -> JsonResult {
     HdWallet::show(state, id)
 }
 
@@ -31,11 +31,11 @@ pub fn create(state: &ServerState, wallet: Mapped<HdWallet>) -> JsonResult {
 }
 
 #[put("/hd_wallets/<id>", data = "<wallet>")]
-pub fn update(state: &ServerState, id: usize, wallet: Mapped<HdWallet>) -> JsonResult {
+pub fn update(state: &ServerState, id: String, wallet: Mapped<HdWallet>) -> JsonResult {
     HdWallet::update(state, id, wallet)
 }
 
 #[delete("/hd_wallets/<id>")]
-pub fn destroy(state: &ServerState, id: usize) -> JsonResult {
+pub fn destroy(state: &ServerState, id: String) -> JsonResult {
     HdWallet::destroy(state, id)
 }

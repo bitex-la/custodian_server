@@ -118,5 +118,10 @@ pub trait Wallet: std::marker::Sized + Clone + std::fmt::Debug {
 
     fn update_version<'a>(&self, addresses: hashbrown::HashSet<Record<Self::RA>>) -> Self;
 
+    fn by_label<'a>(label: String, database: &'a mut Database)
+      -> Result<hashbrown::HashSet<Record<Self>>, tiny_ram_db::errors::Error>;
+
     fn get_label(&self) -> String;
+
+    fn remove_from_indexes<'a>(table: &'a Table<Self, Self::Index>, id: String) -> Result<bool, tiny_ram_db::errors::Error>;
 }

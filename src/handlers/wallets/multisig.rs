@@ -11,17 +11,17 @@ pub fn index(state: &ServerState) -> JsonResult {
 }
 
 #[get("/multisig_wallets/<id>/get_utxos?<params>")]
-pub fn get_utxos(state: &ServerState, id: usize, params: GetTransactionParams) -> JsonResult {
+pub fn get_utxos(state: &ServerState, id: String, params: GetTransactionParams) -> JsonResult {
     MultisigWallet::get_utxos(state, id, params.limit, params.since)
 }
 
 #[get("/multisig_wallets/<id>/get_incoming?<params>")]
-pub fn get_incoming(state: &ServerState, id: usize, params: GetTransactionParams) -> JsonResult {
+pub fn get_incoming(state: &ServerState, id: String, params: GetTransactionParams) -> JsonResult {
     MultisigWallet::get_incoming(state, id, params.limit, params.since)
 }
 
 #[get("/multisig_wallets/<id>")]
-pub fn show(state: &ServerState, id: usize) -> JsonResult {
+pub fn show(state: &ServerState, id: String) -> JsonResult {
     MultisigWallet::show(state, id)
 }
 
@@ -31,11 +31,11 @@ pub fn create(state: &ServerState, wallet: Mapped<MultisigWallet>) -> JsonResult
 }
 
 #[put("/multisig_wallets/<id>", data = "<wallet>")]
-pub fn update(state: &ServerState, id: usize, wallet: Mapped<MultisigWallet>) -> JsonResult {
+pub fn update(state: &ServerState, id: String, wallet: Mapped<MultisigWallet>) -> JsonResult {
     MultisigWallet::update(state, id, wallet)
 }
 
 #[delete("/multisig_wallets/<id>")]
-pub fn destroy(state: &ServerState, id: usize) -> JsonResult {
+pub fn destroy(state: &ServerState, id: String) -> JsonResult {
     MultisigWallet::destroy(state, id)
 }

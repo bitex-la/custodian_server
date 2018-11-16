@@ -33,7 +33,14 @@ pub struct MultisigUtxo {
 
 #[derive(Default)]
 pub struct MultisigWalletIndex {
-    by_label: Index<String, MultisigWallet>,
+    pub by_label: Index<String, MultisigWallet>,
+}
+
+impl MultisigWalletIndex {
+    fn remove(&mut self, label: String) -> Result<bool, tiny_ram_db::errors::Error> {
+        self.by_label.data.remove(&label);
+        Ok(true)
+    }
 }
 
 impl Indexer for MultisigWalletIndex {
@@ -157,8 +164,24 @@ impl Wallet for MultisigWallet {
         }
     }
 
+    fn by_label<'a>(label: String, database: &'a mut Database)
+        -> Result<hashbrown::HashSet<Record<Self>>, tiny_ram_db::errors::Error> {
+            database
+                .multisig_wallets
+                .indexes
+                .read()?
+                .by_label
+                .get(&label, |items| items.clone())
+        }
+
     fn get_label(&self) -> String {
         self.label.clone()
+    }
+
+    fn remove_from_indexes<'a>(table: &'a Table<Self, Self::Index>, id: String) -> Result<bool, tiny_ram_db::errors::Error> {
+        let mut indexes = table.indexes.write().expect("Error getting write access to indexes");
+        indexes.remove(id)?;
+        Ok(true)
     }
 }
 

@@ -35,7 +35,7 @@ where
                 if let Ok(addresses) = Self::get_addresses(state, id) {
                     wallet = wallet.update_version(addresses);
                 }
-                (id, wallet)
+                (wallet.get_label(), wallet)
             });
         let hash_set_wallets: JsonApiDocument = Self::collection_to_jsonapi_document(wallets);
         to_value(hash_set_wallets)
@@ -43,7 +43,7 @@ where
 
     fn get_utxos(
         state: &ServerState,
-        id: usize,
+        id: String,
         limit: Option<u64>,
         since: Option<u64>,
     ) -> JsonResult
@@ -68,7 +68,7 @@ where
 
     fn get_incoming(
         state: &ServerState,
-        id: usize,
+        id: String,
         limit: Option<u64>,
         since: Option<u64>,
     ) -> JsonResult {
@@ -88,7 +88,7 @@ where
 
     fn get_transactions<F, T>(
         state: &ServerState,
-        id: usize,
+        id: String,
         limit: Option<u64>,
         since: Option<u64>,
         fn_tx: F,
@@ -97,7 +97,7 @@ where
         F: FnOnce(&Executor, &Self, hashbrown::HashSet<Record<Self::RA>>, Option<u64>, Option<u64>) -> Vec<(String, T)>,
         T: ToJsonApi,
     {
-        match Self::get_wallet_and_addresses(state, id) {
+        match Self::get_wallet_and_addresses(state, id.clone()) {
             Ok((wallet, addresses)) => {
                 to_value(Self::collection_to_jsonapi_document(fn_tx(
                     &state.executor,
@@ -111,7 +111,7 @@ where
         }
     }
 
-    fn show(state: &ServerState, id: usize) -> JsonResult
+    fn show(state: &ServerState, id: String) -> JsonResult
     {
 
         let mut record = Self::get_wallet(state, id)
@@ -122,7 +122,7 @@ where
 
         record.data = Arc::new(record.data.update_version(addresses));
 
-        to_value(record.data.to_jsonapi_document(record.id))
+        to_value(record.data.to_jsonapi_document(record.data.get_label()))
     }
 
     fn create(state: &ServerState, new: Mapped<Self>) -> JsonResult 
@@ -136,37 +136,69 @@ where
         to_value(record.data.to_jsonapi_document(record.id))
     }
 
-    fn update(state: &ServerState, id: usize, resource_wallet: Mapped<Self>) -> JsonResult {
-        let mut database = state.database_lock();
-        let wallets = Self::wallets_from_database(&mut database);
+    fn update(state: &ServerState, id: String, resource_wallet: Mapped<Self>) -> JsonResult {
+        let record = Self::get_wallet(state, id.clone())
+            .map_err(|error| status::Custom(Status::NotFound, error.to_string()))?;
 
-        let mut vec_records = wallets.data.write().unwrap();
-        vec_records.remove(&id);
-        let new_record = Record {
-            id,
-            data: Arc::new(resource_wallet.0),
-        };
-        vec_records.insert(id, new_record);
+        Self::destroy_indexes(state, id)
+            .map_err(|error| status::Custom(Status::NotFound, error.to_string()))?;
+
+        Self::update_record(state, record.id, resource_wallet.0)
+            .map_err(|error| status::Custom(Status::InternalServerError, error.to_string()))?;
 
         to_value(true)
     }
 
-    fn destroy(state: &ServerState, id: usize) -> JsonResult {
+    fn destroy_indexes(state: &ServerState, id: String) -> Result<bool, tiny_ram_db::errors::Error> {
         let mut database = state.database_lock();
         let wallets = Self::wallets_from_database(&mut database);
 
-        let mut records = wallets.data.write().unwrap();
-        let record = records.remove(&id)
-            .ok_or_else(|| status::Custom(Status::InternalServerError, "Could not remove".to_string()))?;
+        Self::remove_from_indexes(wallets, id.clone())
+    }
+
+    fn destroy(state: &ServerState, id: String) -> JsonResult {
+        let record = Self::get_wallet(state, id.clone())
+            .map_err(|error| status::Custom(Status::NotFound, error.to_string()))?;
+
+        Self::destroy_indexes(state, id.clone())
+            .map_err(|error| status::Custom(Status::NotFound, error.to_string()))?;
+
+        let record = Self::destroy_record(state, record.id)
+            .map_err(|error| status::Custom(Status::InternalServerError, error.to_string()))?;
 
         to_value(record)
     }
 
-    fn get_wallet_and_addresses(state: &ServerState, id: usize) -> Result<(Record<Self>, hashbrown::HashSet<Record<Self::RA>>), tiny_ram_db::errors::Error> {
+    fn destroy_record(state: &ServerState, id: usize) -> Result<Record<Self>, tiny_ram_db::errors::Error> {
+        let mut database = state.database_lock();
+        let wallets = Self::wallets_from_database(&mut database);
+        let mut records = wallets.data.write().unwrap();
+
+        let record = records.remove(&id)
+            .ok_or_else(|| tiny_ram_db::errors::Error::from("RecordNotFound"))?;
+
+        Ok(record)
+    }
+
+    fn get_wallet_and_addresses(state: &ServerState, id: String) -> Result<(Record<Self>, hashbrown::HashSet<Record<Self::RA>>), tiny_ram_db::errors::Error> {
         let wallet = Self::get_wallet(state, id)?;
         let addresses = Self::get_addresses(state, wallet.id)?;
 
         Ok((wallet, addresses))
+    }
+
+    fn update_record(state: &ServerState, id: usize, resource_wallet: Self) -> Result<bool, tiny_ram_db::errors::Error> {
+        let mut database = state.database_lock();
+        let plain_table = Self::wallets_from_database(&mut database);
+        let mut records = plain_table.data.write()?;
+        records.remove(&id);
+        let new_record = Record {
+            id: id,
+            data: Arc::new(resource_wallet),
+        };
+        plain_table.indexes.write()?.index(&new_record)?;
+        records.insert(id, new_record);
+        Ok(true)
     }
 
     fn get_wallets(state: &ServerState) -> Result<HashMapRecord<Self>, tiny_ram_db::errors::Error> {
@@ -176,12 +208,14 @@ where
         Ok(wallets.clone())
     }
 
-    fn get_wallet(state: &ServerState, id: usize) -> Result<Record<Self>, tiny_ram_db::errors::Error> {
+    fn get_wallet(state: &ServerState, id: String) -> Result<Record<Self>, tiny_ram_db::errors::Error> {
         let mut database = state.database_lock();
-        let wallets = Self::wallets_from_database(&mut database);
-        let wallet = wallets.find(id)?;
+        let wallets = Self::by_label(id, &mut database)?;
 
-        Ok(wallet)
+        wallets
+            .into_iter()
+            .nth(0)
+            .ok_or_else(|| tiny_ram_db::errors::Error::from("RecordNotFound"))
     }
 
     fn get_addresses(state: &ServerState, wallet_id: usize) -> Result<hashbrown::HashSet<Record<Self::RA>>, tiny_ram_db::errors::Error> {

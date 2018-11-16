@@ -46,6 +46,12 @@ mod wallet_test {
     use serde_json;
     use serde_json::{Error, Value};
 
+    #[get("/stop")]
+    fn stop(state: &ServerState) -> String {
+        state.graceful_stop();
+        "Stopping soon.".to_string()
+    }
+
     fn rocket() -> rocket::Rocket {
         let f = File::create("/dev/null").unwrap();
 
@@ -95,7 +101,8 @@ mod wallet_test {
                     addresses::multisig::destroy,
                     addresses::multisig::balance,
                     addresses::multisig::get_utxos,
-                    blocks::base::last
+                    blocks::base::last,
+                    stop
                 ];
         rocket::ignite().manage(state).mount( "/", routes)
     }
@@ -194,7 +201,7 @@ mod wallet_test {
                 "data": {
                     "attributes": { 
                         "version": "0",
-                        "label": "my plain wallet"
+                        "label": "my_plain_wallet"
                     },
                     "type": "plain_wallets"
                 }
@@ -233,8 +240,8 @@ mod wallet_test {
         );
 
         assert_eq!(
-            get(&client, "/plain_wallets/1").body_string().unwrap(),
-            r#"{"data":{"attributes":{"label":"my plain wallet","version":"0"},"id":"1","type":"plain_wallets"}}"#,
+            get(&client, "/plain_wallets/my_plain_wallet").body_string().unwrap(),
+            r#"{"data":{"attributes":{"label":"my_plain_wallet","version":"0"},"id":"my_plain_wallet","type":"plain_wallets"}}"#,
         );
 
         post(
@@ -253,12 +260,12 @@ mod wallet_test {
 
         assert_eq!(
             get(&client, "/plain_wallets").body_string().unwrap(),
-            r#"{"data":[{"attributes":{"label":"my plain wallet","version":"0"},"id":"1","type":"plain_wallets"},{"attributes":{"label":"my_second_wallet","version":"0"},"id":"2","type":"plain_wallets"}]}"#
+            r#"{"data":[{"attributes":{"label":"my_plain_wallet","version":"0"},"id":"my_plain_wallet","type":"plain_wallets"},{"attributes":{"label":"my_second_wallet","version":"0"},"id":"my_second_wallet","type":"plain_wallets"}]}"#
         );
 
         put(
             &client,
-            "/plain_wallets/1",
+            "/plain_wallets/my_plain_wallet",
             r#"{
                 "data": {
                     "attributes": { 
@@ -271,8 +278,8 @@ mod wallet_test {
         );
 
         assert_eq!(
-            get(&client, "/plain_wallets/1").body_string().unwrap(),
-            r#"{"data":{"attributes":{"label":"my plain wallet updated","version":"0"},"id":"1","type":"plain_wallets"}}"#,
+            get(&client, "/plain_wallets/my plain wallet updated").body_string().unwrap(),
+            r#"{"data":{"attributes":{"label":"my plain wallet updated","version":"0"},"id":"my plain wallet updated","type":"plain_wallets"}}"#,
         );
 
         post(
@@ -287,7 +294,7 @@ mod wallet_test {
                         "wallet": {
                             "data": {
                                 "type": "plain_wallets",
-                                "id": "1"
+                                "id": "my plain wallet updated"
                             }
                         }
                     },
@@ -308,7 +315,7 @@ mod wallet_test {
                         "wallet": {
                             "data": {
                                 "type": "plain_wallets",
-                                "id": "1"
+                                "id": "my plain wallet updated"
                             }
                         }
                     },
@@ -332,20 +339,20 @@ mod wallet_test {
         );
 
         assert_eq!(
-            get(&client, "/plain_wallets/1").body_string().unwrap(),
-            r#"{"data":{"attributes":{"label":"my plain wallet updated","version":"2"},"id":"1","type":"plain_wallets"}}"#,
+            get(&client, "/plain_wallets/my plain wallet updated").body_string().unwrap(),
+            r#"{"data":{"attributes":{"label":"my plain wallet updated","version":"2"},"id":"my plain wallet updated","type":"plain_wallets"}}"#,
         );
 
         assert_eq!(
             get(&client, "/plain_wallets").body_string().unwrap(), 
-            r#"{"data":[{"attributes":{"label":"my plain wallet updated","version":"2"},"id":"1","type":"plain_wallets"},{"attributes":{"label":"my_second_wallet","version":"0"},"id":"2","type":"plain_wallets"}]}"#);
+            r#"{"data":[{"attributes":{"label":"my plain wallet updated","version":"2"},"id":"my plain wallet updated","type":"plain_wallets"},{"attributes":{"label":"my_second_wallet","version":"0"},"id":"my_second_wallet","type":"plain_wallets"}]}"#);
 
         delete(&client, "/plain_addresses/1", "");
         not_found(&client, "/plain_addresses/1");
 
         assert_eq!(
-            get(&client, "/plain_wallets/1").body_string().unwrap(),
-            r#"{"data":{"attributes":{"label":"my plain wallet updated","version":"0"},"id":"1","type":"plain_wallets"}}"#,
+            get(&client, "/plain_wallets/my plain wallet updated").body_string().unwrap(),
+            r#"{"data":{"attributes":{"label":"my plain wallet updated","version":"0"},"id":"my plain wallet updated","type":"plain_wallets"}}"#,
         );
 
         post(
@@ -360,7 +367,7 @@ mod wallet_test {
                          "wallet": {
                              "data": {
                                  "type": "plain_wallets",
-                                 "id": "1"
+                                 "id": "my plain wallet updated"
                              }
                          }
                      },
@@ -370,7 +377,7 @@ mod wallet_test {
         );
 
         assert_eq!(
-            get(&client, "/plain_wallets/1/get_utxos?since=0&limit=400")
+            get(&client, "/plain_wallets/my plain wallet updated/get_utxos?since=0&limit=400")
                 .body_string()
                 .unwrap(),
             load_fixture_file("./tests/data/plain_utxos.json")
@@ -406,7 +413,7 @@ mod wallet_test {
                     "relationships": {
                         "wallet": {
                             "data": {
-                                "id": "1",
+                                "id": "my hd wallet",
                                 "type": "hd_wallets"
                             }
                         }
@@ -416,7 +423,7 @@ mod wallet_test {
             }"#,
         );
 
-        get(&client, "/hd_wallets/1/get_utxos?since=0&limit=600");
+        get(&client, "/hd_wallets/my hd wallet/get_utxos?since=0&limit=600");
 
         assert_eq!(
             get(&client, "/hd_addresses/2NAHscN6XVqUPzBSJHC3fhkeF5SQVxiR9p9/balance?since=0&limit=600")
@@ -437,7 +444,7 @@ mod wallet_test {
                      "relationships": {
                          "wallet": {
                              "data": {
-                                 "id": "1",
+                                 "id": "my_second_wallet",
                                  "type": "multisig_wallets"
                              }
                          }
@@ -447,7 +454,7 @@ mod wallet_test {
             }"#,
         );
 
-        let transactions : JsonApiDocument = serde_json::from_str(&get(&client, "/multisig_wallets/1/get_utxos?since=0&limit=400").body_string().unwrap()).unwrap();
+        let transactions : JsonApiDocument = serde_json::from_str(&get(&client, "/multisig_wallets/my_second_wallet/get_utxos?since=0&limit=400").body_string().unwrap()).unwrap();
         if let PrimaryData::Multiple(data) = transactions.data.unwrap() {
             let mut transaction_hashes = vec![];
             for resource in data {
@@ -463,7 +470,7 @@ mod wallet_test {
                      "0ded7f014fa3213e9b000bc81b8151bc6f2f926b9afea6e3643c8ad658353c72"]);
         }
 
-        let transactions : JsonApiDocument = serde_json::from_str(&get(&client, "/multisig_wallets/1/get_incoming?since=400").body_string().unwrap()).unwrap();
+        let transactions : JsonApiDocument = serde_json::from_str(&get(&client, "/multisig_wallets/my_second_wallet/get_incoming?since=400").body_string().unwrap()).unwrap();
         if let PrimaryData::Multiple(data) = transactions.data.unwrap() {
             let mut transaction_hashes = vec![];
             for resource in data {
@@ -492,11 +499,11 @@ mod wallet_test {
             true
         );
 
-        delete(&client, "/plain_wallets/1", "");
+        delete(&client, "/plain_wallets/my plain wallet updated", "");
 
         assert_eq!(
             get(&client, "/plain_wallets").body_string().unwrap(),
-            r#"{"data":[{"attributes":{"label":"my_second_wallet","version":"0"},"id":"2","type":"plain_wallets"}]}"#
+            r#"{"data":[{"attributes":{"label":"my_second_wallet","version":"0"},"id":"my_second_wallet","type":"plain_wallets"}]}"#
         );
 
         post(&client, "/transactions/broadcast", r#"01000000017b1eabe0209b1fe794124575ef807057c77ada2138ae4fa8d6c4de0398a14f3f00000000494830450221008949f0cb400094ad2b5eb399d59d01c14d73d8fe6e96df1a7150deb388ab8935022079656090d7f6bac4c9a94e0aad311a4268e082a725f8aeae0573fb12ff866a5f01ffffffff01f0ca052a010000001976a914cbc20a7664f2f69e5355aa427045bc15e7c6c77288ac00000000"#);
