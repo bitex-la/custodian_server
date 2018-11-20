@@ -172,7 +172,7 @@ mod wallet_test {
             .read_to_string(&mut contents)
             .expect("something went wrong reading the file");
 
-        contents.replace("\n", "").replace(" ", "")
+        contents.replace("\n", "").replace("  ", "")
     }
 
     // Adds 1 wallet of each type
@@ -328,14 +328,14 @@ mod wallet_test {
             get(&client, "/plain_addresses/1")
                 .body_string()
                 .unwrap(),
-            r#"{"data":{"attributes":{"public_address":"mru76ADdwx3EFjuknsZZVRXKUrnWxedwH7"},"id":"1","relationships":{"wallet":{"data":{"id":"1","type":"plain_wallets"}}},"type":"plain_addresses"},"included":[{"attributes":{"label":"my plain wallet updated","version":"0"},"id":"1","type":"plain_wallets"}]}"#,
+            r#"{"data":{"attributes":{"public_address":"mru76ADdwx3EFjuknsZZVRXKUrnWxedwH7"},"id":"1","relationships":{"wallet":{"data":{"id":"my plain wallet updated","type":"plain_wallets"}}},"type":"plain_addresses"},"included":[{"attributes":{"label":"my plain wallet updated","version":"0"},"id":"my plain wallet updated","type":"plain_wallets"}]}"#,
         );
 
         assert_eq!(
             get(&client, "/plain_addresses")
                 .body_string()
                 .unwrap(),
-            r#"{"data":[{"attributes":{"public_address":"mru76ADdwx3EFjuknsZZVRXKUrnWxedwH7"},"id":"1","relationships":{"wallet":{"data":{"id":"1","type":"plain_wallets"}}},"type":"plain_addresses"},{"attributes":{"public_address":"n2ivyMi4jExgCeZTfiBuUt3GQhnnv8AXeb"},"id":"2","relationships":{"wallet":{"data":{"id":"1","type":"plain_wallets"}}},"type":"plain_addresses"}],"included":[{"attributes":{"label":"my plain wallet updated","version":"0"},"id":"1","type":"plain_wallets"},{"attributes":{"label":"my plain wallet updated","version":"0"},"id":"1","type":"plain_wallets"}]}"#,
+            r#"{"data":[{"attributes":{"public_address":"mru76ADdwx3EFjuknsZZVRXKUrnWxedwH7"},"id":"1","relationships":{"wallet":{"data":{"id":"my plain wallet updated","type":"plain_wallets"}}},"type":"plain_addresses"},{"attributes":{"public_address":"n2ivyMi4jExgCeZTfiBuUt3GQhnnv8AXeb"},"id":"2","relationships":{"wallet":{"data":{"id":"my plain wallet updated","type":"plain_wallets"}}},"type":"plain_addresses"}],"included":[{"attributes":{"label":"my plain wallet updated","version":"0"},"id":"my plain wallet updated","type":"plain_wallets"},{"attributes":{"label":"my plain wallet updated","version":"0"},"id":"my plain wallet updated","type":"plain_wallets"}]}"#,
         );
 
         assert_eq!(

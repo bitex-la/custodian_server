@@ -53,7 +53,10 @@ pub trait ToJsonApi {
         (resource, self.included(&query.include.as_ref().unwrap_or(&vec![])))
     }
 
-    fn has_one(typ: &str, id: usize) -> Relationship {
+    fn has_one<T>(typ: &str, id: T) -> Relationship 
+        where
+            T: ToString
+    {
         Relationship {
             data: IdentifierData::Single(ResourceIdentifier {
                 id: id.to_string(),

@@ -1,38 +1,38 @@
 {
-    "data": [
+    "data":[
         {
-            "attributes": {
-                "amount": 450648,
-                "prev_hash": "58baf615ed9e95023acb05715d3885cc48700ab548072cb5a996056786931fe3",
-                "prev_index": 1
+            "attributes":{
+                "amount":450648,
+                "prev_hash":"58baf615ed9e95023acb05715d3885cc48700ab548072cb5a996056786931fe3",
+                "prev_index":1
             },
-            "id": "58baf615ed9e95023acb05715d3885cc48700ab548072cb5a996056786931fe3",
-            "relationships": {
-                "address": {
-                    "data": {
-                        "id": "3",
-                        "type": "plain_addresses"
+            "id":"58baf615ed9e95023acb05715d3885cc48700ab548072cb5a996056786931fe3",
+            "relationships":{
+                "address":{
+                    "data":{
+                        "id":"3",
+                        "type":"plain_addresses"
                     }
                 }
             },
-            "type": "plain_utxos"
+            "type":"plain_utxos"
         }
     ],
-    "included": [
+    "included":[
         {
-            "attributes": {
-                "public_address": "mhjp3ZgbGxx5qc9Y8dvk1F71QeQcE9swLE"
+            "attributes":{
+                "public_address":"mhjp3ZgbGxx5qc9Y8dvk1F71QeQcE9swLE"
             },
-            "id": "3",
-            "relationships": {
-                "wallet": {
-                    "data": {
-                        "id": "1",
-                        "type": "plain_wallets"
+            "id":"3",
+            "relationships":{
+                "wallet":{
+                    "data":{
+                        "id":"my plain wallet updated",
+                        "type":"plain_wallets"
                     }
                 }
             },
-            "type": "plain_addresses"
+            "type":"plain_addresses"
         }
     ]
 }
