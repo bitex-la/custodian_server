@@ -61,7 +61,9 @@ impl AddressIndex {
         let address = table.find(id.clone())?;
 
         self.by_public_address.data.remove(&address.data.public_address);
-        self.by_wallet.data.remove(&address.data.wallet);
+        if let Some(wallet) = self.by_wallet.data.get_mut(&address.data.wallet) {
+            wallet.remove(&address);
+        }
 
         Ok(true)
     }

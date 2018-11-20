@@ -16,6 +16,7 @@ use std::sync::Arc;
 use tiny_ram_db;
 use tiny_ram_db::hashbrown;
 use tiny_ram_db::{Record, HashMapRecord, Indexer};
+use handlers::addresses::base::AddressHandler;
 
 pub trait WalletHandler
 where
@@ -30,9 +31,9 @@ where
         
         let wallets = raw_wallets
             .into_iter()
-            .map(|(id, record)| {
+            .map(|(_id, record)| {
                 let mut wallet = record.data.as_ref().clone();
-                if let Ok(addresses) = Self::get_addresses(state, id) {
+                if let Ok(addresses) = Self::get_addresses(state, wallet.get_label()) {
                     wallet = wallet.update_version(addresses);
                 }
                 (wallet.get_label(), wallet)
@@ -117,7 +118,7 @@ where
         let mut record = Self::get_wallet(state, id)
             .map_err(|error| status::Custom(Status::NotFound, error.to_string()))?;
 
-        let addresses = Self::get_addresses(state, record.id)
+        let addresses = Self::get_addresses(state, record.data.get_label())
             .map_err(|error| status::Custom(Status::NotFound, error.to_string()))?;
 
         record.data = Arc::new(record.data.update_version(addresses));
@@ -156,9 +157,16 @@ where
         Self::remove_from_indexes(wallets, id.clone())
     }
 
-    fn destroy(state: &ServerState, id: String) -> JsonResult {
+    fn destroy(state: &ServerState, id: String) -> JsonResult 
+        where
+            <Self as Wallet>::RA: ToJsonApi,
+            <Self as Wallet>::RA: Serialize,
+            <<Self as Wallet>::RA as Address>::Index: Indexer<Item = Self::RA>,
+    {
         let record = Self::get_wallet(state, id.clone())
             .map_err(|error| status::Custom(Status::NotFound, error.to_string()))?;
+
+        Self::destroy_addresses(state, id.clone())?;
 
         Self::destroy_indexes(state, id.clone())
             .map_err(|error| status::Custom(Status::NotFound, error.to_string()))?;
@@ -180,11 +188,24 @@ where
         Ok(record)
     }
 
-    fn get_wallet_and_addresses(state: &ServerState, id: String) -> Result<(Record<Self>, hashbrown::HashSet<Record<Self::RA>>), tiny_ram_db::errors::Error> {
-        let wallet = Self::get_wallet(state, id)?;
-        let addresses = Self::get_addresses(state, wallet.id)?;
+    fn destroy_addresses(state: &ServerState, id: String) -> JsonResult
+        where
+            <Self as Wallet>::RA: AddressHandler,
+            <<Self as Wallet>::RA as Address>::Index: Indexer<Item = Self::RA>,
+    {
+        if let Ok(result_address) = Self::get_addresses(state, id) {
+            for address in result_address {
+                Self::RA::destroy(state, address.id)?;
+            }
+        }
+        to_value(true)
+    }
 
-        Ok((wallet, addresses))
+    fn get_wallet_and_addresses(state: &ServerState, id: String) -> Result<(Record<Self>, hashbrown::HashSet<Record<Self::RA>>), tiny_ram_db::errors::Error> {
+        let record = Self::get_wallet(state, id)?;
+        let addresses = Self::get_addresses(state, record.data.get_label())?;
+
+        Ok((record, addresses))
     }
 
     fn update_record(state: &ServerState, id: usize, resource_wallet: Self) -> Result<bool, tiny_ram_db::errors::Error> {
@@ -218,9 +239,11 @@ where
             .ok_or_else(|| tiny_ram_db::errors::Error::from("RecordNotFound"))
     }
 
-    fn get_addresses(state: &ServerState, wallet_id: usize) -> Result<hashbrown::HashSet<Record<Self::RA>>, tiny_ram_db::errors::Error> {
+    fn get_addresses(state: &ServerState, wallet_id: String) -> Result<hashbrown::HashSet<Record<Self::RA>>, tiny_ram_db::errors::Error> {
+        let record = Self::get_wallet(state, wallet_id)?;
+
         let mut database = state.database_lock();
-        let addresses = Self::RA::by_wallet(wallet_id, &mut database)?;
+        let addresses = Self::RA::by_wallet(record.id, &mut database)?;
 
         Ok(addresses)
     }

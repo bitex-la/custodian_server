@@ -352,7 +352,7 @@ mod wallet_test {
 
         assert_eq!(
             get(&client, "/plain_wallets/my plain wallet updated").body_string().unwrap(),
-            r#"{"data":{"attributes":{"label":"my plain wallet updated","version":"0"},"id":"my plain wallet updated","type":"plain_wallets"}}"#,
+            r#"{"data":{"attributes":{"label":"my plain wallet updated","version":"1"},"id":"my plain wallet updated","type":"plain_wallets"}}"#,
         );
 
         post(
@@ -500,6 +500,8 @@ mod wallet_test {
         );
 
         delete(&client, "/plain_wallets/my plain wallet updated", "");
+        not_found(&client, "/plain_addresses/2");
+        not_found(&client, "/plain_addresses/3");
 
         assert_eq!(
             get(&client, "/plain_wallets").body_string().unwrap(),
