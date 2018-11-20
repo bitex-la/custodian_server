@@ -1,4 +1,3 @@
-use handlers::helpers::GetTransactionParams;
 use handlers::helpers::JsonResult;
 use handlers::wallets::base::{WalletHandler};
 use models::plain_wallet::PlainWallet;
@@ -11,14 +10,14 @@ pub fn index(state: &ServerState) -> JsonResult
     PlainWallet::index(state)
 }
 
-#[get("/plain_wallets/<id>/get_utxos?<params>")]
-pub fn get_utxos(state: &ServerState, id: String, params: GetTransactionParams) -> JsonResult {
-    PlainWallet::get_utxos(state, id, params.limit, params.since)
+#[get("/plain_wallets/<id>/get_utxos")]
+pub fn get_utxos(state: &ServerState, id: String) -> JsonResult {
+    PlainWallet::get_utxos(state, id, Some(10000000), Some(0))
 }
 
-#[get("/plain_wallets/<id>/get_incoming?<params>")]
-pub fn get_incoming(state: &ServerState, id: String, params: GetTransactionParams) -> JsonResult {
-    PlainWallet::get_incoming(state, id, params.limit, params.since)
+#[get("/plain_wallets/<id>/get_incoming")]
+pub fn get_incoming(state: &ServerState, id: String) -> JsonResult {
+    PlainWallet::get_incoming(state, id, Some(10000000), Some(0))
 }
 
 #[get("/plain_wallets/<id>")]

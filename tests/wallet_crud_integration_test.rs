@@ -377,7 +377,7 @@ mod wallet_test {
         );
 
         assert_eq!(
-            get(&client, "/plain_wallets/my plain wallet updated/get_utxos?since=0&limit=400")
+            get(&client, "/plain_wallets/my plain wallet updated/get_utxos")
                 .body_string()
                 .unwrap(),
             load_fixture_file("./tests/data/plain_utxos.json")
