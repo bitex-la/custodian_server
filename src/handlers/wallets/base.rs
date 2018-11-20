@@ -134,7 +134,7 @@ where
         let record = wallets.insert(new.0)
             .map_err(|error| status::Custom(Status::InternalServerError, error.to_string()))?;
 
-        to_value(record.data.to_jsonapi_document(record.id))
+        to_value(record.data.to_jsonapi_document(record.data.get_label()))
     }
 
     fn update(state: &ServerState, id: String, resource_wallet: Mapped<Self>) -> JsonResult {
