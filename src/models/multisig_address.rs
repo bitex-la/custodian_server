@@ -13,6 +13,8 @@ use serializers::{FromJsonApi, ToJsonApi};
 pub struct MultisigAddress {
     pub public_address: String,
     pub path: Vec<u64>,
+    #[serde(skip_deserializing)]
+    pub balance: Option<u64>,
     pub wallet: Record<MultisigWallet>,
 }
 
@@ -49,6 +51,15 @@ impl Address for MultisigAddress {
         let mut indexes = table.indexes.write().unwrap();
         indexes.remove(table, id)?;
         Ok(true)
+    }
+
+    fn update_attributes<'a>(&self, balance: u64) -> Self {
+        MultisigAddress { 
+            balance: Some(balance), 
+            public_address: self.public_address.clone(),
+            path: self.path.clone(),
+            wallet: self.wallet.clone()
+        }
     }
 }
 
@@ -93,7 +104,8 @@ impl ToJsonApi for MultisigAddress {
     fn attributes(&self, _fields: &QueryFields) -> ResourceAttributes {
         hashmap!{
             "public_address".to_string() => serde_json::to_value(&self.public_address).unwrap(),
-            "path".to_string() => serde_json::to_value(&self.path).unwrap()
+            "path".to_string() => serde_json::to_value(&self.path).unwrap(),
+            "balance".to_string() => serde_json::to_value(&self.balance).unwrap()
         }
     }
 
@@ -121,7 +133,7 @@ impl FromJsonApi for MultisigAddress {
             .into_iter()
             .nth(0)
             .ok_or_else(|| format!("Wallet not found"))?;
-        Ok(MultisigAddress{public_address, path, wallet})
+        Ok(MultisigAddress{public_address, path, wallet, balance: None})
     }
 }
 

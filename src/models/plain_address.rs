@@ -11,6 +11,8 @@ use tiny_ram_db::{Index, Indexer, Record, Table};
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct PlainAddress {
     pub public_address: String,
+    #[serde(skip_deserializing)]
+    pub balance: Option<u64>,
     pub wallet: Record<PlainWallet>,
 }
 
@@ -47,6 +49,14 @@ impl Address for PlainAddress {
         let mut indexes = table.indexes.write().expect("Error getting write access to indexes");
         indexes.remove(table, id)?;
         Ok(true)
+    }
+
+    fn update_attributes<'a>(&self, balance: u64) -> Self {
+        PlainAddress { 
+            balance: Some(balance), 
+            public_address: self.public_address.clone(),
+            wallet: self.wallet.clone()
+        }
     }
 }
 
@@ -91,7 +101,8 @@ impl ToJsonApi for PlainAddress {
 
     fn attributes(&self, _fields: &QueryFields) -> ResourceAttributes {
         hashmap!{
-            "public_address".to_string() => serde_json::to_value(&self.public_address).unwrap()
+            "public_address".to_string() => serde_json::to_value(&self.public_address).unwrap(),
+            "balance".to_string() => serde_json::to_value(&self.balance).unwrap()
         }
     }
 
@@ -121,6 +132,7 @@ impl FromJsonApi for PlainAddress {
         Ok(PlainAddress {
             public_address,
             wallet,
+            balance: None
         })
     }
 }

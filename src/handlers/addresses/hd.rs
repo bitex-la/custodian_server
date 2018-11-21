@@ -24,11 +24,6 @@ pub fn destroy(state: &ServerState, id: usize) -> JsonResult {
     HdAddress::destroy(state, id)
 }
 
-#[get("/hd_addresses/<address>/balance")]
-pub fn balance(state: &ServerState, address: String) -> JsonResult {
-    HdAddress::balance(&state.executor, address, Some(1000000), Some(0))
-}
-
 #[get("/hd_addresses/<address>/get_utxos")]
 pub fn get_utxos(state: &ServerState, address: String) -> JsonResult {
     HdAddress::get_utxos(&state.executor, address, Some(1000000), Some(0))

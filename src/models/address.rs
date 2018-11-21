@@ -22,4 +22,6 @@ pub trait Address: Clone {
     fn table<'a>(database: &'a mut Database) -> &'a mut Table<Self, Self::Index>;
 
     fn remove_from_indexes<'a>(table: &'a Table<Self, Self::Index>, id: &'a usize) -> Result<bool, tiny_ram_db::errors::Error>;
+
+    fn update_attributes<'a>(&self, balance: u64) -> Self;
 }

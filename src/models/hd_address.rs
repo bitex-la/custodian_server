@@ -13,6 +13,8 @@ use serializers::{FromJsonApi, ToJsonApi};
 pub struct HdAddress {
     pub public_address: String,
     pub path: Vec<u64>,
+    #[serde(skip_deserializing)]
+    pub balance: Option<u64>,
     pub wallet: Record<HdWallet>,
 }
 
@@ -50,6 +52,16 @@ impl Address for HdAddress {
         indexes.remove(table, id)?;
         Ok(true)
     }
+
+    fn update_attributes<'a>(&self, balance: u64) -> Self {
+        HdAddress { 
+            balance: Some(balance), 
+            public_address: self.public_address.clone(),
+            path: self.path.clone(),
+            wallet: self.wallet.clone()
+        }
+    }
+
 }
 
 #[derive(Default)]
@@ -92,7 +104,8 @@ impl ToJsonApi for HdAddress {
     fn attributes(&self, _fields: &QueryFields) -> ResourceAttributes {
         hashmap!{
             "public_address".to_string() => serde_json::to_value(&self.public_address).unwrap(),
-            "path".to_string() => serde_json::to_value(&self.path).unwrap()
+            "path".to_string() => serde_json::to_value(&self.path).unwrap(),
+            "balance".to_string() => serde_json::to_value(&self.balance).unwrap()
         }
     }
 
@@ -121,6 +134,6 @@ impl FromJsonApi for HdAddress {
             .nth(0)
             .ok_or_else(|| format!("Wallet not found"))?;
 
-        Ok(HdAddress{public_address, path, wallet})
+        Ok(HdAddress{public_address, path, wallet, balance: None})
     }
 }

@@ -21,6 +21,7 @@
     "included":[
         {
             "attributes":{
+                "balance":null,
                 "public_address":"mhjp3ZgbGxx5qc9Y8dvk1F71QeQcE9swLE"
             },
             "id":"3",

@@ -1,5 +1,6 @@
 use serde;
 use std::str::FromStr;
+use std::sync::Arc;
 
 use bitprim::executor::Executor;
 use bitprim::payment_address::PaymentAddress;
@@ -33,7 +34,12 @@ where
 
         let addresses = result
             .iter()
-            .map(|(id, record)| (id, record.data.as_ref().clone()));
+            .map(|(id, record)| {
+                let mut address = record.data.as_ref().clone();
+                let balance = Self::balance(&state.executor, address.public(), Some(1000000), Some(0));
+                address = address.update_attributes(balance);
+                (id, address)
+            });
         let hash_set_addresses: JsonApiDocument = Self::collection_to_jsonapi_document(addresses);
         to_value(hash_set_addresses)
     }
@@ -52,8 +58,11 @@ where
         let mut database = state.database_lock();
         let addresses = Self::table(&mut database);
 
-        let record = addresses.find(id)
+        let mut record = addresses.find(id)
             .map_err(|error| status::Custom(Status::NotFound, error.to_string()))?;
+
+        let balance = Self::balance(&state.executor, record.data.public(), Some(1000000), Some(0));
+        record.data = Arc::new(record.data.update_attributes(balance));
 
         to_value(record.data.to_jsonapi_document(record.id))
     }
@@ -78,22 +87,18 @@ where
         address: String,
         limit: Option<u64>,
         since: Option<u64>,
-        ) -> JsonResult {
+        ) -> u64 {
         let explorer = exec.explorer();
+        let mut balance = 0;
 
-        let valid_address = PaymentAddress::from_str(&address)
-            .map_err(|error| status::Custom(Status::InternalServerError, error.to_string()))?;
+        if let Ok(valid_address) = PaymentAddress::from_str(&address) {
+            if let Ok(result_balance) = explorer.address_unspents(valid_address, limit.unwrap_or(10_000), since.unwrap_or(0))
+                .map(|vec_received| vec_received.iter().map(|r| r.satoshis).sum::<u64>()) {
+                    balance = result_balance;
+                }
+        }
 
-        let balance = explorer.address_unspents(valid_address, limit.unwrap_or(10_000), since.unwrap_or(0))
-            .map(|vec_received| vec_received.iter().map(|r| r.satoshis).sum::<u64>())
-            .map_err(|error| status::Custom(Status::InternalServerError, error.to_string()))?;
-
-        to_value(hashmap!{
-            "data" => hashmap!{
-                "type" => "balance".to_string(), 
-                "amount" => balance.to_string()
-            }
-        })
+        balance
     }
 
     fn get_utxos(
