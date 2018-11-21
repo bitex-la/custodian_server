@@ -2,6 +2,7 @@ use bitprim::explorer::Received;
 use jsonapi::model::*;
 use tiny_ram_db::{Table, Record, Index, Indexer, hashbrown};
 use serde_json;
+use tiny_ram_db;
 
 use models::wallet::Wallet;
 use models::hd_address::HdAddress;

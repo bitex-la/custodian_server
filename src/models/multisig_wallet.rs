@@ -1,6 +1,7 @@
 use std::str;
 use std::str::FromStr;
 use serde_json;
+use tiny_ram_db;
 use tiny_ram_db::hashbrown;
 
 use bitcoin::util::bip32::ExtendedPubKey;

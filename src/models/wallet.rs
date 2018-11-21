@@ -1,4 +1,5 @@
 use std;
+use tiny_ram_db;
 use std::str::FromStr;
 use tiny_ram_db::hashbrown;
 
