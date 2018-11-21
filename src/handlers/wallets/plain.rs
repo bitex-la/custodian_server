@@ -19,11 +19,6 @@ pub fn get_incoming(state: &ServerState, id: String) -> JsonResult {
     PlainWallet::get_incoming(state, id, Some(1000000), Some(0))
 }
 
-#[get("/plain_wallets/<id>/balance")]
-pub fn balance(state: &ServerState, id: String) -> JsonResult {
-    PlainWallet::balance(state, id, Some(1000000), Some(0))
-}
-
 #[get("/plain_wallets/<id>")]
 pub fn show(state: &ServerState, id: String) -> JsonResult {
     PlainWallet::show(state, id)

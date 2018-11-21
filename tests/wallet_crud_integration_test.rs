@@ -69,7 +69,6 @@ mod wallet_test {
                     wallets::plain::destroy,
                     wallets::plain::get_utxos,
                     wallets::plain::get_incoming,
-                    wallets::plain::balance,
                     wallets::hd::index,
                     wallets::hd::show,
                     wallets::hd::create,
@@ -77,7 +76,6 @@ mod wallet_test {
                     wallets::hd::destroy,
                     wallets::hd::get_utxos,
                     wallets::hd::get_incoming,
-                    wallets::hd::balance,
                     wallets::multisig::index,
                     wallets::multisig::show,
                     wallets::multisig::create,
@@ -85,24 +83,20 @@ mod wallet_test {
                     wallets::multisig::destroy,
                     wallets::multisig::get_utxos,
                     wallets::multisig::get_incoming,
-                    wallets::multisig::balance,
                     addresses::plain::index,
                     addresses::plain::create,
                     addresses::plain::show,
                     addresses::plain::destroy,
-                    addresses::plain::balance,
                     addresses::plain::get_utxos,
                     addresses::hd::index,
                     addresses::hd::create,
                     addresses::hd::show,
                     addresses::hd::destroy,
-                    addresses::hd::balance,
                     addresses::hd::get_utxos,
                     addresses::multisig::index,
                     addresses::multisig::create,
                     addresses::multisig::show,
                     addresses::multisig::destroy,
-                    addresses::multisig::balance,
                     addresses::multisig::get_utxos,
                     blocks::base::last,
                     stop
@@ -427,13 +421,6 @@ mod wallet_test {
         );
 
         get(&client, "/hd_wallets/my hd wallet/get_utxos");
-
-        assert_eq!(
-            get(&client, "/hd_addresses/2NAHscN6XVqUPzBSJHC3fhkeF5SQVxiR9p9/balance")
-                .body_string()
-                .unwrap(),
-            r#"{"data":{"amount":"1309846","type":"balance"}}"#
-        );
 
         post(
             &client,

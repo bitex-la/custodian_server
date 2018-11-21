@@ -19,11 +19,6 @@ pub fn get_incoming(state: &ServerState, id: String) -> JsonResult {
     MultisigWallet::get_incoming(state, id, Some(1000000), Some(0))
 }
 
-#[get("/multisig_wallets/<id>/balance")]
-pub fn balance(state: &ServerState, id: String) -> JsonResult {
-    MultisigWallet::balance(state, id, Some(1000000), Some(0))
-}
-
 #[get("/multisig_wallets/<id>")]
 pub fn show(state: &ServerState, id: String) -> JsonResult {
     MultisigWallet::show(state, id)
