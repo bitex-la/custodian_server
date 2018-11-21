@@ -81,7 +81,8 @@ where
 
         match Self::get_wallet_and_addresses(state, id.clone()) {
             Ok((wallet, addresses)) => {
-                to_value(wallet.data.balance(&state.executor, addresses, limit, since))
+                let balance = wallet.data.balance(&state.executor, addresses, limit, since);
+                to_value(hashmap!{"data" => balance})
             },
             Err(_) => Err(status::Custom(Status::NotFound, format!("{:?}", id))),
         }

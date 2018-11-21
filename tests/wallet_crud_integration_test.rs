@@ -426,13 +426,13 @@ mod wallet_test {
             }"#,
         );
 
-        get(&client, "/hd_wallets/my hd wallet/get_utxos?since=0&limit=600");
+        get(&client, "/hd_wallets/my hd wallet/get_utxos");
 
         assert_eq!(
-            get(&client, "/hd_addresses/2NAHscN6XVqUPzBSJHC3fhkeF5SQVxiR9p9/balance?since=0&limit=600")
+            get(&client, "/hd_addresses/2NAHscN6XVqUPzBSJHC3fhkeF5SQVxiR9p9/balance")
                 .body_string()
                 .unwrap(),
-            "1309846".to_string()
+            r#"{"data":1309846}"#
         );
 
         post(
@@ -457,7 +457,7 @@ mod wallet_test {
             }"#,
         );
 
-        let transactions : JsonApiDocument = serde_json::from_str(&get(&client, "/multisig_wallets/my_second_wallet/get_utxos?since=0&limit=400").body_string().unwrap()).unwrap();
+        let transactions : JsonApiDocument = serde_json::from_str(&get(&client, "/multisig_wallets/my_second_wallet/get_utxos").body_string().unwrap()).unwrap();
         if let PrimaryData::Multiple(data) = transactions.data.unwrap() {
             let mut transaction_hashes = vec![];
             for resource in data {
@@ -473,7 +473,7 @@ mod wallet_test {
                      "0ded7f014fa3213e9b000bc81b8151bc6f2f926b9afea6e3643c8ad658353c72"]);
         }
 
-        let transactions : JsonApiDocument = serde_json::from_str(&get(&client, "/multisig_wallets/my_second_wallet/get_incoming?since=400").body_string().unwrap()).unwrap();
+        let transactions : JsonApiDocument = serde_json::from_str(&get(&client, "/multisig_wallets/my_second_wallet/get_incoming").body_string().unwrap()).unwrap();
         if let PrimaryData::Multiple(data) = transactions.data.unwrap() {
             let mut transaction_hashes = vec![];
             for resource in data {
@@ -502,7 +502,7 @@ mod wallet_test {
             true
         );
 
-        assert_eq!( get(&client, "/plain_wallets/my plain wallet updated/balance").body_string().unwrap(), "450648");
+        assert_eq!( get(&client, "/plain_wallets/my plain wallet updated/balance").body_string().unwrap(), r#"{"data":450648}"#);
 
         delete(&client, "/plain_wallets/my plain wallet updated", "");
         not_found(&client, "/plain_addresses/2");
@@ -608,7 +608,7 @@ mod wallet_test {
 
         let consulting_balances = Instant::now();
         for address in &addresses {
-            let url = &format!("/hd_addresses/{}/balance?since=0&limit=1000000", &address);
+            let url = &format!("/hd_addresses/{}/balance", &address);
             let balance: u64 = get(&client, url).body_string().unwrap().parse().unwrap();
             if balance > 0 {
                 addresses_with_balances.push(format!("{}: {}", &address, balance));
@@ -617,7 +617,7 @@ mod wallet_test {
         let finish_consulting_balances = consulting_balances.elapsed();
 
         let get_utxos = Instant::now();
-        let response = get(&client, "/plain_wallets/1/get_utxos?since=0&limit=1000000").body_string().unwrap();
+        let response = get(&client, "/plain_wallets/1/get_utxos").body_string().unwrap();
         let finish_get_utxos = get_utxos.elapsed();
 
         println!("Finish adding 100837 addresses {:?}", finish_adding_addresses);
