@@ -69,6 +69,7 @@ mod wallet_test {
                     wallets::plain::destroy,
                     wallets::plain::get_utxos,
                     wallets::plain::get_incoming,
+                    wallets::plain::balance,
                     wallets::hd::index,
                     wallets::hd::show,
                     wallets::hd::create,
@@ -76,6 +77,7 @@ mod wallet_test {
                     wallets::hd::destroy,
                     wallets::hd::get_utxos,
                     wallets::hd::get_incoming,
+                    wallets::hd::balance,
                     wallets::multisig::index,
                     wallets::multisig::show,
                     wallets::multisig::create,
@@ -83,6 +85,7 @@ mod wallet_test {
                     wallets::multisig::destroy,
                     wallets::multisig::get_utxos,
                     wallets::multisig::get_incoming,
+                    wallets::multisig::balance,
                     addresses::plain::index,
                     addresses::plain::create,
                     addresses::plain::show,
@@ -498,6 +501,8 @@ mod wallet_test {
             v["data"]["attributes"]["height"].as_u64().unwrap() > 400,
             true
         );
+
+        assert_eq!( get(&client, "/plain_wallets/my plain wallet updated/balance").body_string().unwrap(), "450648");
 
         delete(&client, "/plain_wallets/my plain wallet updated", "");
         not_found(&client, "/plain_addresses/2");

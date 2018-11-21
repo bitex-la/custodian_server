@@ -5,19 +5,23 @@ use server_state::ServerState;
 use data_guards::Mapped;
 
 #[get("/plain_wallets")]
-pub fn index(state: &ServerState) -> JsonResult
-{
+pub fn index(state: &ServerState) -> JsonResult {
     PlainWallet::index(state)
 }
 
 #[get("/plain_wallets/<id>/get_utxos")]
 pub fn get_utxos(state: &ServerState, id: String) -> JsonResult {
-    PlainWallet::get_utxos(state, id, Some(10000000), Some(0))
+    PlainWallet::get_utxos(state, id, Some(1000000), Some(0))
 }
 
 #[get("/plain_wallets/<id>/get_incoming")]
 pub fn get_incoming(state: &ServerState, id: String) -> JsonResult {
-    PlainWallet::get_incoming(state, id, Some(10000000), Some(0))
+    PlainWallet::get_incoming(state, id, Some(1000000), Some(0))
+}
+
+#[get("/plain_wallets/<id>/balance")]
+pub fn balance(state: &ServerState, id: String) -> JsonResult {
+    PlainWallet::balance(state, id, Some(1000000), Some(0))
 }
 
 #[get("/plain_wallets/<id>")]

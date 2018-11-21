@@ -38,6 +38,29 @@ pub trait Wallet: std::marker::Sized + Clone + std::fmt::Debug {
         )
     }
 
+    fn balance(
+        &self,
+        exec: &Executor,
+        addresses: hashbrown::HashSet<Record<Self::RA>>,
+        limit: Option<u64>,
+        maybe_since: Option<u64>,
+    ) -> u64 {
+        let explorer = exec.explorer();
+
+        let since = self.get_since(exec, maybe_since);
+
+        self.get_transactions_for_wallet(
+            limit.unwrap_or(10_000),
+            since,
+            addresses,
+            |address, limit, since| explorer.address_unspents(address, limit, since),
+            |received: Received, _address| received,
+        )
+        .iter()
+        .map(|tx| tx.satoshis )
+        .sum()
+    }
+
     fn get_incoming(
         &self,
         exec: &Executor,

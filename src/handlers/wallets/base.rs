@@ -67,6 +67,26 @@ where
         )
     }
 
+    fn balance(
+        state: &ServerState,
+        id: String,
+        limit: Option<u64>,
+        since: Option<u64>,
+    ) -> JsonResult
+    where
+        <Self as Wallet>::Utxo: Serialize + Utxo,
+        for<'de> <Self as Wallet>::Utxo: Deserialize<'de>,
+        <Self as Wallet>::Utxo: ToJsonApi
+    {
+
+        match Self::get_wallet_and_addresses(state, id.clone()) {
+            Ok((wallet, addresses)) => {
+                to_value(wallet.data.balance(&state.executor, addresses, limit, since))
+            },
+            Err(_) => Err(status::Custom(Status::NotFound, format!("{:?}", id))),
+        }
+    }
+
     fn get_incoming(
         state: &ServerState,
         id: String,
