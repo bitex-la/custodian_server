@@ -34,7 +34,9 @@ where
             .map(|(_id, record)| {
                 let mut wallet = record.data.as_ref().clone();
                 if let Ok(addresses) = Self::get_addresses(state, wallet.get_label()) {
-                    wallet = wallet.update_version(addresses);
+                    let version = (&addresses).len().to_string();
+                    let balance = wallet.balance(&state.executor, addresses, Some(1000000), Some(0));
+                    wallet = wallet.update_attributes(version, balance);
                 }
                 (wallet.get_label(), wallet)
             });
@@ -142,7 +144,9 @@ where
         let addresses = Self::get_addresses(state, record.data.get_label())
             .map_err(|error| status::Custom(Status::NotFound, error.to_string()))?;
 
-        record.data = Arc::new(record.data.update_version(addresses));
+        let version = (&addresses).len().to_string();
+        let balance = record.data.balance(&state.executor, addresses, Some(1000000), Some(0));
+        record.data = Arc::new(record.data.update_attributes(version, balance));
 
         to_value(record.data.to_jsonapi_document(record.data.get_label()))
     }

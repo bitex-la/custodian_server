@@ -21,6 +21,8 @@ pub struct MultisigWallet {
     pub version: String,
     pub xpubs: Vec<String>,
     pub signers: u64,
+    #[serde(skip_deserializing)]
+    pub balance: Option<u64>
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -154,13 +156,13 @@ impl Wallet for MultisigWallet {
         &mut database.multisig_wallets
     }
 
-    fn update_version<'a>(&self, addresses: hashbrown::HashSet<Record<Self::RA>>) -> Self{
-        let version = addresses.len().to_string();
+    fn update_attributes<'a>(&self, version: String, balance: u64) -> Self{
         MultisigWallet {
             version,
             xpubs: self.xpubs.clone(),
             label: self.label.clone(),
-            signers: self.signers.clone()
+            signers: self.signers.clone(),
+            balance: Some(balance)
         }
     }
 
@@ -194,6 +196,7 @@ impl ToJsonApi for MultisigWallet {
             "xpubs".to_string() => serde_json::to_value(&self.xpubs).unwrap(),
             "label".to_string() => serde_json::to_value(&self.label).unwrap(),
             "signers".to_string() => serde_json::to_value(&self.signers).unwrap(),
+            "balance".to_string() => serde_json::to_value(&self.balance).unwrap(),
         }
     }
 }
@@ -207,6 +210,7 @@ impl FromJsonApi for MultisigWallet {
             xpubs: Self::attribute(&resource, "xpubs")?,
             label: Self::attribute(&resource, "label")?,
             signers: Self::attribute(&resource, "signers")?,
+            balance: None
         })
     }
 }

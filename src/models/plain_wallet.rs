@@ -12,6 +12,8 @@ use tiny_ram_db::{Record, Index, Indexer, Table};
 pub struct PlainWallet {
     pub version: String,
     pub label: String,
+    #[serde(skip_deserializing)]
+    pub balance: Option<u64>
 }
 
 #[derive(Default)]
@@ -88,11 +90,11 @@ impl Wallet for PlainWallet {
             &mut database.plain_wallets
         }
 
-    fn update_version<'a>(&self, addresses: hashbrown::HashSet<Record<Self::RA>>) -> Self{
-        let version = addresses.len().to_string();
+    fn update_attributes<'a>(&self, version: String, balance: u64) -> Self{
         PlainWallet {
             version,
-            label: self.label.clone()
+            label: self.label.clone(),
+            balance: Some(balance)
         }
     }
 
@@ -123,7 +125,8 @@ impl ToJsonApi for PlainWallet {
     fn attributes(&self, _fields: &QueryFields) -> ResourceAttributes {
         hashmap!{
             "version".to_string() => serde_json::to_value(&self.version).unwrap(),
-            "label".to_string() => serde_json::to_value(&self.label).unwrap()
+            "label".to_string() => serde_json::to_value(&self.label).unwrap(),
+            "balance".to_string() => serde_json::to_value(&self.balance).unwrap()
         }
     }
 }
@@ -134,7 +137,8 @@ impl FromJsonApi for PlainWallet {
     fn from_json_api_resource(resource: Resource, _db: Database) -> Result<Self, String> {
         Ok(PlainWallet{
             version: Self::attribute(&resource, "version")?,
-            label: Self::attribute(&resource, "label")?
+            label: Self::attribute(&resource, "label")?,
+            balance: None,
         })
     }
 }

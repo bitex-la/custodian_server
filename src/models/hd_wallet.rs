@@ -15,6 +15,8 @@ pub struct HdWallet {
     pub version: String,
     pub xpub: String,
     pub label: String,
+    #[serde(skip_deserializing)]
+    pub balance: Option<u64>
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -84,12 +86,12 @@ impl Wallet for HdWallet {
         &mut database.hd_wallets
     }
 
-    fn update_version<'a>(&self, addresses: hashbrown::HashSet<Record<Self::RA>>) -> Self{
-        let version = addresses.len().to_string();
+    fn update_attributes<'a>(&self, version: String, balance: u64) -> Self{
         HdWallet {
             version,
             xpub: self.xpub.clone(),
-            label: self.label.clone()
+            label: self.label.clone(),
+            balance: Some(balance)
         }
     }
 
@@ -121,7 +123,8 @@ impl ToJsonApi for HdWallet {
         hashmap!{
             "version".to_string() => serde_json::to_value(&self.version).unwrap(),
             "xpub".to_string() => serde_json::to_value(&self.xpub).unwrap(),
-            "label".to_string() => serde_json::to_value(&self.label).unwrap()
+            "label".to_string() => serde_json::to_value(&self.label).unwrap(),
+            "balance".to_string() => serde_json::to_value(&self.balance).unwrap()
         }
     }
 }
@@ -133,7 +136,8 @@ impl FromJsonApi for HdWallet {
         Ok(HdWallet{
             version: Self::attribute(&resource, "version")?,
             xpub: Self::attribute(&resource, "xpub")?,
-            label: Self::attribute(&resource, "label")?
+            label: Self::attribute(&resource, "label")?,
+            balance: None
         })
     }
 }
