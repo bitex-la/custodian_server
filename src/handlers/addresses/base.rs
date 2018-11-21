@@ -88,7 +88,7 @@ where
             .map(|vec_received| vec_received.iter().map(|r| r.satoshis).sum::<u64>())
             .map_err(|error| status::Custom(Status::InternalServerError, error.to_string()))?;
 
-        to_value(hashmap!{"data" => balance})
+        to_value(hashmap!{"data" => hashmap!{"type" => "balance".to_string(), "amount" => balance.to_string()}})
     }
 
     fn get_utxos(

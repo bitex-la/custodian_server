@@ -432,7 +432,7 @@ mod wallet_test {
             get(&client, "/hd_addresses/2NAHscN6XVqUPzBSJHC3fhkeF5SQVxiR9p9/balance")
                 .body_string()
                 .unwrap(),
-            r#"{"data":1309846}"#
+            r#"{"data":{"amount":"1309846","type":"balance"}}"#
         );
 
         post(
@@ -502,7 +502,7 @@ mod wallet_test {
             true
         );
 
-        assert_eq!( get(&client, "/plain_wallets/my plain wallet updated/balance").body_string().unwrap(), r#"{"data":450648}"#);
+        assert_eq!( get(&client, "/plain_wallets/my plain wallet updated/balance").body_string().unwrap(), r#"{"data":{"amount":"450648","type":"balance"}}"#);
 
         delete(&client, "/plain_wallets/my plain wallet updated", "");
         not_found(&client, "/plain_addresses/2");
