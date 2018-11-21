@@ -1,5 +1,4 @@
 use handlers::addresses::base::AddressHandler;
-use handlers::helpers::GetTransactionParams;
 use handlers::helpers::JsonResult;
 use models::multisig_address::MultisigAddress;
 use server_state::ServerState;
@@ -25,12 +24,12 @@ pub fn destroy(state: &ServerState, id: usize) -> JsonResult {
     MultisigAddress::destroy(state, id)
 }
 
-#[get("/multisig_addresses/<address>/balance?<params>")]
-pub fn balance(state: &ServerState, address: String, params: GetTransactionParams) -> JsonResult {
-    MultisigAddress::balance(&state.executor, address, params.limit, params.since)
+#[get("/multisig_addresses/<address>/balance")]
+pub fn balance(state: &ServerState, address: String) -> JsonResult {
+    MultisigAddress::balance(&state.executor, address, Some(1000000), Some(0))
 }
 
-#[get("/multisig_addresses/<address>/get_utxos?<params>")]
-pub fn get_utxos(state: &ServerState, address: String, params: GetTransactionParams) -> JsonResult {
-    MultisigAddress::get_utxos(&state.executor, address, params.limit, params.since)
+#[get("/multisig_addresses/<address>/get_utxos")]
+pub fn get_utxos(state: &ServerState, address: String) -> JsonResult {
+    MultisigAddress::get_utxos(&state.executor, address, Some(1000000), Some(0))
 }

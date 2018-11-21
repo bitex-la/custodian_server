@@ -1,5 +1,4 @@
 use handlers::addresses::base::AddressHandler;
-use handlers::helpers::GetTransactionParams;
 use handlers::helpers::JsonResult;
 use models::hd_address::HdAddress;
 use server_state::ServerState;
@@ -25,12 +24,12 @@ pub fn destroy(state: &ServerState, id: usize) -> JsonResult {
     HdAddress::destroy(state, id)
 }
 
-#[get("/hd_addresses/<address>/balance?<params>")]
-pub fn balance(state: &ServerState, address: String, params: GetTransactionParams) -> JsonResult {
-    HdAddress::balance(&state.executor, address, params.limit, params.since)
+#[get("/hd_addresses/<address>/balance")]
+pub fn balance(state: &ServerState, address: String) -> JsonResult {
+    HdAddress::balance(&state.executor, address, Some(1000000), Some(0))
 }
 
-#[get("/hd_addresses/<address>/get_utxos?<params>")]
-pub fn get_utxos(state: &ServerState, address: String, params: GetTransactionParams) -> JsonResult {
-    HdAddress::get_utxos(&state.executor, address, params.limit, params.since)
+#[get("/hd_addresses/<address>/get_utxos")]
+pub fn get_utxos(state: &ServerState, address: String) -> JsonResult {
+    HdAddress::get_utxos(&state.executor, address, Some(1000000), Some(0))
 }
