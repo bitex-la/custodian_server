@@ -5,3 +5,7 @@
 ./archive/
 rusty-tags.vi
 ./blockchain/
+*.log
+.idea/
+.vscode/
+.git/

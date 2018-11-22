@@ -1,11 +1,10 @@
 version: '3'
 services:
   web:
-    image: custodian_server:latest
-    command: cargo run /usr/src/custodian_server/tests/btc-testnet-no-connections.cfg
+    image: wernerae/custodian_server:latest
+    command: bash -c "cargo run /usr/src/custodian_server/tests/btc-testnet-no-connections.cfg"
     environment:
       ROCKET_PORT: 9100
       ROCKET_ADDRESS: 0.0.0.0
     ports:
       - "9100:9100"
-
