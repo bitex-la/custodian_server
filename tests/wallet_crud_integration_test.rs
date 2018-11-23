@@ -373,13 +373,6 @@ mod wallet_test {
             }"#,
         );
 
-        assert_eq!(
-            get(&client, "/plain_wallets/my plain wallet updated/get_utxos")
-                .body_string()
-                .unwrap(),
-            load_fixture_file("./tests/data/plain_utxos.json")
-        );
-
         post(
             &client,
             "/multisig_wallets",

@@ -1,39 +1,64 @@
 {
-    "data":[
+    "data": [
         {
-            "attributes":{
-                "amount":450648,
-                "prev_hash":"58baf615ed9e95023acb05715d3885cc48700ab548072cb5a996056786931fe3",
-                "prev_index":1
+            "attributes": {
+                "transaction": {
+                    "address": "mhjp3ZgbGxx5qc9Y8dvk1F71QeQcE9swLE",
+                    "block_height": 429,
+                    "inputs": [
+                        {
+                            "prev_hash": "b0d95df6f5ff04e908f167efb8bf5b258ff62345b5ae555245fa4c6cdca72468",
+                            "prev_index": 0,
+                            "script_sig": "40dd0308d27f0000dabae063d4b378441fc3a7d61e4046a9c67e8b207a300fe934bf83bed30220385100118db78c5daaa4b0b740c76838e322b50bbf2ac9b47d2b4019614db1b8012103d13e48291037cf0027faaf6268364d2936ae37d0a644855af44a392f1f104569",
+                            "sequence": 4294967295
+                        }
+                    ],
+                    "is_spent": false,
+                    "locktime": 0,
+                    "outputs": [
+                        {
+                            "amount": 4907387250,
+                            "script_pubkey": "90030308d27f0000e6a2cfc1abf6172e551c11c23c5c8d88ac"
+                        },
+                        {
+                            "amount": 450648,
+                            "script_pubkey": "90030308d27f000012a9438a28aa20630097153907b8b988ac"
+                        }
+                    ],
+                    "position": 1,
+                    "satoshis": 450648,
+                    "transaction_hash": "58baf615ed9e95023acb05715d3885cc48700ab548072cb5a996056786931fe3",
+                    "version": 1
+                }
             },
-            "id":"58baf615ed9e95023acb05715d3885cc48700ab548072cb5a996056786931fe3",
-            "relationships":{
-                "address":{
-                    "data":{
-                        "id":"3",
-                        "type":"plain_addresses"
+            "id": "58baf615ed9e95023acb05715d3885cc48700ab548072cb5a996056786931fe3",
+            "relationships": {
+                "address": {
+                    "data": {
+                        "id": "3",
+                        "type": "plain_addresses"
                     }
                 }
             },
-            "type":"plain_utxos"
+            "type": "plain_utxos"
         }
     ],
-    "included":[
+    "included": [
         {
-            "attributes":{
-                "balance":null,
-                "public_address":"mhjp3ZgbGxx5qc9Y8dvk1F71QeQcE9swLE"
+            "attributes": {
+                "balance": null,
+                "public_address": "mhjp3ZgbGxx5qc9Y8dvk1F71QeQcE9swLE"
             },
-            "id":"3",
-            "relationships":{
-                "wallet":{
-                    "data":{
-                        "id":"my plain wallet updated",
-                        "type":"plain_wallets"
+            "id": "3",
+            "relationships": {
+                "wallet": {
+                    "data": {
+                        "id": "my plain wallet updated",
+                        "type": "plain_wallets"
                     }
                 }
             },
-            "type":"plain_addresses"
+            "type": "plain_addresses"
         }
     ]
 }

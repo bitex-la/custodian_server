@@ -14,7 +14,7 @@ impl Utxo for HdUtxo {
 
 impl Utxo for PlainUtxo {
     fn id(&self) -> String {
-        self.prev_hash.clone()
+        self.transaction.transaction_hash.clone()
     }
 }
 

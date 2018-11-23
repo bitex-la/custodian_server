@@ -6,6 +6,8 @@ use jsonapi::model::*;
 use models::database::Database;
 use models::plain_address::PlainAddress;
 use models::wallet::Wallet;
+use models::address::Address;
+use models::transaction::Transaction;
 use serializers::{FromJsonApi, ToJsonApi};
 use tiny_ram_db::{Record, Index, Indexer, Table};
 
@@ -40,10 +42,8 @@ impl Indexer for PlainWalletIndex {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PlainUtxo {
-    pub prev_hash: String,
-    pub prev_index: u32,
     pub address: Record<PlainAddress>,
-    pub amount: u64,
+    pub transaction: Transaction,
 }
 
 impl ToJsonApi for PlainUtxo {
@@ -51,9 +51,7 @@ impl ToJsonApi for PlainUtxo {
 
     fn attributes(&self, _fields: &QueryFields) -> ResourceAttributes {
         hashmap!{
-            "prev_hash".to_string() => serde_json::to_value(&self.prev_hash).unwrap(),
-            "prev_index".to_string() => serde_json::to_value(&self.prev_index).unwrap(),
-            "amount".to_string() => serde_json::to_value(&self.amount).unwrap()
+            "transaction".to_string() => serde_json::to_value(&self.transaction).unwrap()
         }
     }
 
@@ -75,10 +73,8 @@ impl Wallet for PlainWallet {
 
     fn construct_utxo(&self, received: Received, address: Record<PlainAddress>) -> Self::Utxo {
         PlainUtxo {
-            prev_hash: received.transaction_hash.to_hex(),
-            prev_index: received.position,
             address: address.clone(),
-            amount: received.satoshis,
+            transaction: Transaction::new(received, address.data.public())
         }
     }
 
