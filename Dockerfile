@@ -20,6 +20,4 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN cargo +nightly install
 RUN cargo +nightly build
 
-RUN ./prepare_tests.sh
-RUN ./use_prepared_database.sh
 CMD cargo run /usr/src/custodian_server/tests/btc-testnet-no-connections.cfg
