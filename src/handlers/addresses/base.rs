@@ -47,6 +47,12 @@ where
     fn create(state: &ServerState, new: Self) -> JsonResult {
         let mut database = state.database_lock();
 
+        if let Ok(address) = Self::by_public_address(new.public(), &mut database) {
+            if !address.is_empty() {
+                return Err(status::Custom(Status::InternalServerError, "Address already exists".to_string()));
+            }
+        }
+
         let record = Self::table(&mut database)
             .insert(new.clone())
             .map_err(|error| status::Custom(Status::InternalServerError, error.to_string()))?;

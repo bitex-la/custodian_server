@@ -41,6 +41,16 @@ impl Address for PlainAddress {
             .get(&wallet, |items| items.clone())
     }
 
+    fn by_public_address<'a>(address: String, database: &'a mut Database)
+        -> Result<hashbrown::HashSet<Record<Self>>, tiny_ram_db::errors::Error> {
+        database
+            .plain_addresses
+            .indexes
+            .read()?
+            .by_public_address
+            .get(&address, |items| items.clone())
+    }
+
     fn get_record_wallet(&self) -> Record<Self::Wallet> {
         self.wallet.clone()
     }

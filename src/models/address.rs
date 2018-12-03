@@ -17,6 +17,9 @@ pub trait Address: Clone {
     fn by_wallet<'a>(wallet_id: usize, database: &'a mut Database)
       -> Result<hashbrown::HashSet<Record<Self>>, tiny_ram_db::errors::Error>;
 
+    fn by_public_address<'a>(address: String, database: &'a mut Database)
+      -> Result<hashbrown::HashSet<Record<Self>>, tiny_ram_db::errors::Error>;
+
     fn get_record_wallet(&self) -> Record<Self::Wallet>;
 
     fn table<'a>(database: &'a mut Database) -> &'a mut Table<Self, Self::Index>;
