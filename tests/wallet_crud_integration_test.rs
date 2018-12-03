@@ -119,12 +119,22 @@ mod wallet_test {
         client
     }
 
-    fn post(client: &Client, url: &str, body: &str) {
+    fn post<'a>(client: &'a Client, url: &'a str, body: &'a str) -> LocalResponse<'a> {
         let response = client
             .post(url)
             .body(body)
             .dispatch();
         assert_eq!(response.status(), Status::Ok);
+        response
+    }
+
+    fn post_500<'a>(client: &'a Client, url: &'a str, body: &'a str) -> LocalResponse<'a> {
+        let response = client
+            .post(url)
+            .body(body)
+            .dispatch();
+        assert_eq!(response.status(), Status::InternalServerError);
+        response
     }
 
     fn put(client: &Client, url: &str, body: &str) {
@@ -320,6 +330,29 @@ mod wallet_test {
                 }
             }"#,
         );
+
+        assert_eq!(
+            post_500(
+                &client,
+                "/plain_addresses",
+                r#"{
+                    "data": {
+                        "attributes": {
+                            "public_address": "n2ivyMi4jExgCeZTfiBuUt3GQhnnv8AXeb"
+                        },
+                        "relationships": {
+                            "wallet": {
+                                "data": {
+                                    "type": "plain_wallets",
+                                    "id": "my plain wallet updated"
+                                }
+                            }
+                        },
+                        "type": "plain_addresses"
+                    }
+                }"#,
+            ).body_string().unwrap(),
+            "Address already exists");
 
         assert_eq!(
             get(&client, "/plain_addresses/1")
@@ -571,9 +604,7 @@ mod wallet_test {
 
         let adding_addresses = Instant::now();
         for address in &addresses {
-            post(
-                &client,
-                "/plain_addresses",
+            let response_str = 
                 &format!(r#"{{
                     "data": {{
                         "attributes": {{
@@ -589,8 +620,8 @@ mod wallet_test {
                         }},
                         "type": "plain_addresses"
                     }}
-                }}"#, &address),
-            );
+                }}"#, &address);
+            post( &client, "/plain_addresses", response_str );
         }
         let finish_adding_addresses = adding_addresses.elapsed();
 
