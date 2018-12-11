@@ -14,9 +14,9 @@ pub fn create(state: &ServerState, address: Mapped<PlainAddress>) -> JsonResult 
     PlainAddress::create(state, address.0)
 }
 
-#[get("/plain_addresses/<id>")]
-pub fn show(state: &ServerState, id: usize) -> JsonResult {
-    PlainAddress::show(state, id)
+#[get("/plain_addresses/<address>")]
+pub fn show(state: &ServerState, address: String) -> JsonResult {
+    PlainAddress::show(state, address)
 }
 
 #[delete("/plain_addresses/<id>")]

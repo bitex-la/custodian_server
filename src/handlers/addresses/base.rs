@@ -60,12 +60,16 @@ where
         to_value(record)
     }
 
-    fn show(state: &ServerState, id: usize) -> JsonResult {
+    fn show(state: &ServerState, address: String) -> JsonResult {
         let mut database = state.database_lock();
-        let addresses = Self::table(&mut database);
 
-        let mut record = addresses.find(id)
+        let hash_set = Self::by_public_address(address, &mut database)
             .map_err(|error| status::Custom(Status::NotFound, error.to_string()))?;
+
+        let mut record = hash_set
+            .into_iter()
+            .next()
+            .ok_or_else(|| status::Custom(Status::NotFound, "Address not found".to_string()))?;
 
         let balance = Self::balance(&state.executor, record.data.public(), Some(1000000), Some(0));
         record.data = Arc::new(record.data.update_attributes(balance));

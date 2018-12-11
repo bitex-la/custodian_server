@@ -14,9 +14,9 @@ pub fn create(state: &ServerState, address: Mapped<MultisigAddress>) -> JsonResu
     MultisigAddress::create(state, address.0)
 }
 
-#[get("/multisig_addresses/<id>")]
-pub fn show(state: &ServerState, id: usize) -> JsonResult {
-    MultisigAddress::show(state, id)
+#[get("/multisig_addresses/<address>")]
+pub fn show(state: &ServerState, address: String) -> JsonResult {
+    MultisigAddress::show(state, address)
 }
 
 #[delete("/multisig_addresses/<id>")]

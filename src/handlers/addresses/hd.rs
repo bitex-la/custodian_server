@@ -14,9 +14,9 @@ pub fn create(state: &ServerState, address: Mapped<HdAddress>) -> JsonResult {
     HdAddress::create(state, address.0)
 }
 
-#[get("/hd_addresses/<id>")]
-pub fn show(state: &ServerState, id: usize) -> JsonResult {
-    HdAddress::show(state, id)
+#[get("/hd_addresses/<address>")]
+pub fn show(state: &ServerState, address: String) -> JsonResult {
+    HdAddress::show(state, address)
 }
 
 #[delete( "/hd_addresses/<id>")]

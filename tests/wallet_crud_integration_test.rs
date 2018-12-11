@@ -355,7 +355,7 @@ mod wallet_test {
             "Address already exists");
 
         assert_eq!(
-            get(&client, "/plain_addresses/1")
+            get(&client, "/plain_addresses/n2ivyMi4jExgCeZTfiBuUt3GQhnnv8AXeb")
                 .body_string()
                 .unwrap(),
             r#"{"data":{"attributes":{"balance":0,"public_address":"mru76ADdwx3EFjuknsZZVRXKUrnWxedwH7"},"id":"1","relationships":{"wallet":{"data":{"id":"my plain wallet updated","type":"plain_wallets"}}},"type":"plain_addresses"},"included":[{"attributes":{"balance":null,"label":"my plain wallet updated","version":"0"},"id":"my plain wallet updated","type":"plain_wallets"}]}"#,
