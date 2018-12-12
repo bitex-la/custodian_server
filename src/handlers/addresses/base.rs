@@ -49,7 +49,7 @@ where
 
         if let Ok(address) = Self::by_public_address(new.public(), &mut database) {
             if !address.is_empty() {
-                return Err(status::Custom(Status::InternalServerError, "Address already exists".to_string()));
+                return Err(status::Custom(Status::Conflict, "Address already exists".to_string()));
             }
         }
 

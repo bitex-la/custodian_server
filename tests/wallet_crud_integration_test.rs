@@ -128,12 +128,12 @@ mod wallet_test {
         response
     }
 
-    fn post_500<'a>(client: &'a Client, url: &'a str, body: &'a str) -> LocalResponse<'a> {
+    fn post_409<'a>(client: &'a Client, url: &'a str, body: &'a str) -> LocalResponse<'a> {
         let response = client
             .post(url)
             .body(body)
             .dispatch();
-        assert_eq!(response.status(), Status::InternalServerError);
+        assert_eq!(response.status(), Status::Conflict);
         response
     }
 
@@ -332,7 +332,7 @@ mod wallet_test {
         );
 
         assert_eq!(
-            post_500(
+            post_409(
                 &client,
                 "/plain_addresses",
                 r#"{
