@@ -12,6 +12,10 @@ cd custodian_server/bin
 ./custodian_server_btc mainnet_btc.cfg
 ``` 
 
+### Stop it
+
+In order to stop the service in a safe way, to avoid database corruption, visit the stop url, like this: 'curl http://localhost:9100/stop'
+
 ### Docker
 
 #### Intro to docker
