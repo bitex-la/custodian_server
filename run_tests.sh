@@ -1,4 +1,4 @@
 #!/bin/bash
 
 reset
-cargo test $1 --release -- --test-threads=1 --nocapture
+cargo test $1 -- --test-threads=1 --nocapture

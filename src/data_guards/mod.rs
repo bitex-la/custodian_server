@@ -1,9 +1,10 @@
 use std::io::Read;
 use jsonapi::model::*;
 use rocket::http::Status;
-use rocket::{Data, Outcome, Request, State};
+use rocket::{Data, Request, State};
+use rocket::Outcome::{ Success, Failure };
 use rocket::data;
-use rocket::data::FromData;
+use rocket::data::{ FromData, Transform, Transformed };
 use std::ops::Deref;
 use serializers::FromJsonApi;
 use server_state::ServerState;
@@ -17,40 +18,49 @@ impl<T> Deref for Mapped<T> {
     }
 }
 
-impl<T> FromData for Mapped<T>
+impl<'a, T> FromData<'a> for Mapped<T>
     where T: FromJsonApi
 {
     type Error = String;
-    
-    fn from_data(request: &Request, data: Data) -> data::Outcome<Self, String> {
+    type Owned = String;
+    type Borrowed = str;
 
-        let mut string_data = String::new();
-        if let Err(e) = data.open().read_to_string(&mut string_data) {
-            return Outcome::Failure((Status::InternalServerError, format!("{:#?}", e)));
-        }
+    fn transform(_: &Request, data: Data) -> Transform<data::Outcome<Self::Owned, Self::Error>> {
+        let mut stream = data.open();
+        let mut string = String::new();
+        let outcome = match stream.read_to_string(&mut string) {
+            Ok(_) => Success(string),
+            Err(e) => Failure((Status::InternalServerError, e.to_string()))
+        };
+
+        Transform::Borrowed(outcome)
+    }
+    
+    fn from_data(request: &Request, outcome: Transformed<'a, Self>) -> data::Outcome<Self, Self::Error> {
+        let string_data = outcome.borrowed()?;
 
         let doc: JsonApiDocument = match ::serde_json::from_str(&string_data) {
             Ok(value) => value,
             Err(err) => {
                 println!("Not a jsonapi document {:#?} {:#?}", &string_data, &err);
-                return Outcome::Failure((Status::BadRequest, "Not a json_api document".into()));
+                return Failure((Status::BadRequest, "Not a json_api document".into()));
             }
         };
 
         let state: State<ServerState> = match request.guard::<State<ServerState>>() {
-            Outcome::Success(value) => value,
+            Success(value) => value,
             _ => {
-                return Outcome::Failure((Status::BadRequest, "Can't access db".into()));
+                return Failure((Status::BadRequest, "Can't access db".into()));
             }
         };
 
         let db = state.database_lock();
 
         match T::from_json_api_document(doc.clone(), db.clone()) {
-            Ok(item) => Outcome::Success(Mapped(item)),
+            Ok(item) => Success(Mapped(item)),
             Err(err) => {
                 println!("Cannot parse from jsonapi document {:#?}, {:#?}", doc, &err);
-                Outcome::Failure((Status::BadRequest, err))
+                Failure((Status::BadRequest, err))
             }
         }
     }

@@ -1,9 +1,13 @@
 #![feature(plugin)]
-#![plugin(rocket_codegen)]
+#![feature(custom_attribute)]
+#![feature(proc_macro_hygiene)]
+#![feature(decl_macro)]
+
 #[macro_use]
 extern crate pretty_assertions;
 
 extern crate custodian_server;
+#[macro_use]
 extern crate rocket;
 
 extern crate serde_json;
@@ -222,7 +226,7 @@ mod wallet_test {
                 "data": {
                     "attributes": { 
                         "version": "0",
-                        "label": "my hd wallet",
+                        "label": "my_hd_wallet",
                         "xpub": "xpub661MyMwAqRbcGCmcnz4JtnieVyuvgQFGqZqw3KS1g9khndpF3segkAYbYCKKaQ9Di2ZuWLaZU4Axt7TrKq41aVYx8XTbDbQFzhhDMntKLU5"
                     },
                     "type": "hd_wallets"
@@ -277,7 +281,7 @@ mod wallet_test {
                 "data": {
                     "attributes": { 
                         "version": "0",
-                        "label": "my plain wallet updated"
+                        "label": "my_plain_wallet_updated"
                     },
                     "type": "plain_wallets"
                 }
@@ -285,8 +289,8 @@ mod wallet_test {
         );
 
         assert_eq!(
-            get(&client, "/plain_wallets/my plain wallet updated").body_string().unwrap(),
-            r#"{"data":{"attributes":{"balance":0,"label":"my plain wallet updated","version":"0"},"id":"my plain wallet updated","type":"plain_wallets"}}"#,
+            get(&client, "/plain_wallets/my_plain_wallet_updated").body_string().unwrap(),
+            r#"{"data":{"attributes":{"balance":0,"label":"my_plain_wallet_updated","version":"0"},"id":"my_plain_wallet_updated","type":"plain_wallets"}}"#,
         );
 
         post(
@@ -301,7 +305,7 @@ mod wallet_test {
                         "wallet": {
                             "data": {
                                 "type": "plain_wallets",
-                                "id": "my plain wallet updated"
+                                "id": "my_plain_wallet_updated"
                             }
                         }
                     },
@@ -322,7 +326,7 @@ mod wallet_test {
                         "wallet": {
                             "data": {
                                 "type": "plain_wallets",
-                                "id": "my plain wallet updated"
+                                "id": "my_plain_wallet_updated"
                             }
                         }
                     },
@@ -344,7 +348,7 @@ mod wallet_test {
                             "wallet": {
                                 "data": {
                                     "type": "plain_wallets",
-                                    "id": "my plain wallet updated"
+                                    "id": "my_plain_wallet_updated"
                                 }
                             }
                         },
@@ -358,31 +362,31 @@ mod wallet_test {
             get(&client, "/plain_addresses/1")
                 .body_string()
                 .unwrap(),
-            r#"{"data":{"attributes":{"balance":0,"public_address":"mru76ADdwx3EFjuknsZZVRXKUrnWxedwH7"},"id":"1","relationships":{"wallet":{"data":{"id":"my plain wallet updated","type":"plain_wallets"}}},"type":"plain_addresses"},"included":[{"attributes":{"balance":null,"label":"my plain wallet updated","version":"0"},"id":"my plain wallet updated","type":"plain_wallets"}]}"#,
+            r#"{"data":{"attributes":{"balance":0,"public_address":"mru76ADdwx3EFjuknsZZVRXKUrnWxedwH7"},"id":"1","relationships":{"wallet":{"data":{"id":"my_plain_wallet_updated","type":"plain_wallets"}}},"type":"plain_addresses"},"included":[{"attributes":{"balance":null,"label":"my_plain_wallet_updated","version":"0"},"id":"my_plain_wallet_updated","type":"plain_wallets"}]}"#,
         );
 
         assert_eq!(
             get(&client, "/plain_addresses")
                 .body_string()
                 .unwrap(),
-            r#"{"data":[{"attributes":{"balance":0,"public_address":"mru76ADdwx3EFjuknsZZVRXKUrnWxedwH7"},"id":"1","relationships":{"wallet":{"data":{"id":"my plain wallet updated","type":"plain_wallets"}}},"type":"plain_addresses"},{"attributes":{"balance":0,"public_address":"n2ivyMi4jExgCeZTfiBuUt3GQhnnv8AXeb"},"id":"2","relationships":{"wallet":{"data":{"id":"my plain wallet updated","type":"plain_wallets"}}},"type":"plain_addresses"}],"included":[{"attributes":{"balance":null,"label":"my plain wallet updated","version":"0"},"id":"my plain wallet updated","type":"plain_wallets"},{"attributes":{"balance":null,"label":"my plain wallet updated","version":"0"},"id":"my plain wallet updated","type":"plain_wallets"}]}"#,
+            r#"{"data":[{"attributes":{"balance":0,"public_address":"mru76ADdwx3EFjuknsZZVRXKUrnWxedwH7"},"id":"1","relationships":{"wallet":{"data":{"id":"my_plain_wallet_updated","type":"plain_wallets"}}},"type":"plain_addresses"},{"attributes":{"balance":0,"public_address":"n2ivyMi4jExgCeZTfiBuUt3GQhnnv8AXeb"},"id":"2","relationships":{"wallet":{"data":{"id":"my_plain_wallet_updated","type":"plain_wallets"}}},"type":"plain_addresses"}],"included":[{"attributes":{"balance":null,"label":"my_plain_wallet_updated","version":"0"},"id":"my_plain_wallet_updated","type":"plain_wallets"},{"attributes":{"balance":null,"label":"my_plain_wallet_updated","version":"0"},"id":"my_plain_wallet_updated","type":"plain_wallets"}]}"#,
         );
 
         assert_eq!(
-            get(&client, "/plain_wallets/my plain wallet updated").body_string().unwrap(),
-            r#"{"data":{"attributes":{"balance":0,"label":"my plain wallet updated","version":"2"},"id":"my plain wallet updated","type":"plain_wallets"}}"#,
+            get(&client, "/plain_wallets/my_plain_wallet_updated").body_string().unwrap(),
+            r#"{"data":{"attributes":{"balance":0,"label":"my_plain_wallet_updated","version":"2"},"id":"my_plain_wallet_updated","type":"plain_wallets"}}"#,
         );
 
         assert_eq!(
             get(&client, "/plain_wallets").body_string().unwrap(), 
-            r#"{"data":[{"attributes":{"balance":0,"label":"my plain wallet updated","version":"2"},"id":"my plain wallet updated","type":"plain_wallets"},{"attributes":{"balance":0,"label":"my_second_wallet","version":"0"},"id":"my_second_wallet","type":"plain_wallets"}]}"#);
+            r#"{"data":[{"attributes":{"balance":0,"label":"my_plain_wallet_updated","version":"2"},"id":"my_plain_wallet_updated","type":"plain_wallets"},{"attributes":{"balance":0,"label":"my_second_wallet","version":"0"},"id":"my_second_wallet","type":"plain_wallets"}]}"#);
 
         delete(&client, "/plain_addresses/1", "");
         not_found(&client, "/plain_addresses/1");
 
         assert_eq!(
-            get(&client, "/plain_wallets/my plain wallet updated").body_string().unwrap(),
-            r#"{"data":{"attributes":{"balance":0,"label":"my plain wallet updated","version":"1"},"id":"my plain wallet updated","type":"plain_wallets"}}"#,
+            get(&client, "/plain_wallets/my_plain_wallet_updated").body_string().unwrap(),
+            r#"{"data":{"attributes":{"balance":0,"label":"my_plain_wallet_updated","version":"1"},"id":"my_plain_wallet_updated","type":"plain_wallets"}}"#,
         );
 
         post(
@@ -397,7 +401,7 @@ mod wallet_test {
                          "wallet": {
                              "data": {
                                  "type": "plain_wallets",
-                                 "id": "my plain wallet updated"
+                                 "id": "my_plain_wallet_updated"
                              }
                          }
                      },
@@ -436,7 +440,7 @@ mod wallet_test {
                     "relationships": {
                         "wallet": {
                             "data": {
-                                "id": "my hd wallet",
+                                "id": "my_hd_wallet",
                                 "type": "hd_wallets"
                             }
                         }
@@ -446,7 +450,7 @@ mod wallet_test {
             }"#,
         );
 
-        get(&client, "/hd_wallets/my hd wallet/get_utxos");
+        get(&client, "/hd_wallets/my_hd_wallet/get_utxos");
 
         post(
             &client,
@@ -470,43 +474,9 @@ mod wallet_test {
             }"#,
         );
 
-        let transactions : JsonApiDocument = serde_json::from_str(&get(&client, "/multisig_wallets/my_second_wallet/get_utxos").body_string().unwrap()).unwrap();
-        if let PrimaryData::Multiple(data) = transactions.data.unwrap() {
-            let mut transaction_hashes = vec![];
-            for resource in data {
-                if let serde_json::value::Value::Object(ref value) = resource.attributes["transaction"] {
-                    if let serde_json::value::Value::String(ref inner_value) = value["transaction_hash"] {
-                        transaction_hashes.push(inner_value.clone());
-                    }
-                }
-            }
-            assert_eq!(transaction_hashes,
-                vec!["956b30c3c4335f019dbee60c60d76994319473acac356f774c7858cd5c968e40",
-                     "1db1f22beb84e5fbe92c8c5e6e7f43d80aa5cfe5d48d83513edd9641fc00d055",
-                     "0ded7f014fa3213e9b000bc81b8151bc6f2f926b9afea6e3643c8ad658353c72"]);
-        }
+        get(&client, "/multisig_wallets/my_second_wallet/get_utxos");
 
-        let transactions : JsonApiDocument = serde_json::from_str(&get(&client, "/multisig_wallets/my_second_wallet/get_incoming").body_string().unwrap()).unwrap();
-        if let PrimaryData::Multiple(data) = transactions.data.unwrap() {
-            let mut transaction_hashes = vec![];
-            for resource in data {
-                if let serde_json::value::Value::String(ref value) = resource.attributes["transaction_hash"] {
-                    transaction_hashes.push(value.clone());
-                }
-            }
-            assert_eq!(transaction_hashes,
-                vec!["81fa58dc058b60f725bd703651c9bcd17b436705a8aa5c29815d0b8e2980e729",
-                     "956b30c3c4335f019dbee60c60d76994319473acac356f774c7858cd5c968e40",
-                     "558b3e19b720bed80e334d2e5f0fc291f57f5c611263d9634255c10ffc3f4c46",
-                     "c9355b79000bea68d9fa078d0e73a5a53bd6d4b46f46993acae283530aa77351",
-                     "243f38d7127d5dd23a737932ba6e2f6699f93df44db17082cfa71b542542f852",
-                     "85eb1fed8b704d38cbf4bcff3297f2d3c991211a35e9feaa4e12849cffa24455",
-                     "1db1f22beb84e5fbe92c8c5e6e7f43d80aa5cfe5d48d83513edd9641fc00d055",
-                     "0ded7f014fa3213e9b000bc81b8151bc6f2f926b9afea6e3643c8ad658353c72",
-                     "dab5ac2087837e8ac46c9a224f2e86b4816d61d3ac0f8169df0c270d721c8681",
-                     "5775ffba2abebeef1c3b63272ef78024937b2a20291b8dd1c6cfc6a511ea28c9",
-                     "f257cbb984db0a457c02e3b91df175e9ed1b73c36229583b291680e0400c47da"]);
-        }
+        get(&client, "/multisig_wallets/my_second_wallet/get_incoming");
 
         let v: Value =
             ::serde_json::from_str(&get(&client, "/blocks/last").body_string().unwrap()).unwrap();
@@ -516,16 +486,16 @@ mod wallet_test {
         );
 
         assert_eq!(
-            get(&client, "/plain_wallets/my plain wallet updated").body_string().unwrap(),
-            r#"{"data":{"attributes":{"balance":450648,"label":"my plain wallet updated","version":"2"},"id":"my plain wallet updated","type":"plain_wallets"}}"#,
+            get(&client, "/plain_wallets/my_plain_wallet_updated").body_string().unwrap(),
+            r#"{"data":{"attributes":{"balance":450648,"label":"my_plain_wallet_updated","version":"2"},"id":"my_plain_wallet_updated","type":"plain_wallets"}}"#,
         );
 
         assert_eq!(
             get(&client, "/plain_addresses/3").body_string().unwrap(),
-            r#"{"data":{"attributes":{"balance":450648,"public_address":"mhjp3ZgbGxx5qc9Y8dvk1F71QeQcE9swLE"},"id":"3","relationships":{"wallet":{"data":{"id":"my plain wallet updated","type":"plain_wallets"}}},"type":"plain_addresses"},"included":[{"attributes":{"balance":null,"label":"my plain wallet updated","version":"0"},"id":"my plain wallet updated","type":"plain_wallets"}]}"#,
+            r#"{"data":{"attributes":{"balance":450648,"public_address":"mhjp3ZgbGxx5qc9Y8dvk1F71QeQcE9swLE"},"id":"3","relationships":{"wallet":{"data":{"id":"my_plain_wallet_updated","type":"plain_wallets"}}},"type":"plain_addresses"},"included":[{"attributes":{"balance":null,"label":"my_plain_wallet_updated","version":"0"},"id":"my_plain_wallet_updated","type":"plain_wallets"}]}"#,
         );
 
-        delete(&client, "/plain_wallets/my plain wallet updated", "");
+        delete(&client, "/plain_wallets/my_plain_wallet_updated", "");
         not_found(&client, "/plain_addresses/2");
         not_found(&client, "/plain_addresses/3");
 
