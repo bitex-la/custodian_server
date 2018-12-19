@@ -560,14 +560,13 @@ mod wallet_test {
                 "data": {
                     "attributes": { 
                         "version": "0",
-                        "label": "my plain wallet"
+                        "label": "my_plain_wallet"
                     },
                     "type": "plain_wallets"
                 }
             }"#,
         );
 
-        let mut addresses_with_balances = vec![];
         let mut contents = String::new();
         BufReader::new(File::open("./tests/data/addresses.txt").unwrap()).read_to_string(&mut contents).unwrap();
         let mut addresses: Vec<String> = serde_json::from_str(&contents).unwrap(); //100837 addresses
@@ -584,7 +583,7 @@ mod wallet_test {
                             "wallet": {{
                                 "data": {{
                                     "type": "plain_wallets",
-                                    "id": "1"
+                                    "id": "my_plain_wallet"
                                 }}
                             }}
                         }},
@@ -595,22 +594,12 @@ mod wallet_test {
         }
         let finish_adding_addresses = adding_addresses.elapsed();
 
-        let consulting_balances = Instant::now();
-        for address in &addresses {
-            let url = &format!("/hd_addresses/{}/balance", &address);
-            let balance: u64 = get(&client, url).body_string().unwrap().parse().unwrap();
-            if balance > 0 {
-                addresses_with_balances.push(format!("{}: {}", &address, balance));
-            }
-        }
-        let finish_consulting_balances = consulting_balances.elapsed();
-
         let get_utxos = Instant::now();
-        let response = get(&client, "/plain_wallets/1/get_utxos").body_string().unwrap();
+        get(&client, "/plain_wallets");
+        let response = get(&client, "/plain_wallets/my_plain_wallet/get_utxos").body_string().unwrap();
         let finish_get_utxos = get_utxos.elapsed();
 
         println!("Finish adding 100837 addresses {:?}", finish_adding_addresses);
-        println!("Finish consulting balances for 100837 addresses {:?}", finish_consulting_balances);
         println!("Finish consulting utxos for a wallet of 100837 addresses {:?}", finish_get_utxos);
     }
 
