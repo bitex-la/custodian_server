@@ -555,14 +555,15 @@ mod wallet_test {
 
         post(
             &client,
-            "/plain_wallets",
+            "/hd_wallets",
             r#"{ 
                 "data": {
                     "attributes": { 
                         "version": "0",
-                        "label": "my_plain_wallet"
+                        "label": "my_hd_wallet",
+                        "xpub": "xpub661MyMwAqRbcGCmcnz4JtnieVyuvgQFGqZqw3KS1g9khndpF3segkAYbYCKKaQ9Di2ZuWLaZU4Axt7TrKq41aVYx8XTbDbQFzhhDMntKLU5"
                     },
-                    "type": "plain_wallets"
+                    "type": "hd_wallets"
                 }
             }"#,
         );
@@ -577,26 +578,27 @@ mod wallet_test {
                 &format!(r#"{{
                     "data": {{
                         "attributes": {{
-                            "public_address": "{}"
+                            "public_address": "{}",
+                            "path": []
                         }},
                         "relationships": {{
                             "wallet": {{
                                 "data": {{
-                                    "type": "plain_wallets",
-                                    "id": "my_plain_wallet"
+                                    "type": "hd_wallets",
+                                    "id": "my_hd_wallet"
                                 }}
                             }}
                         }},
-                        "type": "plain_addresses"
+                        "type": "hd_addresses"
                     }}
                 }}"#, &address);
-            post( &client, "/plain_addresses", response_str );
+            post( &client, "/hd_addresses", response_str );
         }
         let finish_adding_addresses = adding_addresses.elapsed();
 
         let get_utxos = Instant::now();
-        get(&client, "/plain_wallets");
-        let response = get(&client, "/plain_wallets/my_plain_wallet/get_utxos").body_string().unwrap();
+        get(&client, "/hd_wallets");
+        let response = get(&client, "/hd_wallets/my_hd_wallet/get_utxos").body_string().unwrap();
         let finish_get_utxos = get_utxos.elapsed();
 
         println!("Finish adding 100837 addresses {:?}", finish_adding_addresses);
