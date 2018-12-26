@@ -73,6 +73,7 @@ mod wallet_test {
                     wallets::plain::destroy,
                     wallets::plain::get_utxos,
                     wallets::plain::get_incoming,
+                    wallets::plain::addresses,
                     wallets::hd::index,
                     wallets::hd::show,
                     wallets::hd::create,
@@ -80,6 +81,7 @@ mod wallet_test {
                     wallets::hd::destroy,
                     wallets::hd::get_utxos,
                     wallets::hd::get_incoming,
+                    wallets::hd::addresses,
                     wallets::multisig::index,
                     wallets::multisig::show,
                     wallets::multisig::create,
@@ -87,6 +89,7 @@ mod wallet_test {
                     wallets::multisig::destroy,
                     wallets::multisig::get_utxos,
                     wallets::multisig::get_incoming,
+                    wallets::multisig::addresses,
                     addresses::plain::index,
                     addresses::plain::create,
                     addresses::plain::show,
@@ -380,6 +383,10 @@ mod wallet_test {
         assert_eq!(
             get(&client, "/plain_wallets").body_string().unwrap(), 
             r#"{"data":[{"attributes":{"balance":0,"label":"my_plain_wallet_updated","version":"2"},"id":"my_plain_wallet_updated","type":"plain_wallets"},{"attributes":{"balance":0,"label":"my_second_wallet","version":"0"},"id":"my_second_wallet","type":"plain_wallets"}]}"#);
+
+        assert_eq!(
+            get(&client, "/plain_wallets/my_plain_wallet_updated/addresses").body_string().unwrap(), 
+            r#"[{"data":{"balance":null,"public_address":"mru76ADdwx3EFjuknsZZVRXKUrnWxedwH7","wallet":{"data":{"balance":null,"label":"my_plain_wallet_updated","version":"0"},"id":1}},"id":1},{"data":{"balance":null,"public_address":"n2ivyMi4jExgCeZTfiBuUt3GQhnnv8AXeb","wallet":{"data":{"balance":null,"label":"my_plain_wallet_updated","version":"0"},"id":1}},"id":2}]"#);
 
         delete(&client, "/plain_addresses/1", "");
         not_found(&client, "/plain_addresses/1");

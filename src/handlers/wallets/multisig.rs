@@ -19,6 +19,11 @@ pub fn get_incoming(state: &ServerState, id: String) -> JsonResult {
     MultisigWallet::get_incoming(state, id, Some(1000000), Some(0))
 }
 
+#[get("/multisig_wallets/<id>/addresses")]
+pub fn addresses(state: &ServerState, id: String) -> JsonResult {
+    MultisigWallet::addresses(state, id)
+}
+
 #[get("/multisig_wallets/<id>")]
 pub fn show(state: &ServerState, id: String) -> JsonResult {
     MultisigWallet::show(state, id)
