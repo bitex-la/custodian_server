@@ -1,12 +1,14 @@
 #![feature(ptr_internals)]
 #![feature(plugin)]
-#![plugin(rocket_codegen)]
-#![feature(custom_derive)]
 #![feature(toowned_clone_into)]
+#![feature(custom_attribute)]
+#![feature(proc_macro_hygiene)]
+#![feature(decl_macro)]
 
 extern crate bitprim;
 extern crate ctrlc;
 extern crate libc;
+#[macro_use]
 extern crate rocket;
 extern crate rocket_contrib;
 extern crate rocket_cors;
@@ -78,6 +80,7 @@ fn main() {
                 wallets::plain::destroy,
                 wallets::plain::get_utxos,
                 wallets::plain::get_incoming,
+                wallets::plain::addresses,
                 wallets::hd::index,
                 wallets::hd::show,
                 wallets::hd::create,
@@ -85,6 +88,7 @@ fn main() {
                 wallets::hd::destroy,
                 wallets::hd::get_utxos,
                 wallets::hd::get_incoming,
+                wallets::hd::addresses,
                 wallets::multisig::index,
                 wallets::multisig::show,
                 wallets::multisig::create,
@@ -92,6 +96,7 @@ fn main() {
                 wallets::multisig::destroy,
                 wallets::multisig::get_utxos,
                 wallets::multisig::get_incoming,
+                wallets::multisig::addresses,
                 addresses::plain::index,
                 addresses::plain::create,
                 addresses::plain::show,

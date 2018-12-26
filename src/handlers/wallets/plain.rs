@@ -19,6 +19,11 @@ pub fn get_incoming(state: &ServerState, id: String) -> JsonResult {
     PlainWallet::get_incoming(state, id, Some(1000000), Some(0))
 }
 
+#[get("/plain_wallets/<id>/addresses")]
+pub fn addresses(state: &ServerState, id: String) -> JsonResult {
+    PlainWallet::addresses(state, id)
+}
+
 #[get("/plain_wallets/<id>")]
 pub fn show(state: &ServerState, id: String) -> JsonResult {
     PlainWallet::show(state, id)

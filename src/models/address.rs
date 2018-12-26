@@ -12,7 +12,7 @@ pub trait Address: Clone {
     type Index;
     type Wallet: Wallet;
 
-    fn public(&self) -> String;
+    fn public_address(&self) -> String;
 
     fn by_wallet<'a>(wallet_id: usize, database: &'a mut Database)
       -> Result<hashbrown::HashSet<Record<Self>>, tiny_ram_db::errors::Error>;

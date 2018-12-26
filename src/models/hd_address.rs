@@ -22,7 +22,7 @@ impl Address for HdAddress {
     type Index = HdAddressIndex;
     type Wallet = HdWallet;
 
-    fn public(&self) -> String {
+    fn public_address(&self) -> String {
         self.public_address.clone()
     }
 

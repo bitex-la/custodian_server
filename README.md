@@ -1,20 +1,36 @@
-# Bitprim powered bitcoin node for corporate custodian tasks
+# Bitprim powered BTC/BCH node for corporate custodian tasks
 
 [![CircleCI](https://circleci.com/gh/bitex-la/custodian_server.svg?style=svg)](https://circleci.com/gh/bitex-la/custodian_server)
 
-## Intro to docker
+## How to use it
+
+### Quick Start
+
+```
+git clone git@github.com:bitex-la/custodian_server.git
+cd custodian_server/bin
+./custodian_server_btc mainnet_btc.cfg
+``` 
+
+### Stop it
+
+In order to stop the service in a safe way, to avoid database corruption, visit the stop url, like this: 'curl http://localhost:9100/stop'
+
+### Docker
+
+#### Intro to docker
 - [Getting started](https://docs.docker.com/get-started/#recap-and-cheat-sheet)
 - [Docker cheat sheet](https://github.com/wsargent/docker-cheat-sheet)
 
-## System Requirements
+#### System Requirements
 - Install [docker](https://www.docker.com/community-edition#/download)
 - Install [docker compose](https://docs.docker.com/compose/install/#install-compose)
 
-## How to install and run
+#### How to install and run
 
 ```
-$git clone git@github.com:bitex-la/custodian_server.git
-$cd custodian_server
+git clone git@github.com:bitex-la/custodian_server.git
+cd custodian_server
 docker-compose build
 docker-compose up -d
 ```

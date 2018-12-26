@@ -36,7 +36,7 @@ where
             .iter()
             .map(|(id, record)| {
                 let mut address = record.data.as_ref().clone();
-                let balance = Self::balance(&state.executor, address.public(), Some(1000000), Some(0));
+                let balance = Self::balance(&state.executor, address.public_address(), Some(1000000), Some(0));
                 address = address.update_attributes(balance);
                 (id, address)
             });
@@ -47,9 +47,9 @@ where
     fn create(state: &ServerState, new: Self) -> JsonResult {
         let mut database = state.database_lock();
 
-        if let Ok(address) = Self::by_public_address(new.public(), &mut database) {
+        if let Ok(address) = Self::by_public_address(new.public_address(), &mut database) {
             if !address.is_empty() {
-                return Err(status::Custom(Status::InternalServerError, "Address already exists".to_string()));
+                return Err(status::Custom(Status::Conflict, "Address already exists".to_string()));
             }
         }
 
@@ -67,7 +67,7 @@ where
         let mut record = addresses.find(id)
             .map_err(|error| status::Custom(Status::NotFound, error.to_string()))?;
 
-        let balance = Self::balance(&state.executor, record.data.public(), Some(1000000), Some(0));
+        let balance = Self::balance(&state.executor, record.data.public_address(), Some(1000000), Some(0));
         record.data = Arc::new(record.data.update_attributes(balance));
 
         to_value(record.data.to_jsonapi_document(record.id))

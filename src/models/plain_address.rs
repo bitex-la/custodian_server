@@ -20,7 +20,7 @@ impl Address for PlainAddress {
     type Index = AddressIndex;
     type Wallet = PlainWallet;
 
-    fn public(&self) -> String {
+    fn public_address(&self) -> String {
         self.public_address.clone()
     }
 

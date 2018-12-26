@@ -75,7 +75,7 @@ impl Wallet for HdWallet {
     fn construct_utxo(&self, received: Received, address: Record<HdAddress>) -> Self::Utxo {
         HdUtxo {
             address: address.clone(),
-            transaction: Transaction::new(received, address.data.public())
+            transaction: Transaction::new(received, address.data.public_address())
         }
     }
 

@@ -1,13 +1,15 @@
 #![feature(ptr_internals)]
 #![feature(plugin)]
-#![plugin(rocket_codegen)]
 #![feature(associated_type_defaults)]
-#![feature(custom_derive)]
 #![feature(toowned_clone_into)]
+#![feature(custom_attribute)]
+#![feature(proc_macro_hygiene)]
+#![feature(decl_macro)]
 
 extern crate bitprim;
 extern crate ctrlc;
 extern crate libc;
+#[macro_use]
 extern crate rocket;
 extern crate rocket_contrib;
 extern crate serde;

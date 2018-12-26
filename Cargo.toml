@@ -5,10 +5,10 @@ authors = ["nubis <yo@nubis.im>"]
 
 [dependencies]
 tiny_ram_db = "0.1.14"
-pear_codegen = "0.0.20"
+pear_codegen = "0.1.2"
 libc = "0.2.40"
-rocket = "0.3.10"
-rocket_codegen = "0.3.10"
+rocket = "0.4.0"
+rocket_codegen = "0.4.0"
 rocket_cors = "*"
 mock_derive = "0.7.0"
 ctrlc = "3.1.0"

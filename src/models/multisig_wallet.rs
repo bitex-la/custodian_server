@@ -145,7 +145,7 @@ impl Wallet for MultisigWallet {
                 m: self.xpubs.len(),
                 pubkeys,
             },
-            transaction: Transaction::new(received, address.data.public()),
+            transaction: Transaction::new(received, address.data.public_address()),
         }
     }
 

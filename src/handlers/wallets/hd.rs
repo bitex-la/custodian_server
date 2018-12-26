@@ -19,6 +19,11 @@ pub fn get_incoming(state: &ServerState, id: String) -> JsonResult {
     HdWallet::get_incoming(state, id, Some(1000000), Some(0))
 }
 
+#[get("/hd_wallets/<id>/addresses")]
+pub fn addresses(state: &ServerState, id: String) -> JsonResult {
+    HdWallet::addresses(state, id)
+}
+
 #[get("/hd_wallets/<id>")]
 pub fn show(state: &ServerState, id: String) -> JsonResult {
     HdWallet::show(state, id)

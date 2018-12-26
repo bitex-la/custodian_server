@@ -11,7 +11,7 @@ use models::transaction::Transaction;
 use serializers::{FromJsonApi, ToJsonApi};
 use tiny_ram_db::{Record, Index, Indexer, Table};
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, FromForm)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct PlainWallet {
     pub version: String,
     pub label: String,
@@ -74,7 +74,7 @@ impl Wallet for PlainWallet {
     fn construct_utxo(&self, received: Received, address: Record<PlainAddress>) -> Self::Utxo {
         PlainUtxo {
             address: address.clone(),
-            transaction: Transaction::new(received, address.data.public())
+            transaction: Transaction::new(received, address.data.public_address())
         }
     }
 

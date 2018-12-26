@@ -24,6 +24,7 @@ where
     for<'de> Self: serde::Deserialize<'de>,
     <Self as Wallet>::Index: Indexer<Item = Self>,
     Self: ToJsonApi,
+    <Self as Wallet>::RA: Serialize
 {
     fn index(state: &ServerState) -> JsonResult {
         let raw_wallets = Self::get_wallets(state)
@@ -154,6 +155,12 @@ where
         to_value(true)
     }
 
+    fn addresses(state: &ServerState, id: String) -> JsonResult {
+        let addresses = Self::get_addresses(state, id)
+            .map_err(|error| status::Custom(Status::InternalServerError, error.to_string()))?;
+        to_value(addresses)
+    }
+
     fn destroy_indexes(state: &ServerState, id: String) -> Result<bool, tiny_ram_db::errors::Error> {
         let mut database = state.database_lock();
         let wallets = Self::wallets_from_database(&mut database);
@@ -260,5 +267,6 @@ where
     for<'de> R: serde::Deserialize<'de>,
     <Self as Wallet>::Index: Indexer<Item = Self>,
     R: ToJsonApi,
+    <Self as Wallet>::RA: Serialize
 {
 }
