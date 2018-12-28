@@ -18,7 +18,7 @@ serde_derive = "1.0"
 maplit = "1.0.1"
 bitcoin = "*"
 jsonapi = { git = "https://github.com/bitex-la/jsonapi-rust" }
-bitprim = { git = "https://github.com/bitex-la/bitprim-rust", features = ["btc", "v0_16_0"] }
+bitprim = { git = "https://github.com/bitex-la/bitprim-rust", features = ["btc", "v0_18_0"] }
 rand="0.3"
 queryst="1"
 
